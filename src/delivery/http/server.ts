@@ -35,6 +35,23 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
     trustProxy: true
   });
 
+  // Tolerate empty bodies when Content-Type is application/json (e.g. POST/DELETE without payload)
+  fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body: string | Buffer, done) => {
+    const str = typeof body === 'string' ? body : body?.toString('utf8');
+    if (!str || str.trim() === '') {
+      done(null, {});
+      return;
+    }
+    try {
+      const json = JSON.parse(str);
+      done(null, json);
+    } catch (err: unknown) {
+      const parseErr = err instanceof Error ? err : new Error('Invalid JSON');
+      (parseErr as { statusCode?: number }).statusCode = 400;
+      done(parseErr, undefined);
+    }
+  });
+
   await fastify.register(cors, {
     origin: true,
     credentials: true

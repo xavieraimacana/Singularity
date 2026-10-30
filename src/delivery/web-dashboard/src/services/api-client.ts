@@ -22,9 +22,15 @@ export function clearAuthToken(): void {
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>)
   };
+
+  // Only set Content-Type: application/json if there is an actual body payload
+  if (options.body !== undefined && options.body !== null) {
+    if (!headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -39,7 +45,11 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     let errMsg = `Error de API (HTTP ${res.status})`;
     try {
       const data = await res.json();
-      if (data.message && typeof data.message === 'string') { errMsg = data.message; } else if (data.error && typeof data.error === 'string') { errMsg = data.error; }
+      if (data.message && typeof data.message === 'string') {
+        errMsg = data.message;
+      } else if (data.error && typeof data.error === 'string') {
+        errMsg = data.error;
+      }
     } catch {
       // ignore
     }
@@ -50,7 +60,18 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     throw new ApiError(res.status, errMsg);
   }
 
-  return res.json() as Promise<T>;
+  if (res.status === 204) {
+    return {} as T;
+  }
+  const text = await res.text();
+  if (!text || text.trim() === '') {
+    return {} as T;
+  }
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return {} as T;
+  }
 }
 
 export const api = {
@@ -58,12 +79,12 @@ export const api = {
   post: <T>(url: string, body?: unknown) =>
     request<T>(url, {
       method: 'POST',
-      body: body ? JSON.stringify(body) : undefined
+      body: body !== undefined && body !== null ? JSON.stringify(body) : undefined
     }),
   put: <T>(url: string, body?: unknown) =>
     request<T>(url, {
       method: 'PUT',
-      body: body ? JSON.stringify(body) : undefined
+      body: body !== undefined && body !== null ? JSON.stringify(body) : undefined
     }),
   delete: <T>(url: string) => request<T>(url, { method: 'DELETE' })
 };

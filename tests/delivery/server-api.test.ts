@@ -252,6 +252,37 @@ describe('Delivery API (Fastify REST & WebSocket)', () => {
       expect(versionIds).toContain('26.3');
       expect(versionIds).toContain('1.21.4');
     });
+
+    it('should tolerate empty body with application/json content-type on DELETE and POST', async () => {
+      const createRes = await app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: { authorization: `Bearer ${authToken}` },
+        payload: {
+          name: 'Temporary Server',
+          loader: 'vanilla',
+          gameVersion: '1.21.4',
+          memoryMb: 1024,
+          port: 25570
+        }
+      });
+      const created = JSON.parse(createRes.payload);
+
+      // Call DELETE with content-type: application/json and empty string payload
+      const deleteRes = await app.inject({
+        method: 'DELETE',
+        url: `/api/servers/${created.id}`,
+        headers: {
+          authorization: `Bearer ${authToken}`,
+          'content-type': 'application/json'
+        },
+        payload: ''
+      });
+
+      expect(deleteRes.statusCode).toBe(200);
+      const deleteBody = JSON.parse(deleteRes.payload);
+      expect(deleteBody.message).toContain('eliminado correctamente');
+    });
   });
 
   describe('Java Manager Routes (/api/java)', () => {
