@@ -6,10 +6,10 @@ import { CommandPalette } from './components/CommandPalette.js';
 import { Dashboard } from './pages/Dashboard.js';
 import { ServerDetailPage } from './pages/ServerDetailPage.js';
 import { CatalogExplorer } from './pages/CatalogExplorer.js';
+import { LoginPage } from './pages/LoginPage.js';
 import type { ServerInstanceData } from './components/ServerCard.js';
 import {
   Orbit,
-  Lock,
   Terminal,
   Cpu,
   AlertTriangle,
@@ -32,11 +32,7 @@ export const App: React.FC = () => {
   // Selected Server for Detail View (Task 11)
   const [selectedServer, setSelectedServer] = useState<ServerInstanceData | null>(null);
 
-  // Login Form State
-  const [usernameInput, setUsernameInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   // Password Change Form State
   const [currentPass, setCurrentPass] = useState('');
@@ -61,86 +57,12 @@ export const App: React.FC = () => {
 
   // 1. Unauthenticated Login Screen
   if (!token || !user) {
-    const handleLoginSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoginError(null);
-      setIsSubmitting(true);
-      try {
-        await login(usernameInput, passwordInput);
-      } catch (err: unknown) {
-        setLoginError(err instanceof Error ? err.message : 'Error al iniciar sesión');
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-nebula-950 px-4 relative overflow-hidden">
-        {/* Background ambient glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-nebula-accent/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="w-full max-w-sm bg-nebula-900 border border-nebula-800 rounded-2xl shadow-2xl p-6 z-10">
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-nebula-accent/20 to-nebula-cyber/30 border border-nebula-accent/40 flex items-center justify-center text-nebula-accent shadow-lg shadow-nebula-accent/10 mb-3">
-              <Orbit className="w-7 h-7" />
-            </div>
-            <h1 className="text-lg font-bold text-slate-100">Singularity</h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Mission Control Suite para Servidores Minecraft
-            </p>
-          </div>
-
-          {loginError && (
-            <div className="mb-4 p-2.5 rounded-lg bg-red-950/50 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>{loginError}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Usuario
-              </label>
-              <input
-                type="text"
-                required
-                value={usernameInput}
-                onChange={(e) => setUsernameInput(e.target.value)}
-                placeholder="admin"
-                className="w-full px-3 py-2 text-xs bg-nebula-950 border border-nebula-850 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                required
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2 text-xs bg-nebula-950 border border-nebula-850 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent transition-colors"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-2.5 px-4 bg-nebula-accent hover:bg-emerald-600 text-slate-950 font-semibold text-xs rounded-lg shadow-lg shadow-nebula-accent/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>{isSubmitting ? 'Iniciando...' : 'Iniciar Sesión'}</span>
-            </button>
-          </form>
-
-          <div className="mt-6 pt-4 border-t border-nebula-800/80 text-center text-[10px] text-slate-500 font-mono">
-            NEBULAX STUDIO &bull; CRAFTY + PRISM UNIFIED
-          </div>
-        </div>
-      </div>
+      <LoginPage
+        onLogin={async (uname, pass) => {
+          await login(uname, pass);
+        }}
+      />
     );
   }
 
