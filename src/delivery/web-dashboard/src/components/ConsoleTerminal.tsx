@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
@@ -25,11 +25,24 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
   const termInstance = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
-  const retryCountRef = useRef(0);
-  const isMountedRef = useRef(true);
+
+  // Preserve latest callbacks and flags across renders without re-triggering effects
+  const callbacksRef = useRef({
+    onCrashDetected,
+    onStatusChange,
+    onPlayerEvent
+  });
+  callbacksRef.current = {
+    onCrashDetected,
+    onStatusChange,
+    onPlayerEvent
+  };
 
   const [commandInput, setCommandInput] = useState('');
   const [autoScroll, setAutoScroll] = useState(true);
+  const autoScrollRef = useRef(autoScroll);
+  autoScrollRef.current = autoScroll;
+
   const [isConnected, setIsConnected] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [proxyWarning, setProxyWarning] = useState(false);
@@ -43,26 +56,29 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
     { label: '/stop', cmd: 'stop' }
   ];
 
-  const connectWebSocket = useCallback((useAlternatePath = false) => {
-    if (!isMountedRef.current) return;
-    if (socketRef.current) {
-      try {
-        socketRef.current.close();
-      } catch {
-        // ignore
-      }
-      socketRef.current = null;
-    }
-
+  const connect = (useAlternatePath = false) => {
     const term = termInstance.current;
     const token = getAuthToken() || '';
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const basePath = useAlternatePath ? '/api/ws/servers' : '/ws/servers';
     const wsUrl = `${protocol}//${window.location.host}${basePath}/${serverId}/console?token=${encodeURIComponent(token)}`;
 
+    // If an existing socket is active or opening, close it cleanly
+    if (socketRef.current) {
+      const prevSocket = socketRef.current;
+      socketRef.current = null;
+      try {
+        if (prevSocket.readyState === WebSocket.OPEN) {
+          prevSocket.close();
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     setIsReconnecting(true);
     if (term) {
-      term.writeln(`\x1b[36m[Singularity]\x1b[0m Conectando a canal WebSocket (${basePath})...`);
+      term.writeln(`\x1b[36m[Singularity]\x1b[0m Conectando a canal interactivo...`);
     }
 
     try {
@@ -70,18 +86,16 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
       socketRef.current = socket;
 
       socket.onopen = () => {
-        if (!isMountedRef.current) return;
         setIsConnected(true);
         setIsReconnecting(false);
         setProxyWarning(false);
-        retryCountRef.current = 0;
         if (term) {
-          term.writeln('\x1b[32m[Singularity]\x1b[0m Conexión WebSocket establecida con éxito.');
+          term.writeln('\x1b[32m[Singularity]\x1b[0m Conexión en tiempo real activa.');
         }
       };
 
       socket.onmessage = (event) => {
-        if (!isMountedRef.current || !term) return;
+        if (!term) return;
         try {
           const msg = JSON.parse(event.data);
 
@@ -90,16 +104,16 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
             for (const line of msg.lines) {
               term.writeln(line);
             }
-            if (autoScroll) term.scrollToBottom();
+            if (autoScrollRef.current) term.scrollToBottom();
           } else if (msg.type === 'log' && typeof msg.line === 'string') {
             term.writeln(msg.line);
-            if (autoScroll) term.scrollToBottom();
+            if (autoScrollRef.current) term.scrollToBottom();
           } else if (msg.type === 'status' && typeof msg.status === 'string') {
-            onStatusChange?.(msg.status);
+            callbacksRef.current.onStatusChange?.(msg.status);
           } else if (msg.type === 'crash' && msg.diagnostic) {
-            onCrashDetected?.(msg.diagnostic as CrashDiagnosticData);
+            callbacksRef.current.onCrashDetected?.(msg.diagnostic as CrashDiagnosticData);
           } else if (msg.type === 'player-event' && msg.data) {
-            onPlayerEvent?.(msg.data);
+            callbacksRef.current.onPlayerEvent?.(msg.data);
           }
         } catch {
           term.writeln(event.data);
@@ -107,53 +121,34 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
       };
 
       socket.onclose = (ev) => {
-        if (!isMountedRef.current) return;
         setIsConnected(false);
         setIsReconnecting(false);
 
-        if (term) {
-          term.writeln(`\x1b[33m[Singularity]\x1b[0m Conexión cerrada (código: ${ev.code || 1006}).`);
-        }
-
-        // If closed abnormally without ever succeeding, try alternate path or retry
-        if (ev.code === 1006 || ev.code === 1008) {
-          if (!useAlternatePath && retryCountRef.current === 0) {
-            retryCountRef.current++;
-            if (term) {
-              term.writeln('\x1b[33m[Singularity]\x1b[0m Reintentando mediante ruta alternativa /api/ws/...');
-            }
-            setTimeout(() => {
-              if (isMountedRef.current) connectWebSocket(true);
-            }, 1000);
-          } else {
-            setProxyWarning(true);
-            if (term) {
-              term.writeln('\x1b[31m[Singularity Alerta]\x1b[0m No se pudo completar el handshake WebSocket.');
-              term.writeln('\x1b[33m[Singularity]\x1b[0m Si utilizas Nginx, Coolify o Cloudflare, verifica que el proxy inverso tenga habilitado WebSocket:');
-              term.writeln('\x1b[90m  proxy_http_version 1.1;\x1b[0m');
-              term.writeln('\x1b[90m  proxy_set_header Upgrade $http_upgrade;\x1b[0m');
-              term.writeln('\x1b[90m  proxy_set_header Connection "upgrade";\x1b[0m');
-            }
+        // Try alternative endpoint once if closed prematurely without error
+        if (!useAlternatePath && (ev.code === 1006 || ev.code === 1008)) {
+          connect(true);
+        } else if (ev.code === 1006) {
+          setProxyWarning(true);
+          if (term) {
+            term.writeln('\x1b[33m[Singularity]\x1b[0m El canal WebSocket se cerró.');
           }
         }
       };
 
       socket.onerror = () => {
-        if (!isMountedRef.current) return;
         setIsConnected(false);
       };
     } catch (err: unknown) {
       if (term) {
-        term.writeln(`\x1b[31m[Singularity Error]\x1b[0m ${err instanceof Error ? err.message : 'Error al instanciar socket'}`);
+        term.writeln(`\x1b[31m[Singularity Error]\x1b[0m ${err instanceof Error ? err.message : 'Error al conectar'}`);
       }
     }
-  }, [serverId, autoScroll, onCrashDetected, onStatusChange, onPlayerEvent]);
+  };
 
   useEffect(() => {
-    isMountedRef.current = true;
     if (!terminalRef.current) return;
 
-    // Initialize xterm
+    // Initialize xterm only once per serverId
     const term = new Terminal({
       cursorBlink: true,
       fontFamily: 'JetBrains Mono, Menlo, Monaco, Courier New, monospace',
@@ -201,19 +196,23 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
     };
     window.addEventListener('resize', handleResize);
 
-    // Initial WebSocket connect
-    retryCountRef.current = 0;
-    connectWebSocket(false);
+    // Initial connection
+    connect(false);
 
     return () => {
-      isMountedRef.current = false;
       window.removeEventListener('resize', handleResize);
       if (socketRef.current) {
-        socketRef.current.close();
+        const s = socketRef.current;
+        socketRef.current = null;
+        try {
+          s.close();
+        } catch {
+          // ignore
+        }
       }
       term.dispose();
     };
-  }, [connectWebSocket]);
+  }, [serverId]); // STRICTLY depend only on serverId so parent re-renders don't teardown socket
 
   const sendCommand = (cmd: string) => {
     const trimmed = cmd.trim();
@@ -241,17 +240,14 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
           <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse' : isReconnecting ? 'bg-amber-400 animate-spin' : 'bg-red-500'}`} />
           <span className="text-slate-300 font-semibold">Consola Interactiva</span>
           <span className="text-[10px] text-slate-500">
-            {isConnected ? '(En vivo)' : isOnline ? '(Servidor online - Socket desconectado)' : '(Servidor offline)'}
+            {isConnected ? '(En vivo)' : isOnline ? '(En ejecución)' : '(Servidor offline)'}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           {!isConnected && (
             <button
-              onClick={() => {
-                retryCountRef.current = 0;
-                connectWebSocket(false);
-              }}
+              onClick={() => connect(false)}
               disabled={isReconnecting}
               className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-nebula-700 transition-colors disabled:opacity-50"
               title="Reconectar WebSocket"
@@ -289,14 +285,11 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
             <span>
-              Proxy Inverso detectado: Si el canal en vivo no conecta, añade <code>Upgrade $http_upgrade</code> en la configuración de Nginx / Cloudflare.
+              Canal WebSocket no responde. Si usas Nginx / Cloudflare, verifica que <code>Websockets Support</code> esté activo.
             </span>
           </div>
           <button
-            onClick={() => {
-              retryCountRef.current = 0;
-              connectWebSocket(false);
-            }}
+            onClick={() => connect(false)}
             className="px-2 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 rounded text-amber-300 font-bold shrink-0"
           >
             Reintentar

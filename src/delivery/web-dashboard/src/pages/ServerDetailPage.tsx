@@ -45,6 +45,19 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
 
   const isDesktop = typeof window !== 'undefined' && Boolean((window as any).singularityDesktop?.isElectron);
 
+  const handleStatusChange = useCallback((status: string) => {
+    setServer((prev) => (prev ? { ...prev, status: status as ServerInstanceData['status'] } : prev));
+  }, []);
+
+  const handlePlayerEvent = useCallback((event: unknown) => {
+    const ev = event as { type: string; username: string };
+    if (ev.type === 'join') {
+      setPlayers((prev) => [...prev.filter((p) => p.username !== ev.username), { username: ev.username, joinedAt: new Date().toISOString() }]);
+    } else if (ev.type === 'leave') {
+      setPlayers((prev) => prev.filter((p) => p.username !== ev.username));
+    }
+  }, []);
+
   const handleOpenInIde = async () => {
     if (!server) return;
     const desktopApi = (window as any).singularityDesktop;
@@ -309,17 +322,8 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
                 serverId={server.id}
                 isOnline={isOnline}
                 onCrashDetected={(diag) => setActiveCrash(diag)}
-                onStatusChange={(status) => {
-                  setServer((prev) => (prev ? { ...prev, status: status as ServerInstanceData['status'] } : prev));
-                }}
-                onPlayerEvent={(event: unknown) => {
-                  const ev = event as { type: string; username: string };
-                  if (ev.type === 'join') {
-                    setPlayers((prev) => [...prev.filter((p) => p.username !== ev.username), { username: ev.username, joinedAt: new Date().toISOString() }]);
-                  } else if (ev.type === 'leave') {
-                    setPlayers((prev) => prev.filter((p) => p.username !== ev.username));
-                  }
-                }}
+                onStatusChange={handleStatusChange}
+                onPlayerEvent={handlePlayerEvent}
               />
             </div>
 
