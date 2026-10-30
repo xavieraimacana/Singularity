@@ -14,6 +14,7 @@ import {
   Save,
   CheckCircle2
 } from 'lucide-react';
+import { getMinecraftBodyUrl, STEVE_AVATAR_SVG } from '../utils/minecraft-skin';
 
 export interface UserProfileModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
-  // Password Form State
+  // Security Form State
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -52,8 +53,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
 
     try {
       await updateProfile({
-        displayName: displayName.trim() || undefined,
-        minecraftUsername: minecraftUsername.trim() || undefined
+        displayName: displayName.trim(),
+        minecraftUsername: minecraftUsername.trim()
       });
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
@@ -70,12 +71,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
     setPassSuccess(false);
 
     if (newPassword.length < 8) {
-      setPassError('La nueva contraseña debe tener al menos 8 caracteres');
+      setPassError('La nueva contraseña debe tener al menos 8 caracteres.');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPassError('Las contraseñas no coinciden');
+      setPassError('La confirmación de la contraseña no coincide.');
       return;
     }
 
@@ -86,7 +87,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      setTimeout(() => setPassSuccess(false), 4000);
+      setTimeout(() => {
+        setPassSuccess(false);
+        if (user.mustChangePassword) {
+          onClose();
+        }
+      }, 2000);
     } catch (err: unknown) {
       setPassError(err instanceof Error ? err.message : 'Error al cambiar la contraseña');
     } finally {
@@ -94,54 +100,53 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
     }
   };
 
-  const previewNick = minecraftUsername.trim() || user.username || 'MHF_Steve';
+  const previewNick = minecraftUsername.trim() || user?.username || 'Steve';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-nebula-900 border border-nebula-750 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-nebula-950/80 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-2xl bg-nebula-900 border border-nebula-750 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-nebula-800 flex items-center justify-between bg-nebula-950/60">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-nebula-accent/15 border border-nebula-accent/30 flex items-center justify-center text-nebula-accent">
-              <User className="w-4 h-4" />
+        <div className="px-6 py-4 border-b border-nebula-800 flex items-center justify-between bg-nebula-950/40">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-nebula-accent/10 border border-nebula-accent/20 text-nebula-accent">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <span>Perfil de Usuario y Personalización</span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-nebula-800 text-nebula-accent border border-nebula-accent/30">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                Perfil de Operador
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-nebula-800 text-slate-300 border border-nebula-700">
                   {user.role}
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
-                Personaliza tu skin de Minecraft, nombre visible y credenciales de acceso.
+                Personaliza tu identidad en Singularity y asocia tu skin de Minecraft
               </p>
             </div>
           </div>
-
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-nebula-800 transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Modal Navigation Tabs */}
-        <div className="flex items-center gap-4 px-6 border-b border-nebula-800 bg-nebula-900 text-xs">
+        {/* Tab Switcher */}
+        <div className="flex border-b border-nebula-800 bg-nebula-950/60 px-6 pt-2">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`py-3 font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
               activeTab === 'profile'
                 ? 'border-nebula-accent text-nebula-accent'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Identidad & Skin</span>
+            <User className="w-3.5 h-3.5" />
+            <span>Identidad & Avatar</span>
           </button>
           <button
             onClick={() => setActiveTab('security')}
-            className={`py-3 font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 relative ${
               activeTab === 'security'
                 ? 'border-nebula-accent text-nebula-accent'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -167,12 +172,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
 
                 <div className="w-36 h-48 bg-nebula-900/60 rounded-lg border border-nebula-800/80 flex items-center justify-center p-2 relative shadow-inner overflow-hidden">
                   <img
-                    src={`https://crafatar.com/renders/body/${previewNick}?overlay=true&scale=3`}
+                    src={getMinecraftBodyUrl(previewNick, 180)}
                     alt={`Skin de ${previewNick}`}
                     onError={(e) => {
-                      // Fallback to Steve on invalid nickname
-                      (e.target as HTMLImageElement).src =
-                        'https://crafatar.com/renders/body/MHF_Steve?overlay=true&scale=3';
+                      (e.target as HTMLImageElement).src = STEVE_AVATAR_SVG;
                     }}
                     className="max-h-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform"
                   />
@@ -183,7 +186,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                     {previewNick}
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono block">
-                    Renderizado Crafatar API
+                    Renderizado Skin 3D
                   </span>
                 </div>
               </div>

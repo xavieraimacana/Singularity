@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Orbit,
   Lock,
   User,
   Eye,
@@ -145,7 +144,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-nebula-950 via-nebula-900 to-nebula-800 border-2 border-nebula-700/80 flex items-center justify-center shadow-xl shadow-nebula-accent/10 relative transition-transform duration-300 group-hover:scale-105">
                 {/* Rotating cosmic ring */}
                 <div className="absolute inset-0 rounded-2xl border border-nebula-accent/30 animate-[spin_12s_linear_infinite]" />
-                <Orbit className="w-8 h-8 text-nebula-accent group-hover:text-nebula-cyber transition-colors duration-300" />
+                <img src="/favicon.svg" alt="Singularity" className="w-10 h-10 object-contain drop-shadow group-hover:scale-105 transition-transform" />
               </div>
               <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-nebula-950 border border-nebula-700 shadow">
                 <Sparkles className="w-3 h-3 text-nebula-cyber" />

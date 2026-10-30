@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext.js';
 import { Search, LogOut, Shield, Terminal, Key } from 'lucide-react';
+import { getMinecraftAvatarUrl, STEVE_AVATAR_SVG } from '../utils/minecraft-skin';
 
 interface HeaderProps {
   onOpenCommandPalette: () => void;
@@ -14,7 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenProfileModal
 }) => {
   const { user, logout } = useAuth();
-  const skinNick = user?.minecraftUsername || user?.username || 'MHF_Steve';
+  const skinNick = user?.minecraftUsername || user?.username || 'Steve';
 
   return (
     <header className="h-14 border-b border-nebula-800 bg-nebula-900/90 backdrop-blur-md px-4 flex items-center justify-between z-20 select-none">
@@ -53,11 +54,10 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <div className="w-7 h-7 rounded-md bg-nebula-950 border border-nebula-800 flex items-center justify-center overflow-hidden shrink-0 shadow">
                 <img
-                  src={`https://crafatar.com/avatars/${skinNick}?size=28&overlay=true`}
+                  src={getMinecraftAvatarUrl(skinNick, 28)}
                   alt={user.username}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      'https://crafatar.com/avatars/MHF_Steve?size=28&overlay=true';
+                    (e.target as HTMLImageElement).src = STEVE_AVATAR_SVG;
                   }}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                 />

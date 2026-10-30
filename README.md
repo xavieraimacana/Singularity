@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/logo.png" alt="Singularity Logo" width="240" />
+
 # 🌌 Singularity
 ### *The Next-Generation Minecraft Server Orchestrator & Mission Control*
 **Un producto oficial de NebulaX Studio**

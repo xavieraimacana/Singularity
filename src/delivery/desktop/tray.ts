@@ -25,10 +25,18 @@ export class TrayManager {
   }
 
   private createTrayIcon(): NativeImage {
-    // Generate a clean 16x16 icon buffer if asset icon is not found
-    const iconPath = path.join(process.cwd(), 'resources', 'icon.png');
-    if (fs.existsSync(iconPath)) {
-      return nativeImage.createFromPath(iconPath);
+    // Check multiple candidate locations for tray-icon.png or icon.png
+    const candidates = [
+      path.join(__dirname, 'assets', 'tray-icon.png'),
+      path.join(__dirname, 'assets', 'icon.png'),
+      path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'tray-icon.png'),
+      path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.png'),
+      path.join(process.cwd(), 'resources', 'icon.png')
+    ];
+    for (const cand of candidates) {
+      if (fs.existsSync(cand)) {
+        return nativeImage.createFromPath(cand);
+      }
     }
 
     // 16x16 RGBA buffer representing a cyan/emerald glowing Singularity cube

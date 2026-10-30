@@ -1,5 +1,5 @@
 import React from 'react';
-import { Server, Package, Cpu, Settings, Orbit, Users } from 'lucide-react';
+import { Server, Package, Cpu, Settings, Users } from 'lucide-react';
 
 export type NavTab = 'servers' | 'catalog' | 'java' | 'users' | 'settings';
 
@@ -14,13 +14,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, serve
   const navItems = [
     {
       id: 'servers' as NavTab,
-      label: 'Mission Control',
+      label: 'Servidores Activos',
       icon: Server,
-      badge: serverCount > 0 ? String(serverCount) : undefined
+      badge: serverCount > 0 ? `${serverCount}` : undefined
     },
     {
       id: 'catalog' as NavTab,
-      label: 'Catálogo Prism',
+      label: 'Catálogo de Contenido',
       icon: Package,
       badge: 'Modrinth'
     },
@@ -51,8 +51,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, serve
       <div>
         {/* Brand Header */}
         <div className="h-14 px-4 flex items-center gap-2.5 border-b border-nebula-800">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-nebula-accent/20 to-nebula-cyber/30 border border-nebula-accent/40 flex items-center justify-center text-nebula-accent shadow-sm shadow-nebula-accent/20">
-            <Orbit className="w-5 h-5 animate-spin-slow" />
+          <div className="w-8 h-8 rounded-lg bg-nebula-950 border border-nebula-accent/40 flex items-center justify-center p-1 shadow-sm shadow-nebula-accent/20">
+            <img src="/favicon.svg" alt="Singularity" className="w-5 h-5 object-contain" />
           </div>
           <div className="flex flex-col">
             <span className="font-bold tracking-tight text-slate-100 flex items-center gap-1.5 text-sm">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Users, Shield, UserX, UserMinus, ShieldAlert } from 'lucide-react';
 import { api } from '../services/api-client.js';
+import { getMinecraftAvatarUrl, STEVE_AVATAR_SVG } from '../utils/minecraft-skin';
 
 export interface PlayerData {
   username: string;
@@ -89,14 +90,13 @@ export const PlayerManager: React.FC<PlayerManagerProps> = ({
               className="flex items-center justify-between p-2 rounded-lg bg-nebula-950 border border-nebula-850 hover:border-nebula-700 transition-colors"
             >
               <div className="flex items-center gap-2.5">
-                {/* 3D Head Avatar from Crafatar */}
+                {/* Minecraft Head Avatar */}
                 <img
-                  src={`https://crafatar.com/avatars/${encodeURIComponent(player.username)}?size=32&overlay`}
+                  src={getMinecraftAvatarUrl(player.username, 32)}
                   alt={player.username}
                   className="w-8 h-8 rounded-md bg-nebula-850 shrink-0 border border-nebula-800"
                   onError={(e) => {
-                    // Fallback to default steve avatar
-                    (e.target as HTMLImageElement).src = 'https://crafatar.com/avatars/MHF_Steve?size=32';
+                    (e.target as HTMLImageElement).src = STEVE_AVATAR_SVG;
                   }}
                 />
                 <div>

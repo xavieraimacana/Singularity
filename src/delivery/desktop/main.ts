@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { buildServer } from '../http/server.js';
@@ -69,7 +70,15 @@ async function startEmbeddedServices(): Promise<void> {
 }
 
 function createMainWindow(): BrowserWindow {
+  const iconCandidates = [
+    path.join(__dirname, 'assets', 'icon.png'),
+    path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.png'),
+    path.join(process.cwd(), 'resources', 'icon.png')
+  ];
+  const appIcon = iconCandidates.find(p => fs.existsSync(p));
+
   const win = new BrowserWindow({
+    icon: appIcon,
     width: 1320,
     height: 860,
     minWidth: 1024,

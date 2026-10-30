@@ -1,3 +1,4 @@
+import { getMinecraftAvatarUrl, STEVE_AVATAR_SVG } from '../utils/minecraft-skin';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth, type UserProfile } from '../context/AuthContext.js';
 import { api } from '../services/api-client.js';
@@ -389,11 +390,10 @@ export const UsersManagementPage: React.FC = () => {
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-lg bg-nebula-950 border border-nebula-800 flex items-center justify-center overflow-hidden shrink-0 shadow">
                             <img
-                              src={`https://crafatar.com/avatars/${skinNick}?size=36&overlay=true`}
+                              src={getMinecraftAvatarUrl(skinNick, 36)}
                               alt={u.username}
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  'https://crafatar.com/avatars/MHF_Steve?size=36&overlay=true';
+                                (e.target as HTMLImageElement).src = STEVE_AVATAR_SVG;
                               }}
                               className="w-full h-full object-cover"
                             />
