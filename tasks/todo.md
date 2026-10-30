@@ -5,7 +5,7 @@
   - Verify: `npm test` corre sin errores.
   - Files: `package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`, `.env.example`
 
-- [ ] Task 2: Módulo Java Manager (`src/java-manager`)
+- [x] Task 2: Módulo Java Manager (`src/java-manager`)
   - Acceptance: Detección de Java 8 a 25, verificación de compatibilidad con MC y generación de Aikar's Flags.
   - Verify: `npx vitest run tests/java-manager/` pasa.
   - Files: `src/java-manager/*`, `tests/java-manager/*`

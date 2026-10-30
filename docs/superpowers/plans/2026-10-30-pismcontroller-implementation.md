@@ -68,17 +68,17 @@
   - `getCompatibleJavaRuntime(mcVersion: string, runtimes: JavaRuntime[]): JavaRuntime | null`
   - `generateAikarFlags(memoryMb: number, jarPath: string): string[]`
 
-- [ ] **Step 1: Escribir tests que fallen para detección de Java y resolución de compatibilidad**
+- [x] **Step 1: Escribir tests que fallen para detección de Java y resolución de compatibilidad**
   Testear que MC 1.21.x requiere Java 21+, MC 1.17 requiere Java 17+, y versiones legacy Java 8. Testear parsing de strings de `java -version`.
-- [ ] **Step 2: Ejecutar test y verificar fallo**
+- [x] **Step 2: Ejecutar test y verificar fallo**
   Run: `npx vitest run tests/java-manager/java-manager.test.ts`
-- [ ] **Step 3: Implementar JavaDetector y JavaCompatibility**
+- [x] **Step 3: Implementar JavaDetector y JavaCompatibility**
   Escanear variables de entorno `JAVA_HOME`, `PATH`, y directorios estándar del sistema en Windows (`C:\Program Files\Java`, Eclipse Adoptium, etc.) y Linux (`/usr/lib/jvm`).
-- [ ] **Step 4: Implementar generador de banderas JVM optimizadas (Aikar's Flags)**
+- [x] **Step 4: Implementar generador de banderas JVM optimizadas (Aikar's Flags)**
   Generar argumentos para G1GC, MaxGCPauseMillis, etc.
-- [ ] **Step 5: Ejecutar test y verificar que pasan**
+- [x] **Step 5: Ejecutar test y verificar que pasan**
   Run: `npx vitest run tests/java-manager/java-manager.test.ts`
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
   ```bash
   git add src/java-manager/ tests/java-manager/
   git commit -m "feat(java-manager): implementar deteccion de java, compatibilidad y banderas aikar"

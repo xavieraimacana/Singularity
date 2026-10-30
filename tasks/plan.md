@@ -4,7 +4,7 @@ Documento canónico guardado en: [`docs/superpowers/plans/2026-10-30-pismcontrol
 
 ## Resumen de Tareas
 - [x] Task 1: Scaffolding del Proyecto y Entorno de Desarrollo
-- [ ] Task 2: Módulo Java Manager (`src/java-manager`)
+- [x] Task 2: Módulo Java Manager (`src/java-manager`)
 - [ ] Task 3: Dominio de Instancias de Servidor y Editor de Propiedades (`src/servers`)
 - [ ] Task 4: Motor de Diagnóstico Inteligente de Crashes (`src/process-supervisor/crash-analyzer`)
 - [ ] Task 5: Supervisor de Procesos y Terminal Interactiva (`src/process-supervisor`)
