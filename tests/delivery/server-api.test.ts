@@ -309,4 +309,33 @@ describe('Delivery API (Fastify REST & WebSocket)', () => {
       expect(Array.isArray(runtimes)).toBe(true);
     });
   });
+
+  describe('Catalog Routes (/api/catalog)', () => {
+    let authToken: string;
+
+    beforeEach(async () => {
+      const loginRes = await app.inject({
+        method: 'POST',
+        url: '/api/auth/login',
+        payload: { username: 'admin', password: 'singularity' }
+      });
+      authToken = JSON.parse(loginRes.payload).token;
+    });
+
+    it('should list all catalog providers including curseforge', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/catalog/providers',
+        headers: { authorization: `Bearer ${authToken}` }
+      });
+
+      expect(res.statusCode).toBe(200);
+      const providers = JSON.parse(res.payload);
+      expect(Array.isArray(providers)).toBe(true);
+      const ids = providers.map((p: any) => p.id);
+      expect(ids).toContain('modrinth');
+      expect(ids).toContain('curseforge');
+      expect(ids).toContain('papermc');
+    });
+  });
 });

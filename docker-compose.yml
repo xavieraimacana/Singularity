@@ -28,8 +28,8 @@ services:
       - SINGULARITY_JWT_SECRET=singularity_production_jwt_secret_change_me_987654321
       - SINGULARITY_SERVERS_DIR=/app/data/servers
       - SINGULARITY_DB_PATH=/app/data/singularity.db
-      # Optional: Add CurseForge API key if you want CurseForge catalog enabled
-      # - CURSEFORGE_API_KEY=your_key_here
+      # Optional: CurseForge API key injected from Coolify / .env
+      - CURSEFORGE_API_KEY=${CURSEFORGE_API_KEY:-}
     volumes:
       # Persistent storage: SQLite DB, server instances, world saves, logs, and mods
       - singularity-data:/app/data

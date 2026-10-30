@@ -21,6 +21,16 @@ export const catalogRoutes: FastifyPluginAsync<CatalogRoutesOptions> = async (fa
 
   fastify.addHook('preHandler', authenticate);
 
+  // List all catalog providers and their availability status
+  fastify.get('/providers', async (_request, reply) => {
+    const list = Array.from(providers.values()).map((p) => ({
+      id: p.id,
+      name: p.name,
+      isEnabled: p.isEnabled
+    }));
+    return reply.status(200).send(list);
+  });
+
   // Search catalog across providers
   fastify.get<{
     Querystring: {

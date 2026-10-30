@@ -23,7 +23,8 @@ const POPULAR_MODS = [
 export const CatalogExplorer: React.FC = () => {
   const [query, setQuery] = useState('');
   const [projectType, setProjectType] = useState<'all' | 'mod' | 'plugin' | 'modpack' | 'datapack'>('all');
-  const [provider, setProvider] = useState<'modrinth' | 'papermc'>('modrinth');
+  const [provider, setProvider] = useState<'modrinth' | 'curseforge' | 'papermc'>('modrinth');
+  const [providersStatus, setProvidersStatus] = useState<{ id: string; name: string; isEnabled: boolean }[]>([]);
 
   const [items, setItems] = useState<CatalogItemData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +32,15 @@ export const CatalogExplorer: React.FC = () => {
 
   // Selected item for 1-Click install modal
   const [itemToInstall, setItemToInstall] = useState<CatalogItemData | null>(null);
+
+  // Check which providers are enabled on server
+  useEffect(() => {
+    api.get<{ id: string; name: string; isEnabled: boolean }[]>('/catalog/providers')
+      .then((data) => setProvidersStatus(data || []))
+      .catch(() => {});
+  }, []);
+
+  const curseforgeStatus = providersStatus.find((p) => p.id === 'curseforge');
 
   const performSearch = useCallback(async (searchQuery: string, type: string, prov: string) => {
     setIsLoading(true);
@@ -86,6 +96,21 @@ export const CatalogExplorer: React.FC = () => {
               }`}
             >
               Modrinth v2
+            </button>
+            <button
+              onClick={() => setProvider('curseforge')}
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                provider === 'curseforge'
+                  ? 'bg-amber-600 text-white font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <span>CurseForge</span>
+              {curseforgeStatus && !curseforgeStatus.isEnabled && (
+                <span className="text-[9px] px-1 py-0.2 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300">
+                  Sin Key
+                </span>
+              )}
             </button>
             <button
               onClick={() => setProvider('papermc')}
@@ -177,10 +202,22 @@ export const CatalogExplorer: React.FC = () => {
       )}
 
       {/* Results Grid */}
-      {isLoading ? (
+      {provider === 'curseforge' && curseforgeStatus && !curseforgeStatus.isEnabled ? (
+        <div className="py-16 text-center border border-amber-500/30 rounded-2xl bg-amber-950/20 p-8 space-y-3">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
+            <Package className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-bold text-amber-200">
+            CurseForge API Key no detectada
+          </h3>
+          <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+            Si ya agregaste la variable de entorno <code className="text-amber-400 font-mono font-bold">CURSEFORGE_API_KEY</code> en Coolify, debes hacer clic en <strong>Redeploy</strong> o reiniciar el contenedor para que Singularity la cargue al arrancar.
+          </p>
+        </div>
+      ) : isLoading ? (
         <div className="py-24 flex flex-col items-center justify-center gap-2 text-slate-500 text-xs font-mono">
           <Orbit className="w-7 h-7 text-nebula-purple animate-spin" />
-          <span>Buscando en {provider === 'modrinth' ? 'Modrinth' : 'PaperMC'}...</span>
+          <span>Buscando en {provider === 'modrinth' ? 'Modrinth' : provider === 'curseforge' ? 'CurseForge' : 'PaperMC'}...</span>
         </div>
       ) : items.length === 0 ? (
         <div className="py-20 text-center border border-dashed border-nebula-800 rounded-2xl bg-nebula-900/40 p-8">
