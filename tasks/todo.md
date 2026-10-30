@@ -50,10 +50,10 @@
   - Verify: Componentes renderizan y crean servidores vía API.
   - Files: `src/delivery/web-dashboard/src/pages/Dashboard.tsx`, `CreateServerWizard.tsx`, `ServerCard.tsx`, `MetricSparkline.tsx`
 
-- [ ] Task 11: Vista de Detalle, Consola xterm.js y Gestor de Jugadores con Skins
+- [x] Task 11: Vista de Detalle, Consola xterm.js y Gestor de Jugadores con Skins
   - Acceptance: Consola WebSocket bidireccional con xterm.js, comandos rápidos y lista de jugadores con avatares Crafatar.
   - Verify: Terminal interactiva recibe y envía comandos fluidamente.
-  - Files: `src/delivery/web-dashboard/src/pages/ServerDetailPage.tsx`, `ConsoleTerminal.tsx`, `PlayerManager.tsx`
+  - Files: `src/delivery/web-dashboard/src/pages/ServerDetailPage.tsx`, `ConsoleTerminal.tsx`, `PlayerManager.tsx`, `CrashAlertBanner.tsx`
 
 - [ ] Task 12: Catálogo Integrado Prism (Mods, Plugins, Modpacks) y 1-Click Install
   - Acceptance: Búsqueda unificada Modrinth/CurseForge/PaperMC, filtros por loader y versión, botón '1-Click Install' con barra de progreso.

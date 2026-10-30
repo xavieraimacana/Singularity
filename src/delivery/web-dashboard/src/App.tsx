@@ -4,6 +4,7 @@ import { Header } from './components/Header.js';
 import { Sidebar, type NavTab } from './components/Sidebar.js';
 import { CommandPalette } from './components/CommandPalette.js';
 import { Dashboard } from './pages/Dashboard.js';
+import { ServerDetailPage } from './pages/ServerDetailPage.js';
 import type { ServerInstanceData } from './components/ServerCard.js';
 import {
   Orbit,
@@ -29,7 +30,7 @@ export const App: React.FC = () => {
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
 
   // Selected Server for Detail View (Task 11)
-  const [_selectedServer, setSelectedServer] = useState<ServerInstanceData | null>(null);
+  const [selectedServer, setSelectedServer] = useState<ServerInstanceData | null>(null);
 
   // Login Form State
   const [usernameInput, setUsernameInput] = useState('');
@@ -156,7 +157,10 @@ export const App: React.FC = () => {
       <div className="flex-1 flex overflow-hidden">
         <Sidebar
           currentTab={currentTab}
-          onSelectTab={setCurrentTab}
+          onSelectTab={(tab) => {
+            setCurrentTab(tab);
+            setSelectedServer(null);
+          }}
           serverCount={0}
         />
 
@@ -186,14 +190,19 @@ export const App: React.FC = () => {
 
           {/* Tab Views */}
           {currentTab === 'servers' && (
-            <Dashboard
-              onSelectServer={(srv) => {
-                setSelectedServer(srv);
-              }}
-              onOpenWizard={() => setIsCreateWizardOpen(true)}
-              isWizardOpen={isCreateWizardOpen}
-              onCloseWizard={() => setIsCreateWizardOpen(false)}
-            />
+            selectedServer ? (
+              <ServerDetailPage
+                serverId={selectedServer.id}
+                onBack={() => setSelectedServer(null)}
+              />
+            ) : (
+              <Dashboard
+                onSelectServer={(srv) => setSelectedServer(srv)}
+                onOpenWizard={() => setIsCreateWizardOpen(true)}
+                isWizardOpen={isCreateWizardOpen}
+                onCloseWizard={() => setIsCreateWizardOpen(false)}
+              />
+            )
           )}
 
           {currentTab === 'catalog' && (
@@ -257,8 +266,13 @@ export const App: React.FC = () => {
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
-        onNavigate={setCurrentTab}
+        onNavigate={(tab) => {
+          setCurrentTab(tab);
+          setSelectedServer(null);
+        }}
         onOpenCreateWizard={() => {
+          setSelectedServer(null);
+          setCurrentTab('servers');
           setIsCreateWizardOpen(true);
         }}
         onOpenSftpModal={() => setIsSftpModalOpen(true)}
