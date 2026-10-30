@@ -34,6 +34,7 @@
     "@types/node": "^22.13.4",
     "@types/pidusage": "^2.0.5",
     "@types/ssh2": "^1.15.4",
+    "@types/ws": "^8.18.2",
     "electron": "^34.2.0",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3",

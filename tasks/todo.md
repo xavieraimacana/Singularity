@@ -35,7 +35,7 @@
   - Verify: `npx vitest run tests/auth-identity/` pasa.
   - Files: `src/auth-identity/*`, `tests/auth-identity/*`
 
-- [ ] Task 8: Servidor Fastify REST & WebSocket API (`src/delivery`)
+- [x] Task 8: Servidor Fastify REST & WebSocket API (`src/delivery`)
   - Acceptance: Endpoints REST y WebSocket `/ws/servers/:id/console` con autenticación.
   - Verify: `npx vitest run tests/delivery/` pasa.
   - Files: `src/delivery/http/*`, `src/delivery/websocket/*`, `tests/delivery/*`

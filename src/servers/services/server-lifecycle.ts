@@ -9,7 +9,7 @@ import { findAvailablePort } from './port-allocator.js';
 export class ServerLifecycleService {
   constructor(private readonly dataDir: string = path.join(process.cwd(), 'data', 'servers')) {}
 
-  private getInstanceDir(id: string): string {
+  getInstanceDir(id: string): string {
     return path.join(this.dataDir, id);
   }
 

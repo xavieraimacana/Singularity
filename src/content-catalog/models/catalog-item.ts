@@ -48,6 +48,7 @@ export interface ContentVersion {
   readonly hashes: {
     readonly sha1?: string;
     readonly sha512?: string;
+    readonly sha256?: string;
   };
   readonly dependencies: VersionDependency[];
 }
@@ -64,6 +65,7 @@ export interface InstallContentRequest {
   readonly hashes?: {
     readonly sha1?: string;
     readonly sha512?: string;
+    readonly sha256?: string;
   };
 }
 
@@ -80,6 +82,6 @@ export interface InstalledItem {
 
 export interface InstanceManifest {
   readonly instanceId: string;
-  readonly installedItems: InstalledItem[];
-  readonly updatedAt: string;
+  installedItems: InstalledItem[];
+  updatedAt: string;
 }
