@@ -76,6 +76,17 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   // Register WebSocket plugin
   await fastify.register(consoleSocketPlugin, { processRunner, authService });
 
+  // Public Healthcheck endpoint for Docker, Coolify, and CasaOS
+  fastify.get('/api/health', async () => {
+    return {
+      status: 'ok',
+      service: 'singularity',
+      version: '0.1.0-alpha',
+      uptime: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString()
+    };
+  });
+
   // Serve Web Dashboard Static Files if present
   const staticPath = path.join(process.cwd(), 'dist', 'web-dashboard');
   if (fs.existsSync(staticPath)) {

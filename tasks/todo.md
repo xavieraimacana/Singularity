@@ -75,7 +75,7 @@
   - Verify: Ventana Electron empaquetada carga el dashboard web.
   - Files: `src/delivery/desktop/*`
 
-- [ ] Task 16: Verificación End-to-End, Dockerfile/Docker-compose y Despliegue en Oracle Cloud
+- [x] Task 16: Verificación End-to-End, Dockerfile/Docker-compose y Despliegue en Oracle Cloud
   - Acceptance: Dockerfile multi-stage ligero con Java 21/17/8, docker-compose.yml para Coolify/CasaOS, script de inicialización y verificación total de la suite de pruebas.
   - Verify: Contenedor levanta en puerto 3000 y 2022.
   - Files: `Dockerfile`, `docker-compose.yml`, `scripts/deploy-oracle.sh`

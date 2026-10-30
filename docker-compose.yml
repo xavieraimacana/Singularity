@@ -1,0 +1,45 @@
+# ==========================================
+# 🌌 SINGULARITY - DOCKER COMPOSE CONFIGURATION
+# Production Deployment for Coolify & CasaOS on Oracle Cloud VPS
+# ==========================================
+
+services:
+  singularity:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: singularity:latest
+    container_name: singularity-mission-control
+    restart: unless-stopped
+    ports:
+      # Mission Control Web Dashboard & REST/WebSocket API
+      - "3000:3000"
+      # Embedded SFTP Micro-Server (Antigravity IDE & VS Code)
+      - "2022:2022"
+      # Minecraft Server Game Ports Range
+      - "25565-25585:25565-25585"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - SINGULARITY_SFTP_PORT=2022
+      - SINGULARITY_SFTP_HOST=0.0.0.0
+      - SINGULARITY_ADMIN_USER=admin
+      - SINGULARITY_ADMIN_PASSWORD=singularity
+      - SINGULARITY_JWT_SECRET=singularity_production_jwt_secret_change_me_987654321
+      - SINGULARITY_SERVERS_DIR=/app/data/servers
+      - SINGULARITY_DB_PATH=/app/data/singularity.db
+      # Optional: Add CurseForge API key if you want CurseForge catalog enabled
+      # - CURSEFORGE_API_KEY=your_key_here
+    volumes:
+      # Persistent storage: SQLite DB, server instances, world saves, logs, and mods
+      - singularity-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  singularity-data:
+    name: singularity_app_data

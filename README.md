@@ -232,6 +232,27 @@ sudo iptables -I INPUT 6 -m state --state NEW -p udp --dport 25565 -j ACCEPT
 sudo netfilter-persistent save
 ```
 
+### 4. Despliegue con Docker, Coolify y CasaOS
+Singularity incluye soporte nativo y optimizado para **Docker Compose**, **Coolify** y **CasaOS**:
+
+```bash
+# Despliegue automatizado en Oracle Cloud (configura firewall, secretos y levanta contenedores):
+sudo bash scripts/deploy-oracle.sh
+
+# O manualmente con Docker Compose:
+docker compose up -d --build
+```
+
+#### Despliegue en Coolify:
+1. Agrega una nueva aplicación en tu dashboard de Coolify seleccionando tu repositorio Git: `https://github.com/xavieraimacana/Singularity.git`.
+2. Selecciona el tipo de construcción **Docker Compose** o **Dockerfile**.
+3. Coolify detectará los puertos `3000` (Dashboard Web), `2022` (SFTP) y `25565-25585` (Minecraft).
+
+#### Despliegue en CasaOS:
+1. En el panel de CasaOS, ve a **App Store** > **Custom Install**.
+2. Haz clic en **Import** en la esquina superior derecha y pega el contenido de `docker-compose.yml`.
+3. Haz clic en **Submit** e instala la aplicación.
+
 ---
 
 ## 🧪 Pruebas y Control de Calidad

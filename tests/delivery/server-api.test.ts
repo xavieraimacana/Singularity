@@ -35,6 +35,21 @@ describe('Delivery API (Fastify REST & WebSocket)', () => {
     }
   });
 
+  describe('Healthcheck & Diagnostics (/api/health)', () => {
+    it('should return health status ok for docker and cloud healthchecks', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/health'
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.status).toBe('ok');
+      expect(body.service).toBe('singularity');
+      expect(body.version).toBe('0.1.0-alpha');
+    });
+  });
+
   describe('Auth Routes (/api/auth)', () => {
     it('should reject unauthorized access to protected endpoints', async () => {
       const res = await app.inject({
