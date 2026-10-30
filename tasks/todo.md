@@ -10,7 +10,7 @@
   - Verify: `npx vitest run tests/java-manager/` pasa.
   - Files: `src/java-manager/*`, `tests/java-manager/*`
 
-- [ ] Task 3: Dominio de Instancias de Servidor y Editor de Propiedades (`src/servers`)
+- [x] Task 3: Dominio de Instancias de Servidor y Editor de Propiedades (`src/servers`)
   - Acceptance: Creación de instancias, parsing/serialización de `server.properties`, EULA y cálculo de puertos.
   - Verify: `npx vitest run tests/servers/` pasa.
   - Files: `src/servers/*`, `tests/servers/*`

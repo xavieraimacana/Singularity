@@ -105,17 +105,17 @@
   - `formatMotdPreview(motd: string): MotdPreviewResult`
   - `ServerLifecycleService` (createInstance, updateConfig, acceptEula)
 
-- [ ] **Step 1: Escribir tests para parsing y serialización de `server.properties` y validación de EULA**
+- [x] **Step 1: Escribir tests para parsing y serialización de `server.properties` y validación de EULA**
   Comprobar que preserva comentarios, parsea booleanos (`pvp=true`), enteros (`max-players=20`), y serializa de vuelta correctamente.
-- [ ] **Step 2: Ejecutar test y verificar fallo**
+- [x] **Step 2: Ejecutar test y verificar fallo**
   Run: `npx vitest run tests/servers/properties-parser.test.ts`
-- [ ] **Step 3: Implementar PropertiesParser y MotdDesigner**
+- [x] **Step 3: Implementar PropertiesParser y MotdDesigner**
   Parser robusto sin dependencias de terceros; diseñador MOTD que traduce códigos `§` y códigos RGB a HTML preview.
-- [ ] **Step 4: Implementar ServerLifecycleService y PortAllocator**
+- [x] **Step 4: Implementar ServerLifecycleService y PortAllocator**
   Creación de estructura en disco (`data/servers/<id>/`), auto-creación de `eula.txt`, verificación de disponibilidad de puertos socket.
-- [ ] **Step 5: Ejecutar test y verificar éxito**
+- [x] **Step 5: Ejecutar test y verificar éxito**
   Run: `npx vitest run tests/servers/`
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
   ```bash
   git add src/servers/ tests/servers/
   git commit -m "feat(servers): implementar gestion de instancias, parsing de propiedades y motd"
