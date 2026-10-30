@@ -9,11 +9,12 @@ import { CatalogExplorer } from './pages/CatalogExplorer.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { UserProfileModal } from './components/UserProfileModal.js';
 import { UsersManagementPage } from './pages/UsersManagementPage.js';
+import { JavaManagerPage } from './pages/JavaManagerPage.js';
+import { SettingsPage } from './pages/SettingsPage.js';
 import type { ServerInstanceData } from './components/ServerCard.js';
 import {
   Orbit,
   Terminal,
-  Cpu,
   AlertTriangle,
   CheckCircle2,
   Copy
@@ -32,10 +33,8 @@ export const App: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
 
-  // Selected Server for Detail View (Task 11)
+  // Selected Server for Detail View
   const [selectedServer, setSelectedServer] = useState<ServerInstanceData | null>(null);
-
-
 
   // Password Change Form State
   const [currentPass, setCurrentPass] = useState('');
@@ -49,7 +48,7 @@ export const App: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-nebula-950 text-slate-400 gap-3">
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-nebula-950 text-slate-400 gap-3 select-none">
         <Orbit className="w-8 h-8 text-nebula-accent animate-spin" />
         <span className="text-xs font-mono tracking-widest text-slate-500 uppercase">
           Cargando Singularity...
@@ -145,43 +144,11 @@ export const App: React.FC = () => {
           )}
 
           {currentTab === 'java' && (
-            <div>
-              <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2 mb-1">
-                <Cpu className="w-5 h-5 text-nebula-cyber" />
-                Gestor de Runtimes Java
-              </h2>
-              <p className="text-xs text-slate-400 mb-6">
-                Detección inteligente de Java 8 a 25 y descargas portables de Eclipse Temurin (Adoptium).
-              </p>
-              <div className="p-8 border border-nebula-800 rounded-xl bg-nebula-900/30 text-xs text-slate-400">
-                Detección de runtimes del host activa.
-              </div>
-            </div>
+            <JavaManagerPage />
           )}
 
           {currentTab === 'settings' && (
-            <div>
-              <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2 mb-1">
-                Configuración & Seguridad
-              </h2>
-              <p className="text-xs text-slate-400 mb-6">
-                Administración de credenciales, roles RBAC y configuración global.
-              </p>
-              <div className="p-6 border border-nebula-800 rounded-xl bg-nebula-900/30 max-w-lg space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold text-slate-200 block">Contraseña de acceso</span>
-                    <span className="text-[11px] text-slate-400">Actualizar tu contraseña personal</span>
-                  </div>
-                  <button
-                    onClick={() => setIsPasswordModalOpen(true)}
-                    className="px-3 py-1.5 text-xs bg-nebula-800 hover:bg-nebula-700 text-slate-200 rounded-lg transition-colors border border-nebula-700"
-                  >
-                    Cambiar
-                  </button>
-                </div>
-              </div>
-            </div>
+            <SettingsPage onOpenProfileModal={() => setIsProfileModalOpen(true)} />
           )}
         </main>
       </div>

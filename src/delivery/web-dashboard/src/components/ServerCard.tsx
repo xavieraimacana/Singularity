@@ -5,7 +5,7 @@ import { api } from '../services/api-client.js';
 export interface ServerInstanceData {
   id: string;
   name: string;
-  loader: 'vanilla' | 'paper' | 'purpur' | 'fabric' | 'forge' | 'neoforge';
+  loader: 'vanilla' | 'paper' | 'purpur' | 'fabric' | 'forge' | 'neoforge' | 'spigot' | 'quilt';
   gameVersion: string;
   memoryMb: number;
   port: number;
@@ -120,6 +120,8 @@ export const ServerCard: React.FC<ServerCardProps> = ({ server, onRefresh, onSel
     fabric: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
     forge: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
     neoforge: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+    spigot: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30',
+    quilt: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30',
     vanilla: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
   }[server.loader] ?? 'text-slate-400 bg-slate-800 border-slate-700';
 
