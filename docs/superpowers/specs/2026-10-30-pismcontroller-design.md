@@ -1,9 +1,15 @@
 # Spec: PismController (Crafty Controller + Prism Launcher Hybrid)
 
 ## Objective
-**PismController** es una suite de orquestación y administración de servidores de Minecraft que fusiona:
-1. **La potencia operativa de Crafty Controller**: Control 24/7 de múltiples servidores independientes, panel web responsive, terminal interactiva en tiempo real (bidireccional con xterm.js), monitoreo de métricas de proceso (CPU, RAM, jugadores conectados, TPS) y gestión de roles y permisos.
-2. **La experiencia de usuario de Prism Launcher**: Asistente visual e intuitivo de creación de instancias (selección de versión de Minecraft y loader: Vanilla, Paper, Purpur, Fabric, Forge, NeoForge), gestor integrado de contenidos para buscar e instalar en 1-click **Modpacks** (Modrinth .mrpack / CurseForge zip), **Mods**, **Plugins** y **Datapacks**, con resolución automática de dependencias y detección de la versión de Java apropiada.
+**PismController** es una suite de orquestación y administración de servidores de Minecraft diseñada para uso local o despliegue en la nube (como instancias VPS de Oracle Cloud Infrastructure - OCI) que fusiona:
+1. **La potencia operativa y monitoreo de Crafty Controller**: Control 24/7 de múltiples servidores independientes, panel web responsive estilo "Mission Control", terminal interactiva en tiempo real (bidireccional con xterm.js), métricas en vivo (CPU, RAM, TPS, latencia) y gestión de roles y permisos.
+2. **La experiencia de usuario y catálogo de Prism Launcher**: Asistente visual e intuitivo de creación de instancias (Vanilla, Paper, Purpur, Fabric, Forge, NeoForge), gestor integrado de contenidos para buscar e instalar en 1-click **Modpacks** (Modrinth .mrpack / CurseForge zip), **Mods**, **Plugins** y **Datapacks**, con resolución automática de dependencias y actualización en 1-clic.
+3. **Herramientas Profesionales sin Fricción**:
+   - **Asistente Inteligente de Diagnóstico de Crashes**: Análisis automático de logs de servidor y crash reports para identificar al instante la causa (ej. mods incompatibles, Java incorrecto, mods client-side en servidor como Sodium) ofreciendo solución con un solo clic.
+   - **Editor Visual de `server.properties` & Diseñador de MOTD/Favicon en Vivo**: Configuración mediante switches, sliders y tooltips en español, con previsualización exacta de cómo se ve el servidor en la lista multijugador de Minecraft (soporte colores `§` y MiniMessage).
+   - **Gestor de Jugadores con Skins en Vivo**: Lista en tiempo real de jugadores conectados con avatares 3D/2D (Minotar/Crafatar) y acciones rápidas (OP, Whitelist, Kick, Ban).
+   - **Command Palette (`Ctrl+K`)**: Búsqueda universal rápida para saltar entre servidores, buscar mods y lanzar comandos de inmediato.
+   - **Snapshots y Backups**: Creación de copias de seguridad de mundos y carpetas antes de actualizaciones de mods.
 
 ---
 
@@ -86,6 +92,9 @@ pismcontroller/
 │   ├── servers/                        # Dominio: Instancias de servidor (CRUD, propiedades, EULA, puertos)
 │   │   ├── models/
 │   │   ├── services/
+│   │   ├── properties-editor/          # Parser y diseñador visual de server.properties y MOTD
+│   │   ├── players/                    # Gestor de jugadores y skins (Minotar/Crafatar)
+│   │   ├── backups/                    # Gestor de snapshots y backups zip
 │   │   └── server-repository.ts
 │   ├── content-catalog/                # Dominio: Catálogo Prism (Modrinth, CurseForge, PaperMC, Fabric)
 │   │   ├── providers/
@@ -94,10 +103,12 @@ pismcontroller/
 │   │   │   ├── papermc-provider.ts
 │   │   │   └── fabric-provider.ts
 │   │   ├── dependency-resolver.ts
+│   │   ├── update-checker.ts           # Verificador y actualizador de mods en 1-clic
 │   │   └── installer-service.ts
 │   ├── process-supervisor/             # Dominio: Supervisión de procesos Java, I/O terminal y métricas
 │   │   ├── process-runner.ts
 │   │   ├── console-stream.ts
+│   │   ├── crash-analyzer/             # Motor inteligente de diagnóstico de logs y causas
 │   │   ├── crash-detector.ts
 │   │   └── metrics-collector.ts
 │   └── delivery/                       # Mecanismo de entrega (Delivery Mechanism)
@@ -105,13 +116,14 @@ pismcontroller/
 │       │   ├── auth-routes.ts
 │       │   ├── server-routes.ts
 │       │   ├── catalog-routes.ts
+│       │   ├── diagnostics-routes.ts
 │       │   └── java-routes.ts
 │       ├── websocket/                  # Canales en tiempo real (consola y métricas)
 │       │   └── console-socket.ts
 │       └── web-dashboard/              # Aplicación React (SPA)
 │           ├── src/
-│           │   ├── components/         # Terminal, Header, ServerCard, CatalogModal
-│           │   ├── pages/              # Dashboard, ServerDetail, CatalogExplorer, Settings
+│           │   ├── components/         # Terminal, Header, ServerCard, CommandPalette, MotdDesigner
+│           │   ├── pages/              # Dashboard, ServerDetail, CatalogExplorer, PlayersView, Settings
 │           │   └── services/           # Clientes API REST y WebSocket
 └── package.json
 ```
@@ -187,7 +199,17 @@ export class ContentInstallerService {
    - Buscar un mod o plugin en Modrinth/PaperMC desde la UI y que se instale directamente en la carpeta de la instancia correspondiente con 1 solo clic.
 3. **Consola en Vivo & Control**:
    - Iniciar, detener y enviar comandos (`op`, `whitelist`, `gamemode`) a la consola a través de la terminal web en tiempo real.
-4. **Métricas en Vivo**:
-   - Visualización de estado (ONLINE/OFFLINE), uso de RAM, CPU y conteo de jugadores.
+4. **Métricas en Vivo (Mission Control)**:
+   - Visualización de estado (ONLINE/OFFLINE), gráficos fluidos de RAM, CPU, latencia y conteo de jugadores.
 5. **Multi-usuario Seguro**:
    - Login con contraseña, rol de administrador para crear/borrar servidores y rol de operador/visor para gestionar consola.
+6. **Diagnóstico Inteligente de Crashes**:
+   - Detección automática en logs de errores comunes (Java incompatible, mod client-side en servidor, falta de RAM) con propuesta de solución en 1-clic.
+7. **Editor Visual de `server.properties` & Diseñador de MOTD**:
+   - Configuración mediante interruptores y sliders intuitivos con previsualización en vivo de cómo se verá el servidor en el menú multijugador de Minecraft.
+8. **Gestor de Jugadores con Skins**:
+   - Visualización de avatares de jugadores conectados en tiempo real mediante API de skins y botones de acción rápida (Kick, Ban, Op, Whitelist).
+9. **Command Palette (`Ctrl+K`)**:
+   - Búsqueda global instantánea accesible mediante atajo de teclado para navegar servidores, comandos y catálogo.
+10. **Despliegue Nativo para Oracle Cloud / Linux VPS**:
+    - Backend headless configurable con `HOST=0.0.0.0` y `PORT=3000`, paths normalizados y compatibilidad completa con Linux (Ubuntu/Debian) y Windows.

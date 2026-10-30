@@ -10,11 +10,11 @@
 |---|---|---|
 | `auth-identity` | Cuentas locales, roles (*Admin*, *Operator*, *Viewer*), tokens JWT / sesiones seguras, hashing de contraseñas. | — |
 | `java-manager` | Detección automática de runtimes Java en el SO (Java 8, 11, 17, 21, 25), validación de compatibilidad con versiones de Minecraft, optimización de flags JVM (Aikar's Flags). | — |
-| `server-core` | Dominio de instancias: creación de servidores, persistencia de metadatos, edición de `server.properties`, aceptación automática de EULA, gestión y reserva de puertos. | `java-manager` |
-| `content-catalog` | Abstracción de repositorios de contenido (Modrinth API v2, CurseForge Core, PaperMC / Purpur / Velocity, Fabric / Forge / NeoForge). Búsqueda, descarga, resolución de dependencias e instalación de mods, plugins, datapacks y modpacks (.mrpack / zip). | `server-core` |
-| `process-supervisor` | Gestión de procesos Java (`child_process`), streaming interactivo de consola stdin/stdout en tiempo real, autorestart, monitoreo de métricas (CPU/RAM) y ping nativo del protocolo Minecraft (TPS, jugadores online, latencia). | `server-core`, `java-manager` |
-| `delivery-api` | Servidor HTTP y WebSocket (Fastify) que expone endpoints RESTful y canales de WebSocket para el panel web y herramientas de CLI. | `auth-identity`, `server-core`, `content-catalog`, `process-supervisor` |
-| `web-dashboard` | Interfaz de usuario SPA moderna (React + Tailwind CSS + Lucide + Terminal xterm.js). Asistente de creación de servidor, catálogo interactivo de mods/plugins con 1-click install, explorador de archivos, terminal en vivo y gráficos de rendimiento. | `delivery-api` |
+| `server-core` | Dominio de instancias: creación de servidores, persistencia, editor visual de `server.properties`, diseñador de MOTD y Favicon, gestión de puertos y snapshots/backups en .zip. | `java-manager` |
+| `content-catalog` | Abstracción de repositorios (Modrinth API v2, CurseForge, PaperMC/Purpur, Fabric/Forge). Búsqueda, descarga, 1-click update de mods/plugins y resolución de dependencias. | `server-core` |
+| `process-supervisor` | Control de procesos Java, streaming interactivo de consola stdin/stdout en tiempo real (xterm.js), autorestart, métricas (CPU/RAM/TPS), lista de jugadores conectados con skins (Minotar API) y **motor de diagnóstico automático de crashes**. | `server-core`, `java-manager` |
+| `delivery-api` | Servidor HTTP y WebSocket (Fastify) que expone endpoints RESTful y canales de WebSocket para el panel web y herramientas de CLI. Optimizado para ejecución en local y en VPS Cloud (ej. Oracle Cloud Infrastructure). | `auth-identity`, `server-core`, `content-catalog`, `process-supervisor` |
+| `web-dashboard` | Interfaz de usuario SPA moderna (React + Tailwind CSS + Lucide + Terminal xterm.js). Asistente de creación de servidor, catálogo interactivo con 1-click install/update, consola con filtros, Command Palette (`Ctrl+K`), diseñador de MOTD y panel de jugadores con skins. | `delivery-api` |
 
 ---
 

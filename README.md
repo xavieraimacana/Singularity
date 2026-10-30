@@ -15,11 +15,14 @@
 - Administrar servidores en herramientas como Crafty Controller o paneles clásicos requiere buscar manualmente los archivos `.jar`, descargar plugins o mods en páginas externas, subirlos por FTP/gestor de archivos y lidiar con versiones incompatibles de Java.
 - **PismController** integra la revolucionaria experiencia de **Prism Launcher** directamente dentro de un panel de control para servidores:
   - 🚀 **Despliegue Instantáneo**: Crea servidores Vanilla, Paper, Purpur, Fabric, Forge o NeoForge con un asistente visual.
-  - 📦 **Catálogo de Contenido Integrado**: Busca e instala **Modpacks**, **Mods**, **Plugins** y **Datapacks** directamente desde **Modrinth**, **CurseForge** y **PaperMC** en un solo clic, con resolución automática de dependencias.
+  - 📦 **Catálogo de Contenido Integrado**: Busca e instala **Modpacks**, **Mods**, **Plugins** y **Datapacks** directamente desde **Modrinth**, **CurseForge** y **PaperMC** en un solo clic, con resolución automática de dependencias y actualización en 1-clic.
   - ☕ **Gestión Inteligente de Java**: Detecta automáticamente los runtimes instalados (Java 8, 11, 17, 21, 25) y selecciona la versión exacta requerida por la versión de Minecraft elegida, aplicando banderas JVM optimizadas (*Aikar's Flags*).
-  - 🖥️ **Terminal Interactiva en Vivo**: Consola VT100 (xterm.js) con comandos interactivos en tiempo real vía WebSockets.
-  - 👥 **Multi-usuario y Roles**: Control de acceso con roles *Admin*, *Operator* y *Viewer*.
-  - 📊 **Métricas en Tiempo Real**: Gráficos de CPU, consumo de memoria RAM, TPS del servidor y jugadores conectados.
+  - 🩺 **Diagnóstico Inteligente de Crashes**: Analiza automáticamente logs de errores y crash reports identificando la causa (Java incorrecto, mods incompatibles, mods de cliente instalados en el servidor) y ofrece solución en 1-clic.
+  - 🎨 **Editor Visual de `server.properties` y MOTD en Vivo**: Olvídate de editar archivos de texto a ciegas: switches visuales, sliders y previsualización exacta de la tarjeta del servidor multijugador.
+  - 👥 **Gestor de Jugadores con Skins**: Visualiza avatares en tiempo real y ejecuta acciones rápidas (OP, Kick, Ban, Whitelist).
+  - 🖥️ **Terminal Interactiva en Vivo**: Consola VT100 (xterm.js) con comandos interactivos en tiempo real vía WebSockets y filtros inteligentes de logs.
+  - ⚡ **Command Palette (`Ctrl+K`)**: Búsqueda global instantánea para saltar entre servidores, mods y comandos.
+  - ☁️ **Optimizado para Oracle Cloud / VPS**: Diseñado tanto para desarrollo local como para operar como daemon 24/7 en servidores Linux (Oracle Cloud Infrastructure, Ubuntu, Debian).
 
 ---
 
