@@ -40,7 +40,7 @@
   - Verify: `npx vitest run tests/delivery/` pasa.
   - Files: `src/delivery/http/*`, `src/delivery/websocket/*`, `tests/delivery/*`
 
-- [ ] Task 9: Scaffolding del Panel Web React (SPA) con Tailwind y Lucide (`src/delivery/web-dashboard`)
+- [x] Task 9: Scaffolding del Panel Web React (SPA) con Tailwind y Lucide (`src/delivery/web-dashboard`)
   - Acceptance: Layout SPA con Dark Theme NebulaX Studio, Header, Sidebar y Command Palette (`Ctrl+K`).
   - Verify: `npm run build` en web-dashboard compila sin errores.
   - Files: `src/delivery/web-dashboard/*`
