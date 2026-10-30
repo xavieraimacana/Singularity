@@ -69,6 +69,48 @@ npm run dev
 
 El panel estará disponible en `http://localhost:3000`.
 
+### 🔑 Credenciales Iniciales
+Al arrancar por primera vez, el sistema inicializa una cuenta de administrador por defecto:
+- **Usuario:** `admin`
+- **Contraseña:** `admin`
+
+> [!IMPORTANT]
+> **Cambio Obligatorio:** En el primer inicio de sesión, el panel solicitará automáticamente actualizar la contraseña por razones de seguridad.
+
+---
+
+## ☁️ Despliegue en VPS y Oracle Cloud (OCI)
+
+Para operar PismController en un VPS en la nube (como instancias Ubuntu/Debian en Oracle Cloud Infrastructure), asegúrate de abrir los puertos de red necesarios:
+
+### 1. Puertos Requeridos
+| Puerto | Protocolo | Servicio |
+|---|---|---|
+| `3000` | TCP | Panel Web y WebSocket de PismController |
+| `25565` | TCP / UDP | Puerto por defecto de servidores de Minecraft |
+
+### 2. Reglas de Ingreso en Oracle Cloud (OCI)
+En la consola de Oracle Cloud:
+1. Ve a **Networking** > **Virtual Cloud Networks (VCN)** > Tu VCN > **Security Lists**.
+2. Añade las siguientes **Ingress Rules** (Reglas de Ingreso):
+   - **CIDR:** `0.0.0.0/0` | **Protocol:** TCP | **Destination Port Range:** `3000, 25565`
+   - **CIDR:** `0.0.0.0/0` | **Protocol:** UDP | **Destination Port Range:** `25565` (requerido para consultas Bedrock/Geyser y ping UDP)
+
+### 3. Firewall en el Sistema Operativo (Ubuntu/Debian)
+```bash
+# Si usas UFW:
+sudo ufw allow 3000/tcp
+sudo ufw allow 25565/tcp
+sudo ufw allow 25565/udp
+sudo ufw reload
+
+# Si usas iptables nativo de Oracle Linux / Ubuntu OCI:
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 3000 -j ACCEPT
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 25565 -j ACCEPT
+sudo iptables -I INPUT 6 -m state --state NEW -p udp --dport 25565 -j ACCEPT
+sudo netfilter-persistent save
+```
+
 ---
 
 ## 📄 Licencia

@@ -21,17 +21,17 @@
   - Files: `src/process-supervisor/crash-analyzer/*`, `tests/process-supervisor/crash-analyzer.test.ts`
 
 - [ ] Task 5: Supervisor de Procesos y Terminal Interactiva (`src/process-supervisor`)
-  - Acceptance: Spawn de procesos Java, buffer circular de consola, stdin interactivo y métricas.
+  - Acceptance: Spawn de procesos Java, terminación en árbol (`tree-kill`), timeout de apagado seguro (15s), buffer circular de consola, stdin interactivo, sincronización de jugadores y métricas.
   - Verify: `npx vitest run tests/process-supervisor/` pasa.
   - Files: `src/process-supervisor/*`, `tests/process-supervisor/*`
 
 - [ ] Task 6: Catálogo de Contenidos y Descarga de Modpacks/Plugins (`src/content-catalog`)
-  - Acceptance: Proveedores Modrinth v2 y PaperMC, resolución e instalación en `mods/`/`plugins/`.
+  - Acceptance: Proveedores Modrinth v2 y PaperMC activos por defecto, CurseForge opcional vía `CURSEFORGE_API_KEY`, resolución e instalación en `mods/`/`plugins/`.
   - Verify: `npx vitest run tests/content-catalog/` pasa.
   - Files: `src/content-catalog/*`, `tests/content-catalog/*`
 
 - [ ] Task 7: Módulo de Autenticación, Roles y Base de Datos (`src/auth-identity`)
-  - Acceptance: SQLite con `better-sqlite3`, hashing scrypt, roles Admin/Operator/Viewer y JWT.
+  - Acceptance: SQLite con `better-sqlite3`, hashing scrypt, roles Admin/Operator/Viewer, JWT y credenciales por defecto con forzado de cambio de contraseña en primer login.
   - Verify: `npx vitest run tests/auth-identity/` pasa.
   - Files: `src/auth-identity/*`, `tests/auth-identity/*`
 

@@ -22,7 +22,7 @@
 | **Backend Framework** | Fastify | v5.x (Alto rendimiento, bajo overhead HTTP y WebSockets via `@fastify/websocket`) |
 | **Persistencia** | SQLite | `better-sqlite3` (Síncrono, ultrarrápido, cero configuración) |
 | **Seguridad & Auth** | Argon2 / JWT | `@fastify/jwt` con cookies HTTP-only para sesiones multi-usuario |
-| **Procesos & Subprocess** | Node `child_process` / `events` | Wrapper de supervisión con pipes bidireccionales y `pidusage` para métricas |
+| **Procesos & Subprocess** | Node `child_process` / `events` | Wrapper de supervisión con pipes bidireccionales, terminación en árbol (`tree-kill`), timeout de apagado ordenado (15s) y `pidusage` para métricas |
 | **Frontend Framework** | React 19 + Vite | SPA de alto rendimiento |
 | **Estilos & UI** | Tailwind CSS + Lucide Icons | Estética industrial limpia NebulaX Studio |
 | **Consola Web** | `@xterm/xterm` + `@xterm/addon-fit` | Emulador de terminal ANSI completo para logs y comandos |
@@ -99,7 +99,7 @@ pismcontroller/
 │   ├── content-catalog/                # Dominio: Catálogo Prism (Modrinth, CurseForge, PaperMC, Fabric)
 │   │   ├── providers/
 │   │   │   ├── modrinth-provider.ts
-│   │   │   ├── cursfeforge-provider.ts
+│   │   │   ├── curseforge-provider.ts   # Opcional vía CURSEFORGE_API_KEY
 │   │   │   ├── papermc-provider.ts
 │   │   │   └── fabric-provider.ts
 │   │   ├── dependency-resolver.ts
@@ -167,7 +167,7 @@ export class ContentInstallerService {
 - **Vitest**: Test runner principal.
 - **Pruebas Unitarias de Dominio**:
   - `java-manager`: Mockear salidas de `java -version` para verificar detección de Java 8, 17, 21 y 25.
-  - `server-core`: Validación de parser y serializador de `server.properties` y gestión de puertos.
+  - `servers`: Validación de parser y serializador de `server.properties` y gestión de puertos.
   - `content-catalog`: Mockear respuestas JSON de Modrinth y PaperMC para probar resolución de dependencias y selección de versiones compatibles.
   - `process-supervisor`: Mockear streams de `child_process` para asegurar que las entradas y salidas de la consola se emiten adecuadamente por los eventos.
 - **Cobertura Objetivo**: Mínimo 80% en los módulos de lógica de negocio (`servers`, `content-catalog`, `java-manager`).
@@ -181,6 +181,9 @@ export class ContentInstallerService {
   - Comprobar que los puertos seleccionados (ej. 25565) estén libres antes de iniciar un servidor.
   - Respetar la compatibilidad de Java (evitar que un servidor de MC 1.21.x arranque con Java 8 o 17).
   - Mantener la consola y métricas operando en segundo plano de manera no bloqueante.
+  - Emplear terminación en árbol de procesos (`tree-kill` en Windows / Process Groups en Linux) con un timeout de 15s tras `/stop` antes de enviar `SIGKILL`, garantizando que launchers de Fabric/Forge no dejen instancias Java huérfanas reteniendo puertos o archivos `session.lock`.
+  - Habilitar Modrinth y PaperMC como proveedores por defecto; requerir `CURSEFORGE_API_KEY` para activar CurseForge sin romper el inicio de la app si no está presente.
+  - Detección precisa de jugadores combinando Server List Ping (SLP) con regex parsing del flujo stdout para eventos de conexión/desconexión y comandos administrativos.
 - **Consultar primero (Ask First):**
   - Modificar esquemas de base de datos existentes.
   - Añadir dependencias npm que superen 5MB.

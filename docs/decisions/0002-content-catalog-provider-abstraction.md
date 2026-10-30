@@ -23,7 +23,9 @@ Diseñar el módulo `content-catalog` siguiendo el patrón **Strategy / Provider
    - `getVersions(id: string, gameVersion?: string, loader?: LoaderType): Promise<ContentVersion[]>`
    - `resolveDependencies(versionId: string): Promise<DependencyGraph>`
    - `downloadArtifact(versionId: string, targetPath: string): Promise<DownloadResult>`
-2. Implementar adaptadores específicos (`ModrinthProvider`, `CurseForgeProvider`, `PaperMcProvider`).
+2. Implementar adaptadores específicos (`ModrinthProvider`, `CurseForgeProvider`, `PaperMcProvider`):
+   - **Modrinth y PaperMC:** Habilitados por defecto con configuración cero (APIs abiertas y públicas).
+   - **CurseForge:** Habilitado de forma opcional mediante la variable de entorno `CURSEFORGE_API_KEY`. Si la clave no está configurada en `.env`, el proveedor reporta su estado inactivo de forma limpia en el catálogo sin interrumpir el funcionamiento del sistema.
 3. Crear un `ContentInstallerService` que orquesta la colocación del archivo descargado en la carpeta correcta de la instancia (`mods/`, `plugins/`, `datapacks/` o extracción raíz para modpacks) y la actualización de un manifiesto local de la instancia `pism-manifest.json`.
 
 ## Alternativas Consideradas

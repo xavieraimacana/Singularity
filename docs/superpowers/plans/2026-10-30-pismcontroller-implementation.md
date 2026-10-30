@@ -34,10 +34,10 @@
   Ignorar `node_modules/`, `dist/`, `data/servers/`, `data/pism.db`, `.env`.
 
 - [ ] **Step 2: Crear package.json con scripts de compilación, test y desarrollo**
-  Definir scripts `dev`, `build`, `test`, `test:coverage`, `lint`. Dependencias clave: `fastify`, `@fastify/websocket`, `@fastify/cors`, `@fastify/jwt`, `better-sqlite3`, `pidusage`, `dotenv`, `zod`. Dependencias dev: `typescript`, `vitest`, `@types/node`, `@types/better-sqlite3`.
+  Definir scripts `dev`, `build`, `test`, `test:coverage`, `lint`. Dependencias clave: `fastify`, `@fastify/websocket`, `@fastify/cors`, `@fastify/jwt`, `better-sqlite3`, `pidusage`, `tree-kill`, `dotenv`, `zod`. Dependencias dev: `typescript`, `vitest`, `@types/node`, `@types/better-sqlite3`.
 
 - [ ] **Step 3: Crear tsconfig.json y vitest.config.ts**
-  Configurar target ES2022, moduleResolution NodeNext, strict mode.
+  Configurar target ES2022, moduleResolution NodeNext, strict mode. Generar `.env.example` con `PORT=3000`, `HOST=0.0.0.0`, `JWT_SECRET=`, `CURSEFORGE_API_KEY=` (opcional), `DEFAULT_ADMIN_USER=admin`, `DEFAULT_ADMIN_PASSWORD=admin`.
 
 - [ ] **Step 4: Instalar dependencias iniciales**
   Ejecutar `npm install`.
@@ -173,9 +173,9 @@
   Buffer circular de 2000 líneas para memoria acotada. Mockear `child_process.spawn`.
 - [ ] **Step 2: Ejecutar test y verificar fallo**
 - [ ] **Step 3: Implementar ConsoleBuffer y ProcessRunner**
-  Manejo limpio de pipes stdin/stdout, terminación elegante con comando `/stop` antes de forzar `kill`, recolección de métricas de proceso vía `pidusage`.
-- [ ] **Step 4: Implementar MinecraftPing (Protocolo Status Ping)**
-  Lectura ligera de jugadores en línea y latencia sin mods.
+  Manejo limpio de pipes stdin/stdout, terminación elegante con comando `/stop` y timeout de seguridad de 15s antes de forzar `kill` mediante `tree-kill` (en Windows) o Process Groups (en Linux), evitando procesos Java huérfanos que retengan puertos o bloqueen `session.lock`. Recolección de métricas de proceso vía `pidusage`.
+- [ ] **Step 4: Implementar MinecraftPing y Parser de Eventos de Jugadores**
+  Lectura ligera de estado (SLP) combinada con parser regex sobre stdout (`joined the game` / `left the game`) para lista exacta de jugadores conectados en tiempo real.
 - [ ] **Step 5: Ejecutar test y verificar éxito**
   Run: `npx vitest run tests/process-supervisor/`
 - [ ] **Step 6: Commit**
@@ -193,21 +193,24 @@
 - Create: `src/content-catalog/providers/content-provider.interface.ts`
 - Create: `src/content-catalog/providers/modrinth-provider.ts`
 - Create: `src/content-catalog/providers/papermc-provider.ts`
+- Create: `src/content-catalog/providers/curseforge-provider.ts`
 - Create: `src/content-catalog/services/content-installer.ts`
 - Test: `tests/content-catalog/modrinth-provider.test.ts`
 - Test: `tests/content-catalog/papermc-provider.test.ts`
+- Test: `tests/content-catalog/curseforge-provider.test.ts`
 
 **Interfaces:**
 - Produces:
   - `IContentProvider` (search, getVersions, download)
-  - `ModrinthProvider`: Búsqueda de mods, plugins, modpacks y datapacks compatibles con versión y loader.
-  - `PaperMcProvider`: Obtención de jars oficiales de Paper, Purpur y Velocity.
+  - `ModrinthProvider`: Búsqueda de mods, plugins, modpacks y datapacks compatibles con versión y loader (activo por defecto).
+  - `PaperMcProvider`: Obtención de jars oficiales de Paper, Purpur y Velocity (activo por defecto).
+  - `CurseForgeProvider`: Habilitado de forma opcional si `CURSEFORGE_API_KEY` está presente.
   - `ContentInstaller`: Colocación adecuada en `mods/`, `plugins/`, `datapacks/` o raíz.
 
 - [ ] **Step 1: Escribir tests unitarios mockeando fetch HTTP para Modrinth y PaperMC**
 - [ ] **Step 2: Ejecutar test y verificar fallo**
-- [ ] **Step 3: Implementar ModrinthProvider y PaperMcProvider**
-  Endpoints oficiales de Modrinth v2 (`/v2/search`, `/v2/project/{id}/version`) y PaperMC API v2 (`/v2/projects/paper/version_group/...`).
+- [ ] **Step 3: Implementar ModrinthProvider, PaperMcProvider y CurseForgeProvider**
+  Endpoints oficiales de Modrinth v2 (`/v2/search`, `/v2/project/{id}/version`) y PaperMC API v2 (`/v2/projects/paper/version_group/...`). CurseForgeProvider maneja la presencia/ausencia de `CURSEFORGE_API_KEY` de forma segura.
 - [ ] **Step 4: Implementar ContentInstaller**
   Descarga con stream a archivo temporal, verificación de integridad y traslado atómico al destino.
 - [ ] **Step 5: Ejecutar test y verificar éxito**
@@ -239,7 +242,7 @@
 - [ ] **Step 1: Escribir tests unitarios para autenticación y roles**
 - [ ] **Step 2: Ejecutar test y verificar fallo**
 - [ ] **Step 3: Implementar SQLite DbClient y UserRepository**
-  Creación automática de tabla `users` e inicialización de usuario Admin por defecto si la base de datos está vacía. Hashing seguro con `node:crypto` (scrypt / PBKDF2).
+  Creación automática de tabla `users` e inicialización de usuario Admin por defecto (`admin` / `admin` o vía variables de entorno) con flag `mustChangePassword: true` que fuerza cambio obligatorio de credenciales en el primer login. Hashing seguro con `node:crypto` (scrypt / PBKDF2).
 - [ ] **Step 4: Implementar AuthService**
 - [ ] **Step 5: Ejecutar test y verificar éxito**
   Run: `npx vitest run tests/auth-identity/`
