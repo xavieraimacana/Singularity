@@ -11,7 +11,7 @@ export const CRASH_RULES: CrashRule[] = [
     id: 'java-mismatch',
     match(log: string): DiagnosticResult | null {
       const match = log.match(
-        /UnsupportedClassVersionError:.*class file version (\d+\.\d+).*recognizes class file versions up to (\d+\.\d+)/i
+        /UnsupportedClassVersionError:.*?class file version (\d+(?:\.\d+)?).*?up to (\d+(?:\.\d+)?)/i
       );
 
       if (!match || !match[1] || !match[2]) {

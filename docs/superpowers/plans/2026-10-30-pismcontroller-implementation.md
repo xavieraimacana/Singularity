@@ -169,16 +169,16 @@
   - `ProcessRunner.getBuffer(instanceId: string): string[]`
   - Eventos de EventEmitter: `console-line`, `status-change`, `crash-detected`.
 
-- [ ] **Step 1: Escribir tests para ProcessRunner y ConsoleBuffer**
+- [x] **Step 1: Escribir tests para ProcessRunner y ConsoleBuffer**
   Buffer circular de 2000 líneas para memoria acotada. Mockear `child_process.spawn`.
-- [ ] **Step 2: Ejecutar test y verificar fallo**
-- [ ] **Step 3: Implementar ConsoleBuffer y ProcessRunner**
+- [x] **Step 2: Ejecutar test y verificar fallo**
+- [x] **Step 3: Implementar ConsoleBuffer y ProcessRunner**
   Manejo limpio de pipes stdin/stdout, terminación elegante con comando `/stop` y timeout de seguridad de 15s antes de forzar `kill` mediante `tree-kill` (en Windows) o Process Groups (en Linux), evitando procesos Java huérfanos que retengan puertos o bloqueen `session.lock`. Recolección de métricas de proceso vía `pidusage`.
-- [ ] **Step 4: Implementar MinecraftPing y Parser de Eventos de Jugadores**
+- [x] **Step 4: Implementar MinecraftPing y Parser de Eventos de Jugadores**
   Lectura ligera de estado (SLP) combinada con parser regex sobre stdout (`joined the game` / `left the game`) para lista exacta de jugadores conectados en tiempo real.
-- [ ] **Step 5: Ejecutar test y verificar éxito**
+- [x] **Step 5: Ejecutar test y verificar éxito**
   Run: `npx vitest run tests/process-supervisor/`
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
   ```bash
   git add src/process-supervisor/ tests/process-supervisor/
   git commit -m "feat(process-supervisor): implementar ejecucion de servidores, buffer de consola y ping"

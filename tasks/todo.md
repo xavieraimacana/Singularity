@@ -20,7 +20,7 @@
   - Verify: `npx vitest run tests/process-supervisor/crash-analyzer.test.ts` pasa.
   - Files: `src/process-supervisor/crash-analyzer/*`, `tests/process-supervisor/crash-analyzer.test.ts`
 
-- [ ] Task 5: Supervisor de Procesos y Terminal Interactiva (`src/process-supervisor`)
+- [x] Task 5: Supervisor de Procesos y Terminal Interactiva (`src/process-supervisor`)
   - Acceptance: Spawn de procesos Java, terminación en árbol (`tree-kill`), timeout de apagado seguro (15s), buffer circular de consola, stdin interactivo, sincronización de jugadores y métricas.
   - Verify: `npx vitest run tests/process-supervisor/` pasa.
   - Files: `src/process-supervisor/*`, `tests/process-supervisor/*`
