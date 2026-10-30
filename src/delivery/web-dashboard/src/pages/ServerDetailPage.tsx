@@ -7,7 +7,8 @@ import {
   Terminal as TerminalIcon,
   Sliders,
   Package,
-  HardDrive
+  HardDrive,
+  Code2
 } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import type { ServerInstanceData } from '../components/ServerCard.js';
@@ -34,6 +35,16 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
   const [activeCrash, setActiveCrash] = useState<CrashDiagnosticData | null>(null);
   const [isActing, setIsActing] = useState(false);
   const [players, setPlayers] = useState<PlayerData[]>([]);
+
+  const isDesktop = typeof window !== 'undefined' && Boolean((window as any).singularityDesktop?.isElectron);
+
+  const handleOpenInIde = async () => {
+    if (!server) return;
+    const desktopApi = (window as any).singularityDesktop;
+    if (desktopApi?.openInIde) {
+      await desktopApi.openInIde(server.id, 'antigravity');
+    }
+  };
 
   const fetchServerDetails = useCallback(async () => {
     try {
@@ -141,6 +152,18 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
 
         {/* Server Actions */}
         <div className="flex items-center gap-2 self-end sm:self-center">
+          {isDesktop && (
+            <button
+              type="button"
+              onClick={handleOpenInIde}
+              className="px-3 py-2 rounded-lg bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-nebula-700 font-semibold text-xs flex items-center gap-1.5 transition-colors"
+              title="Abrir directorio de la instancia en Antigravity IDE"
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              <span>Abrir en IDE</span>
+            </button>
+          )}
+
           {isOnline ? (
             <>
               <button
@@ -260,6 +283,10 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
                 <div className="flex justify-between font-mono text-[11px]">
                   <span>EULA Mojang:</span>
                   <span className="text-emerald-400 font-semibold">Aceptado</span>
+                </div>
+                <div className="flex justify-between font-mono text-[11px]">
+                  <span>Acceso SFTP:</span>
+                  <span className="text-nebula-cyber font-semibold">Puerto 2022</span>
                 </div>
               </div>
             </div>

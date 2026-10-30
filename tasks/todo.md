@@ -70,7 +70,7 @@
   - Verify: Cliente SFTP se conecta, lista archivos y sube/edita archivos.
   - Files: `src/delivery/sftp/*`, `tests/delivery/sftp.test.ts`
 
-- [ ] Task 15: Aplicación de Escritorio Electron con System Tray e Integración IDE (`src/delivery/desktop`)
+- [x] Task 15: Aplicación de Escritorio Electron con System Tray e Integración IDE (`src/delivery/desktop`)
   - Acceptance: Shell Electron, bandeja del sistema con arranque en segundo plano, botón 'Abrir en Antigravity IDE'.
   - Verify: Ventana Electron empaquetada carga el dashboard web.
   - Files: `src/delivery/desktop/*`
