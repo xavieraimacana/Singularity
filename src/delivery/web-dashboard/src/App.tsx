@@ -5,13 +5,13 @@ import { Sidebar, type NavTab } from './components/Sidebar.js';
 import { CommandPalette } from './components/CommandPalette.js';
 import { Dashboard } from './pages/Dashboard.js';
 import { ServerDetailPage } from './pages/ServerDetailPage.js';
+import { CatalogExplorer } from './pages/CatalogExplorer.js';
 import type { ServerInstanceData } from './components/ServerCard.js';
 import {
   Orbit,
   Lock,
   Terminal,
   Cpu,
-  Package,
   AlertTriangle,
   CheckCircle2,
   Copy
@@ -194,6 +194,10 @@ export const App: React.FC = () => {
               <ServerDetailPage
                 serverId={selectedServer.id}
                 onBack={() => setSelectedServer(null)}
+                onNavigateToCatalog={() => {
+                  setSelectedServer(null);
+                  setCurrentTab('catalog');
+                }}
               />
             ) : (
               <Dashboard
@@ -206,18 +210,7 @@ export const App: React.FC = () => {
           )}
 
           {currentTab === 'catalog' && (
-            <div>
-              <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2 mb-1">
-                <Package className="w-5 h-5 text-nebula-purple" />
-                Catálogo Unificado Prism
-              </h2>
-              <p className="text-xs text-slate-400 mb-6">
-                Instala mods de Modrinth, plugins y modpacks oficiales en 1-clic con resolución de compatibilidad.
-              </p>
-              <div className="p-8 border border-nebula-800 rounded-xl bg-nebula-900/30 text-xs text-slate-400">
-                Módulo activo: Modrinth v2 API + PaperMC v2 API conectados.
-              </div>
-            </div>
+            <CatalogExplorer />
           )}
 
           {currentTab === 'java' && (

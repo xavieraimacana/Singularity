@@ -14,15 +14,18 @@ import type { ServerInstanceData } from '../components/ServerCard.js';
 import { ConsoleTerminal } from '../components/ConsoleTerminal.js';
 import { PlayerManager, type PlayerData } from '../components/PlayerManager.js';
 import { CrashAlertBanner, type CrashDiagnosticData } from '../components/CrashAlertBanner.js';
+import { InstalledContentList } from '../components/InstalledContentList.js';
 
 interface ServerDetailPageProps {
   serverId: string;
   onBack: () => void;
+  onNavigateToCatalog?: () => void;
 }
 
 export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
   serverId,
-  onBack
+  onBack,
+  onNavigateToCatalog
 }) => {
   const [server, setServer] = useState<ServerInstanceData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -269,8 +272,11 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
         )}
 
         {activeTab === 'content' && (
-          <div className="p-6 rounded-xl bg-nebula-900 border border-nebula-800 text-xs text-slate-300">
-            Catálogo y mods instalados en `mods/` y `plugins/`.
+          <div className="h-full overflow-y-auto">
+            <InstalledContentList
+              serverId={server.id}
+              onExploreCatalog={() => onNavigateToCatalog?.()}
+            />
           </div>
         )}
       </div>

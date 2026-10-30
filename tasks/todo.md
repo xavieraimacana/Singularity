@@ -55,7 +55,7 @@
   - Verify: Terminal interactiva recibe y envía comandos fluidamente.
   - Files: `src/delivery/web-dashboard/src/pages/ServerDetailPage.tsx`, `ConsoleTerminal.tsx`, `PlayerManager.tsx`, `CrashAlertBanner.tsx`
 
-- [ ] Task 12: Catálogo Integrado Prism (Mods, Plugins, Modpacks) y 1-Click Install
+- [x] Task 12: Catálogo Integrado Prism (Mods, Plugins, Modpacks) y 1-Click Install
   - Acceptance: Búsqueda unificada Modrinth/CurseForge/PaperMC, filtros por loader y versión, botón '1-Click Install' con barra de progreso.
   - Verify: Instalación de plugin/mod reflejada en la pestaña del servidor.
   - Files: `src/delivery/web-dashboard/src/pages/ContentCatalogPage.tsx`
