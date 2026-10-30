@@ -11,12 +11,15 @@ export interface ConsoleSocketOptions {
 export const consoleSocketPlugin: FastifyPluginAsync<ConsoleSocketOptions> = async (fastify, opts) => {
   const { processRunner, authService } = opts;
 
-  fastify.get<{
-    Params: { id: string };
-    Querystring: { token?: string };
-  }>('/ws/servers/:id/console', { websocket: true }, (socket: WebSocket, request) => {
-    const instanceId = request.params.id;
+  const handleSocketConnection = (socket: WebSocket, request: any) => {
+    const instanceId = request.params?.id;
     let isAuthenticated = false;
+
+    const sendJson = (payload: unknown) => {
+      if (socket.readyState === 1 /* OPEN */) {
+        socket.send(JSON.stringify(payload));
+      }
+    };
 
     // Check query token
     const queryToken = request.query?.token;
@@ -25,30 +28,28 @@ export const consoleSocketPlugin: FastifyPluginAsync<ConsoleSocketOptions> = asy
         authService.verifyToken(queryToken);
         isAuthenticated = true;
       } catch {
-        socket.send(JSON.stringify({ type: 'error', message: 'Token de autenticación inválido' }));
+        sendJson({ type: 'error', message: 'Token de autenticación inválido o expirado' });
         socket.close(1008, 'Unauthorized');
         return;
       }
     }
-
-    const sendJson = (payload: unknown) => {
-      if (socket.readyState === 1 /* OPEN */) {
-        socket.send(JSON.stringify(payload));
-      }
-    };
 
     // If not authenticated via query string, wait for initial auth message
     let authTimeout: NodeJS.Timeout | null = null;
     if (!isAuthenticated) {
       authTimeout = setTimeout(() => {
         if (!isAuthenticated) {
-          sendJson({ type: 'error', message: 'Timeout de autenticación' });
+          sendJson({ type: 'error', message: 'Timeout de autenticación WebSocket' });
           socket.close(1008, 'Unauthorized');
         }
       }, 5000);
     }
 
+    let isStreaming = false;
     const startStreaming = () => {
+      if (isStreaming) return;
+      isStreaming = true;
+
       // 1. Send buffer history
       const buffer = processRunner.getBuffer(instanceId);
       const lines = buffer ? buffer.getLines() : [];
@@ -123,5 +124,17 @@ export const consoleSocketPlugin: FastifyPluginAsync<ConsoleSocketOptions> = asy
         sendJson({ type: 'error', message: 'Mensaje JSON inválido' });
       }
     });
-  });
+  };
+
+  // Register primary route
+  fastify.get<{
+    Params: { id: string };
+    Querystring: { token?: string };
+  }>('/ws/servers/:id/console', { websocket: true }, handleSocketConnection);
+
+  // Register alternative route for reverse proxies forwarding /api only
+  fastify.get<{
+    Params: { id: string };
+    Querystring: { token?: string };
+  }>('/api/ws/servers/:id/console', { websocket: true }, handleSocketConnection);
 };

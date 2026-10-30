@@ -31,7 +31,8 @@ export interface ServerOptions {
 
 export async function buildServer(options: ServerOptions = {}): Promise<FastifyInstance> {
   const fastify = Fastify({
-    logger: false
+    logger: false,
+    trustProxy: true
   });
 
   await fastify.register(cors, {
