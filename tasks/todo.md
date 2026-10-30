@@ -1,6 +1,6 @@
 # Todo: Singularity
 
-- [ ] Task 1: Scaffolding del Proyecto y Entorno de Desarrollo
+- [x] Task 1: Scaffolding del Proyecto y Entorno de Desarrollo
   - Acceptance: `package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`, `npm test` funcionando.
   - Verify: `npm test` corre sin errores.
   - Files: `package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`, `.env.example`

@@ -1,0 +1,34 @@
+# Node & Dependencies
+node_modules/
+dist/
+dist-electron/
+coverage/
+
+# Persistence & Runtime Data
+data/servers/
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+data/sftp_host_key*
+
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

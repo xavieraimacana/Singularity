@@ -30,22 +30,22 @@
 **Interfaces:**
 - Produces: Estructura base del monorepo, configuración de TypeScript y suite de pruebas Vitest operativa.
 
-- [ ] **Step 1: Crear archivo .gitignore**
+- [x] **Step 1: Crear archivo .gitignore**
   Ignorar `node_modules/`, `dist/`, `data/servers/`, `data/pism.db`, `.env`.
 
-- [ ] **Step 2: Crear package.json con scripts de compilación, test y desarrollo**
+- [x] **Step 2: Crear package.json con scripts de compilación, test y desarrollo**
   Definir scripts `dev`, `dev:desktop`, `build`, `build:desktop`, `test`, `test:coverage`, `lint`. Dependencias clave: `fastify`, `@fastify/websocket`, `@fastify/cors`, `@fastify/jwt`, `better-sqlite3`, `pidusage`, `tree-kill`, `ssh2`, `dotenv`, `zod`. Dependencias dev: `typescript`, `vitest`, `electron`, `@types/node`, `@types/better-sqlite3`, `@types/ssh2`.
 
-- [ ] **Step 3: Crear tsconfig.json y vitest.config.ts**
+- [x] **Step 3: Crear tsconfig.json y vitest.config.ts**
   Configurar target ES2022, moduleResolution NodeNext, strict mode. Generar `.env.example` con `PORT=3000`, `HOST=0.0.0.0`, `SFTP_PORT=2022`, `JWT_SECRET=`, `CURSEFORGE_API_KEY=` (opcional), `DEFAULT_ADMIN_USER=admin`, `DEFAULT_ADMIN_PASSWORD=admin`.
 
-- [ ] **Step 4: Instalar dependencias iniciales**
+- [x] **Step 4: Instalar dependencias iniciales**
   Ejecutar `npm install`.
 
-- [ ] **Step 5: Verificar que Vitest corre correctamente**
+- [x] **Step 5: Verificar que Vitest corre correctamente**
   Ejecutar `npm test`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
   ```bash
   git add package.json tsconfig.json tsconfig.server.json vitest.config.ts .gitignore .env.example
   git commit -m "chore: inicializar estructura de proyecto, typescript y vitest"
