@@ -45,10 +45,10 @@
   - Verify: `npm run build` en web-dashboard compila sin errores.
   - Files: `src/delivery/web-dashboard/*`
 
-- [ ] Task 10: Vistas de Servidores, Wizard de Creación en 3 Clics y Mission Control
+- [x] Task 10: Vistas de Servidores, Wizard de Creación en 3 Clics y Mission Control
   - Acceptance: ServerCards reactivas, sparklines de métricas y wizard para crear instancias.
   - Verify: Componentes renderizan y crean servidores vía API.
-  - Files: `src/delivery/web-dashboard/src/pages/ServersPage.tsx`, `ServerWizardModal.tsx`
+  - Files: `src/delivery/web-dashboard/src/pages/Dashboard.tsx`, `CreateServerWizard.tsx`, `ServerCard.tsx`, `MetricSparkline.tsx`
 
 - [ ] Task 11: Vista de Detalle, Consola xterm.js y Gestor de Jugadores con Skins
   - Acceptance: Consola WebSocket bidireccional con xterm.js, comandos rápidos y lista de jugadores con avatares Crafatar.

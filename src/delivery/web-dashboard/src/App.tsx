@@ -3,13 +3,14 @@ import { useAuth } from './context/AuthContext.js';
 import { Header } from './components/Header.js';
 import { Sidebar, type NavTab } from './components/Sidebar.js';
 import { CommandPalette } from './components/CommandPalette.js';
+import { Dashboard } from './pages/Dashboard.js';
+import type { ServerInstanceData } from './components/ServerCard.js';
 import {
   Orbit,
   Lock,
   Terminal,
   Cpu,
   Package,
-  Server,
   AlertTriangle,
   CheckCircle2,
   Copy
@@ -25,6 +26,10 @@ export const App: React.FC = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isSftpModalOpen, setIsSftpModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
+
+  // Selected Server for Detail View (Task 11)
+  const [_selectedServer, setSelectedServer] = useState<ServerInstanceData | null>(null);
 
   // Login Form State
   const [usernameInput, setUsernameInput] = useState('');
@@ -102,7 +107,7 @@ export const App: React.FC = () => {
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
                 placeholder="admin"
-                className="w-full px-3 py-2 text-xs bg-nebula-950 border border-nebula-800 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent transition-colors"
+                className="w-full px-3 py-2 text-xs bg-nebula-950 border border-nebula-850 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent transition-colors"
               />
             </div>
 
@@ -116,7 +121,7 @@ export const App: React.FC = () => {
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 text-xs bg-nebula-950 border border-nebula-800 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent transition-colors"
+                className="w-full px-3 py-2 text-xs bg-nebula-950 border border-nebula-850 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent transition-colors"
               />
             </div>
 
@@ -181,36 +186,14 @@ export const App: React.FC = () => {
 
           {/* Tab Views */}
           {currentTab === 'servers' && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                    <Server className="w-5 h-5 text-nebula-accent" />
-                    Mission Control
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Monitorización y orquestación en tiempo real de instancias de Minecraft
-                  </p>
-                </div>
-              </div>
-
-              {/* Empty state / placeholder for Task 10 */}
-              <div className="border border-dashed border-nebula-800 rounded-2xl p-12 text-center bg-nebula-900/40">
-                <Server className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-                <h3 className="text-sm font-semibold text-slate-200">
-                  No hay servidores desplegados
-                </h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
-                  Despliega tu primera instancia de Minecraft (Paper, Vanilla o Fabric) en 3 clics.
-                </p>
-                <button
-                  onClick={() => setIsCommandPaletteOpen(true)}
-                  className="px-4 py-2 bg-nebula-accent text-slate-950 text-xs font-semibold rounded-lg hover:bg-emerald-600 transition-all shadow-lg shadow-nebula-accent/20"
-                >
-                  Abrir Wizard de Creación (Ctrl+K)
-                </button>
-              </div>
-            </div>
+            <Dashboard
+              onSelectServer={(srv) => {
+                setSelectedServer(srv);
+              }}
+              onOpenWizard={() => setIsCreateWizardOpen(true)}
+              isWizardOpen={isCreateWizardOpen}
+              onCloseWizard={() => setIsCreateWizardOpen(false)}
+            />
           )}
 
           {currentTab === 'catalog' && (
@@ -276,7 +259,7 @@ export const App: React.FC = () => {
         onClose={() => setIsCommandPaletteOpen(false)}
         onNavigate={setCurrentTab}
         onOpenCreateWizard={() => {
-          setCurrentTab('servers');
+          setIsCreateWizardOpen(true);
         }}
         onOpenSftpModal={() => setIsSftpModalOpen(true)}
         onOpenPasswordModal={() => setIsPasswordModalOpen(true)}
