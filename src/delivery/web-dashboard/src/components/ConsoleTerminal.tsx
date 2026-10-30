@@ -26,6 +26,10 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
   const fitAddonRef = useRef<FitAddon | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
+  const intentionalCloseRef = useRef(false);
+  const retryCountRef = useRef(0);
 
   // Preserve latest callbacks and flags across renders without re-triggering effects
   const callbacksRef = useRef({
@@ -58,18 +62,29 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
   ];
 
   const connect = (useAlternatePath = false) => {
+    if (!isMountedRef.current) return;
     const term = termInstance.current;
     const token = getAuthToken() || '';
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const basePath = useAlternatePath ? '/api/ws/servers' : '/ws/servers';
     const wsUrl = `${protocol}//${window.location.host}${basePath}/${serverId}/console?token=${encodeURIComponent(token)}`;
 
-    // If an existing socket is active or opening, close it cleanly
+    // Clear any pending reconnection
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
+    // Cleanly close prior socket without triggering onclose loops
     if (socketRef.current) {
       const prevSocket = socketRef.current;
       socketRef.current = null;
       try {
-        if (prevSocket.readyState === WebSocket.OPEN) {
+        prevSocket.onopen = null;
+        prevSocket.onmessage = null;
+        prevSocket.onclose = null;
+        prevSocket.onerror = null;
+        if (prevSocket.readyState === WebSocket.OPEN || prevSocket.readyState === WebSocket.CONNECTING) {
           prevSocket.close();
         }
       } catch {
@@ -77,7 +92,11 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
       }
     }
 
-    if (heartbeatRef.current) { clearInterval(heartbeatRef.current); heartbeatRef.current = null; }
+    if (heartbeatRef.current) {
+      clearInterval(heartbeatRef.current);
+      heartbeatRef.current = null;
+    }
+
     setIsReconnecting(true);
     if (term) {
       term.writeln(`\x1b[36m[Singularity]\x1b[0m Conectando a canal interactivo...`);
@@ -88,12 +107,22 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
       socketRef.current = socket;
 
       socket.onopen = () => {
+        if (!isMountedRef.current) return;
         setIsConnected(true);
         setIsReconnecting(false);
         setProxyWarning(false);
+        retryCountRef.current = 0;
         if (term) {
           term.writeln('\x1b[32m[Singularity]\x1b[0m Conexión en tiempo real activa.');
         }
+
+        // Keepalive heartbeat every 20s to prevent reverse proxy idle timeouts
+        if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+        heartbeatRef.current = setInterval(() => {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'ping' }));
+          }
+        }, 20000);
       };
 
       socket.onmessage = (event) => {
@@ -124,18 +153,41 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
       };
 
       socket.onclose = (ev) => {
+        if (!isMountedRef.current || intentionalCloseRef.current) return;
         setIsConnected(false);
         setIsReconnecting(false);
-
-        // Try alternative endpoint once if closed prematurely without error
-        if (!useAlternatePath && (ev.code === 1006 || ev.code === 1008)) {
-          connect(true);
-        } else if (ev.code === 1006) {
-          setProxyWarning(true);
-          if (term) {
-            term.writeln('\x1b[33m[Singularity]\x1b[0m El canal WebSocket se cerró.');
-          }
+        if (heartbeatRef.current) {
+          clearInterval(heartbeatRef.current);
+          heartbeatRef.current = null;
         }
+
+        if (ev.code === 1008) {
+          if (term) {
+            term.writeln('\x1b[31m[Singularity]\x1b[0m Sesión expirada o no autorizada. Recarga la página.');
+          }
+          return;
+        }
+
+        retryCountRef.current += 1;
+        // If first attempt closed, try alternative path once
+        if (retryCountRef.current === 1 && !useAlternatePath) {
+          connect(true);
+          return;
+        }
+
+        if (retryCountRef.current > 3) {
+          setProxyWarning(true);
+        }
+
+        if (term) {
+          term.writeln('\x1b[33m[Singularity]\x1b[0m Canal desconectado. Reintentando en 3s...');
+        }
+
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current && !intentionalCloseRef.current) {
+            connect(false);
+          }
+        }, 3000);
       };
 
       socket.onerror = () => {
@@ -150,6 +202,9 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
 
   useEffect(() => {
     if (!terminalRef.current) return;
+    isMountedRef.current = true;
+    intentionalCloseRef.current = false;
+    retryCountRef.current = 0;
 
     // Initialize xterm only once per serverId
     const term = new Terminal({
@@ -203,11 +258,25 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
     connect(false);
 
     return () => {
+      isMountedRef.current = false;
+      intentionalCloseRef.current = true;
       window.removeEventListener('resize', handleResize);
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      if (heartbeatRef.current) {
+        clearInterval(heartbeatRef.current);
+        heartbeatRef.current = null;
+      }
       if (socketRef.current) {
         const s = socketRef.current;
         socketRef.current = null;
         try {
+          s.onopen = null;
+          s.onmessage = null;
+          s.onclose = null;
+          s.onerror = null;
           s.close();
         } catch {
           // ignore
@@ -250,7 +319,11 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
         <div className="flex items-center gap-2">
           {!isConnected && (
             <button
-              onClick={() => connect(false)}
+              onClick={() => {
+                setProxyWarning(false);
+                retryCountRef.current = 0;
+                connect(false);
+              }}
               disabled={isReconnecting}
               className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-nebula-700 transition-colors disabled:opacity-50"
               title="Reconectar WebSocket"
@@ -292,7 +365,11 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
             </span>
           </div>
           <button
-            onClick={() => connect(false)}
+            onClick={() => {
+              setProxyWarning(false);
+              retryCountRef.current = 0;
+              connect(false);
+            }}
             className="px-2 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 rounded text-amber-300 font-bold shrink-0"
           >
             Reintentar
