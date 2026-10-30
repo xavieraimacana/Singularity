@@ -20,10 +20,30 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
   // Apply authentication to all server routes
   fastify.addHook('preHandler', authenticate);
 
+  function checkServerPermission(request: any, serverId: string): boolean {
+    if (!request.user || request.user.role === 'ADMIN') return true;
+    const allowed = request.user.allowedServers || ['*'];
+    return allowed.includes('*') || allowed.includes(serverId);
+  }
+
+  // Enforce granular server permission on all /:id subroutes
+  fastify.addHook('preHandler', async (request, reply) => {
+    const params = request.params as { id?: string } | undefined;
+    if (params?.id) {
+      if (!checkServerPermission(request, params.id)) {
+        return reply.status(403).send({ error: 'Acceso denegado: No tienes permisos para gestionar este servidor' });
+      }
+    }
+  });
+
   // List all servers (VIEWER, OPERATOR, ADMIN)
-  fastify.get('/', async (_request, reply) => {
+  fastify.get('/', async (request, reply) => {
     const instances = await serverLifecycle.listInstances();
-    const withLiveStatus = instances.map((srv) => {
+    const allowedInstances = (request.user?.role === 'ADMIN' || !request.user?.allowedServers || request.user.allowedServers.includes('*'))
+      ? instances
+      : instances.filter((srv) => request.user?.allowedServers.includes(srv.id));
+
+    const withLiveStatus = allowedInstances.map((srv) => {
       const liveState = processRunner.getState(srv.id);
       return {
         ...srv,

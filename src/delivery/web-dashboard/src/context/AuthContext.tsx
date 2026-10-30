@@ -6,6 +6,11 @@ export interface UserProfile {
   username: string;
   role: 'ADMIN' | 'OPERATOR' | 'VIEWER';
   mustChangePassword: boolean;
+  isActive?: boolean;
+  displayName?: string;
+  minecraftUsername?: string;
+  allowedServers?: string[];
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -15,6 +20,8 @@ interface AuthContextType {
   login: (username: string, pass: string) => Promise<void>;
   logout: () => void;
   updatePassword: (currentPass: string, newPass: string) => Promise<void>;
+  updateProfile: (data: { displayName?: string; minecraftUsername?: string }) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,25 +41,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => window.removeEventListener('singularity-auth-expired', handleExpired);
   }, []);
 
+  const loadMe = async () => {
+    const currentToken = getAuthToken();
+    if (!currentToken) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const profile = await api.get<UserProfile>('/auth/me');
+      setUser(profile);
+    } catch {
+      clearAuthToken();
+      setToken(null);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadMe = async () => {
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const profile = await api.get<UserProfile>('/auth/me');
-        setUser(profile);
-      } catch {
-        clearAuthToken();
-        setToken(null);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadMe();
   }, [token]);
 
@@ -87,8 +95,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const updateProfile = async (data: { displayName?: string; minecraftUsername?: string }) => {
+    if (!user) return;
+    const updated = await api.put<UserProfile>('/auth/me', data);
+    setUser(updated);
+  };
+
+  const refreshUser = async () => {
+    await loadMe();
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, updatePassword }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isLoading,
+        login,
+        logout,
+        updatePassword,
+        updateProfile,
+        refreshUser
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

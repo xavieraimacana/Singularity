@@ -3,6 +3,8 @@ import type { IUserRepository } from '../repositories/user-repository.interface.
 import type {
   AuthTokenPayload,
   CreateUserRequest,
+  UpdateUserRequest,
+  UpdateProfileRequest,
   LoginResult,
   User,
   UserPublic
@@ -18,6 +20,13 @@ export class InvalidCredentialsError extends Error {
   constructor(message = 'Credenciales de acceso inválidas') {
     super(message);
     this.name = 'InvalidCredentialsError';
+  }
+}
+
+export class AccountDisabledError extends Error {
+  constructor(message = 'Esta cuenta ha sido deshabilitada por un administrador') {
+    super(message);
+    this.name = 'AccountDisabledError';
   }
 }
 
@@ -66,7 +75,10 @@ export class AuthService {
       username: defaultUsername,
       passwordHash,
       role: 'ADMIN',
-      mustChangePassword: true
+      mustChangePassword: true,
+      isActive: true,
+      displayName: 'Administrador Principal',
+      allowedServers: ['*']
     });
 
     return {
@@ -74,6 +86,10 @@ export class AuthService {
       username: adminUser.username,
       role: adminUser.role,
       mustChangePassword: adminUser.mustChangePassword,
+      isActive: adminUser.isActive,
+      displayName: adminUser.displayName,
+      minecraftUsername: adminUser.minecraftUsername,
+      allowedServers: adminUser.allowedServers,
       createdAt: adminUser.createdAt,
       updatedAt: adminUser.updatedAt
     };
@@ -89,6 +105,10 @@ export class AuthService {
       throw new InvalidCredentialsError();
     }
 
+    if (user.isActive === false) {
+      throw new AccountDisabledError();
+    }
+
     const isValid = await verifyPassword(password, user.passwordHash);
     if (!isValid) {
       throw new InvalidCredentialsError();
@@ -99,7 +119,8 @@ export class AuthService {
         userId: user.id,
         username: user.username,
         role: user.role,
-        mustChangePassword: user.mustChangePassword
+        mustChangePassword: user.mustChangePassword,
+        allowedServers: user.allowedServers || ['*']
       },
       this.jwtSecret
     );
@@ -109,6 +130,10 @@ export class AuthService {
       username: user.username,
       role: user.role,
       mustChangePassword: user.mustChangePassword,
+      isActive: user.isActive,
+      displayName: user.displayName,
+      minecraftUsername: user.minecraftUsername,
+      allowedServers: user.allowedServers || ['*'],
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     };
@@ -146,6 +171,38 @@ export class AuthService {
   }
 
   /**
+   * Updates an authenticated user's profile details (Display Name, Minecraft skin username).
+   */
+  async updateProfile(userId: string, request: UpdateProfileRequest): Promise<UserPublic> {
+    const user = this.userRepo.findById(userId);
+    if (!user) {
+      throw new UserNotFoundError();
+    }
+
+    const updated = this.userRepo.updateProfile(userId, {
+      displayName: request.displayName,
+      minecraftUsername: request.minecraftUsername
+    });
+
+    if (!updated) {
+      throw new UserNotFoundError();
+    }
+
+    return {
+      id: updated.id,
+      username: updated.username,
+      role: updated.role,
+      mustChangePassword: updated.mustChangePassword,
+      isActive: updated.isActive,
+      displayName: updated.displayName,
+      minecraftUsername: updated.minecraftUsername,
+      allowedServers: updated.allowedServers,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt
+    };
+  }
+
+  /**
    * Creates a new user (operator or viewer) by an administrator.
    */
   async createUser(request: CreateUserRequest): Promise<UserPublic> {
@@ -164,7 +221,11 @@ export class AuthService {
       username: request.username,
       passwordHash,
       role: request.role,
-      mustChangePassword: request.mustChangePassword ?? false
+      mustChangePassword: request.mustChangePassword ?? false,
+      isActive: request.isActive !== false,
+      displayName: request.displayName,
+      minecraftUsername: request.minecraftUsername,
+      allowedServers: request.allowedServers || ['*']
     });
 
     return {
@@ -172,9 +233,88 @@ export class AuthService {
       username: newUser.username,
       role: newUser.role,
       mustChangePassword: newUser.mustChangePassword,
+      isActive: newUser.isActive,
+      displayName: newUser.displayName,
+      minecraftUsername: newUser.minecraftUsername,
+      allowedServers: newUser.allowedServers,
       createdAt: newUser.createdAt,
       updatedAt: newUser.updatedAt
     };
+  }
+
+  /**
+   * Updates a user's role, status (active/disabled), or server permissions by an administrator.
+   */
+  async updateUser(adminUserId: string, targetUserId: string, request: UpdateUserRequest): Promise<UserPublic> {
+    const admin = this.userRepo.findById(adminUserId);
+    if (!admin || admin.role !== 'ADMIN') {
+      throw new Error('Solo los administradores pueden gestionar usuarios');
+    }
+
+    const target = this.userRepo.findById(targetUserId);
+    if (!target) {
+      throw new UserNotFoundError();
+    }
+
+    // Safety: Prevent admin from deactivating or demoting themselves
+    if (adminUserId === targetUserId) {
+      if (request.isActive === false) {
+        throw new Error('No puedes deshabilitar tu propia cuenta de administrador');
+      }
+      if (request.role && request.role !== 'ADMIN') {
+        throw new Error('No puedes cambiar tu propio rol de administrador');
+      }
+    }
+
+    if (request.newPassword) {
+      if (request.newPassword.length < 8) {
+        throw new WeakPasswordError();
+      }
+      const newHash = await hashPassword(request.newPassword);
+      this.userRepo.updatePassword(targetUserId, newHash, request.mustChangePassword ?? false);
+    }
+
+    const updated = this.userRepo.update(targetUserId, {
+      role: request.role,
+      isActive: request.isActive,
+      displayName: request.displayName,
+      minecraftUsername: request.minecraftUsername,
+      allowedServers: request.allowedServers,
+      mustChangePassword: request.mustChangePassword
+    });
+
+    if (!updated) {
+      throw new UserNotFoundError();
+    }
+
+    return {
+      id: updated.id,
+      username: updated.username,
+      role: updated.role,
+      mustChangePassword: updated.mustChangePassword,
+      isActive: updated.isActive,
+      displayName: updated.displayName,
+      minecraftUsername: updated.minecraftUsername,
+      allowedServers: updated.allowedServers,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt
+    };
+  }
+
+  /**
+   * Deletes a user by an administrator.
+   */
+  async deleteUser(adminUserId: string, targetUserId: string): Promise<boolean> {
+    const admin = this.userRepo.findById(adminUserId);
+    if (!admin || admin.role !== 'ADMIN') {
+      throw new Error('Solo los administradores pueden eliminar usuarios');
+    }
+
+    if (adminUserId === targetUserId) {
+      throw new Error('No puedes eliminar tu propia cuenta');
+    }
+
+    return this.userRepo.delete(targetUserId);
   }
 
   /**

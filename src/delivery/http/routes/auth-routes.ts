@@ -1,7 +1,11 @@
 import type { FastifyPluginAsync } from 'fastify';
 import type { AuthService } from '../../../auth-identity/services/auth-service.js';
 import { createAuthHook, requireRole } from '../middleware/auth-hook.js';
-import type { CreateUserRequest } from '../../../auth-identity/models/user.js';
+import type {
+  CreateUserRequest,
+  UpdateUserRequest,
+  UpdateProfileRequest
+} from '../../../auth-identity/models/user.js';
 
 export interface AuthRoutesOptions {
   authService: AuthService;
@@ -45,9 +49,30 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify,
       username: user.username,
       role: user.role,
       mustChangePassword: user.mustChangePassword,
+      isActive: user.isActive,
+      displayName: user.displayName,
+      minecraftUsername: user.minecraftUsername,
+      allowedServers: user.allowedServers,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     });
+  });
+
+  // Protected: Update own user profile (Display Name, Minecraft skin nickname)
+  fastify.put<{
+    Body: UpdateProfileRequest;
+  }>('/me', { preHandler: [authenticate] }, async (request, reply) => {
+    if (!request.user) {
+      return reply.status(401).send({ error: 'No autenticado' });
+    }
+
+    try {
+      const updated = await authService.updateProfile(request.user.userId, request.body || {});
+      return reply.status(200).send(updated);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al actualizar perfil';
+      return reply.status(400).send({ error: message });
+    }
   });
 
   // Protected: Change password
@@ -95,6 +120,49 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify,
         return reply.status(201).send(created);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Error al crear usuario';
+        return reply.status(400).send({ error: message });
+      }
+    }
+  );
+
+  // Protected (ADMIN only): Update user (Role, Active Status, Server Permissions, Password Reset)
+  fastify.put<{
+    Params: { id: string };
+    Body: UpdateUserRequest;
+  }>(
+    '/users/:id',
+    { preHandler: [authenticate, requireRole(['ADMIN'])] },
+    async (request, reply) => {
+      if (!request.user) {
+        return reply.status(401).send({ error: 'No autenticado' });
+      }
+
+      try {
+        const updated = await authService.updateUser(request.user.userId, request.params.id, request.body || {});
+        return reply.status(200).send(updated);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Error al actualizar usuario';
+        return reply.status(400).send({ error: message });
+      }
+    }
+  );
+
+  // Protected (ADMIN only): Delete user
+  fastify.delete<{
+    Params: { id: string };
+  }>(
+    '/users/:id',
+    { preHandler: [authenticate, requireRole(['ADMIN'])] },
+    async (request, reply) => {
+      if (!request.user) {
+        return reply.status(401).send({ error: 'No autenticado' });
+      }
+
+      try {
+        await authService.deleteUser(request.user.userId, request.params.id);
+        return reply.status(200).send({ success: true, message: 'Usuario eliminado exitosamente' });
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Error al eliminar usuario';
         return reply.status(400).send({ error: message });
       }
     }

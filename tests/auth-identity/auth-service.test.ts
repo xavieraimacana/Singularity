@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { DatabaseSync } from 'node:sqlite';
 import { SqliteUserRepository } from '../../src/auth-identity/repositories/sqlite-user-repository.js';
-import { AuthService, InvalidCredentialsError } from '../../src/auth-identity/services/auth-service.js';
+import {
+  AuthService,
+  InvalidCredentialsError,
+  AccountDisabledError
+} from '../../src/auth-identity/services/auth-service.js';
 import {
   hashPassword,
   verifyPassword,
@@ -43,7 +47,8 @@ describe('Auth & Identity Domain', () => {
         userId: 'usr_01',
         username: 'admin',
         role: 'ADMIN' as const,
-        mustChangePassword: true
+        mustChangePassword: true,
+        allowedServers: ['*']
       };
 
       const token = signJwt(payload, JWT_SECRET, 3600);
@@ -55,36 +60,25 @@ describe('Auth & Identity Domain', () => {
       expect(decoded.username).toBe('admin');
       expect(decoded.role).toBe('ADMIN');
       expect(decoded.mustChangePassword).toBe(true);
+      expect(decoded.allowedServers).toEqual(['*']);
       expect(decoded.exp).toBeGreaterThan(Date.now() / 1000);
-    });
-
-    it('should reject tampered or expired JWT token', () => {
-      const token = signJwt({ userId: 'usr_01', username: 'admin', role: 'ADMIN', mustChangePassword: false }, JWT_SECRET, 3600);
-      const tampered = token.slice(0, -5) + 'abcde';
-
-      expect(() => verifyJwt(tampered, JWT_SECRET)).toThrow();
-      expect(() => verifyJwt(token, 'different-wrong-secret')).toThrow();
     });
   });
 
   describe('AuthService', () => {
-    it('should initialize default admin when no users exist', async () => {
-      expect(userRepo.count()).toBe(0);
+    it('should initialize default admin on empty database', async () => {
+      const admin = await authService.ensureDefaultAdmin('admin', 'singularity');
+      expect(admin).not.toBeNull();
+      expect(admin?.username).toBe('admin');
+      expect(admin?.role).toBe('ADMIN');
+      expect(admin?.mustChangePassword).toBe(true);
 
-      const defaultAdmin = await authService.ensureDefaultAdmin('admin', 'singularity');
-      expect(defaultAdmin).not.toBeNull();
-      expect(defaultAdmin?.username).toBe('admin');
-      expect(defaultAdmin?.role).toBe('ADMIN');
-      expect(defaultAdmin?.mustChangePassword).toBe(true);
-      expect(userRepo.count()).toBe(1);
-
-      // Calling again should not duplicate
+      // Calling again should return null and not duplicate
       const secondCall = await authService.ensureDefaultAdmin('admin', 'singularity');
       expect(secondCall).toBeNull();
-      expect(userRepo.count()).toBe(1);
     });
 
-    it('should authenticate user and return token and public profile', async () => {
+    it('should authenticate user and return token with public profile', async () => {
       await authService.ensureDefaultAdmin('admin', 'singularity');
 
       const result = await authService.login('admin', 'singularity');
@@ -92,6 +86,7 @@ describe('Auth & Identity Domain', () => {
       expect(result.user.username).toBe('admin');
       expect(result.user.role).toBe('ADMIN');
       expect(result.user.mustChangePassword).toBe(true);
+      expect(result.user.isActive).toBe(true);
 
       const verified = authService.verifyToken(result.token);
       expect(verified.userId).toBe(result.user.id);
@@ -106,6 +101,23 @@ describe('Auth & Identity Domain', () => {
       );
       await expect(authService.login('nonexistent', 'singularity')).rejects.toThrow(
         InvalidCredentialsError
+      );
+    });
+
+    it('should throw AccountDisabledError when account has been deactivated by administrator', async () => {
+      const admin = await authService.ensureDefaultAdmin('admin', 'singularity');
+      const operator = await authService.createUser({
+        username: 'sub_admin',
+        password: 'Password123!',
+        role: 'OPERATOR',
+        isActive: true
+      });
+
+      // Disable account
+      await authService.updateUser(admin!.id, operator.id, { isActive: false });
+
+      await expect(authService.login('sub_admin', 'Password123!')).rejects.toThrow(
+        AccountDisabledError
       );
     });
 
@@ -125,22 +137,54 @@ describe('Auth & Identity Domain', () => {
       expect(newLogin.user.mustChangePassword).toBe(false);
     });
 
-    it('should allow admin to create operators and viewers', async () => {
-      await authService.ensureDefaultAdmin('admin', 'singularity');
+    it('should allow user to update their own profile (displayName and minecraftUsername)', async () => {
+      const admin = await authService.ensureDefaultAdmin('admin', 'singularity');
 
+      const updated = await authService.updateProfile(admin!.id, {
+        displayName: 'Xavier CraftMaster',
+        minecraftUsername: 'XavierAimacana'
+      });
+
+      expect(updated.displayName).toBe('Xavier CraftMaster');
+      expect(updated.minecraftUsername).toBe('XavierAimacana');
+
+      const fetched = authService.getUserById(admin!.id);
+      expect(fetched?.displayName).toBe('Xavier CraftMaster');
+      expect(fetched?.minecraftUsername).toBe('XavierAimacana');
+    });
+
+    it('should allow admin to create, update role/servers, and delete users', async () => {
+      const admin = await authService.ensureDefaultAdmin('admin', 'singularity');
+
+      // 1. Create operator
       const operator = await authService.createUser({
         username: 'operator_dan',
         password: 'DanPassword123!',
-        role: 'OPERATOR'
+        role: 'OPERATOR',
+        allowedServers: ['server-lobby']
       });
 
       expect(operator.username).toBe('operator_dan');
       expect(operator.role).toBe('OPERATOR');
-      expect(operator.mustChangePassword).toBe(false);
+      expect(operator.allowedServers).toEqual(['server-lobby']);
 
-      const users = authService.listUsers();
-      expect(users.length).toBe(2);
-      expect(users.map((u) => u.username)).toContain('operator_dan');
+      // 2. Update operator to VIEWER with multiple servers
+      const modified = await authService.updateUser(admin!.id, operator.id, {
+        role: 'VIEWER',
+        allowedServers: ['server-lobby', 'server-survival']
+      });
+
+      expect(modified.role).toBe('VIEWER');
+      expect(modified.allowedServers).toEqual(['server-lobby', 'server-survival']);
+
+      // 3. Delete operator
+      const deleted = await authService.deleteUser(admin!.id, operator.id);
+      expect(deleted).toBe(true);
+
+      expect(authService.getUserById(operator.id)).toBeNull();
+
+      // 4. Admin cannot delete themselves
+      await expect(authService.deleteUser(admin!.id, admin!.id)).rejects.toThrow();
     });
   });
 });

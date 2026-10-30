@@ -7,6 +7,8 @@ import { Dashboard } from './pages/Dashboard.js';
 import { ServerDetailPage } from './pages/ServerDetailPage.js';
 import { CatalogExplorer } from './pages/CatalogExplorer.js';
 import { LoginPage } from './pages/LoginPage.js';
+import { UserProfileModal } from './components/UserProfileModal.js';
+import { UsersManagementPage } from './pages/UsersManagementPage.js';
 import type { ServerInstanceData } from './components/ServerCard.js';
 import {
   Orbit,
@@ -27,6 +29,7 @@ export const App: React.FC = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isSftpModalOpen, setIsSftpModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
 
   // Selected Server for Detail View (Task 11)
@@ -73,6 +76,7 @@ export const App: React.FC = () => {
       <Header
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenSftpModal={() => setIsSftpModalOpen(true)}
+        onOpenProfileModal={() => setIsProfileModalOpen(true)}
       />
 
       {/* Main Workspace (Sidebar + Content Area) */}
@@ -84,6 +88,7 @@ export const App: React.FC = () => {
             setSelectedServer(null);
           }}
           serverCount={0}
+          isAdmin={user.role === 'ADMIN'}
         />
 
         <main className="flex-1 overflow-y-auto p-6 bg-nebula-950/70">
@@ -133,6 +138,10 @@ export const App: React.FC = () => {
 
           {currentTab === 'catalog' && (
             <CatalogExplorer />
+          )}
+
+          {currentTab === 'users' && (
+            <UsersManagementPage />
           )}
 
           {currentTab === 'java' && (
@@ -354,6 +363,12 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* User Profile & Skin Personalization Modal */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
     </div>
   );
 };

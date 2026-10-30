@@ -1,15 +1,16 @@
 import React from 'react';
-import { Server, Package, Cpu, Settings, Orbit, Sparkles } from 'lucide-react';
+import { Server, Package, Cpu, Settings, Orbit, Users } from 'lucide-react';
 
-export type NavTab = 'servers' | 'catalog' | 'java' | 'settings';
+export type NavTab = 'servers' | 'catalog' | 'java' | 'users' | 'settings';
 
 interface SidebarProps {
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
   serverCount: number;
+  isAdmin?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, serverCount }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, serverCount, isAdmin = true }) => {
   const navItems = [
     {
       id: 'servers' as NavTab,
@@ -28,6 +29,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, serve
       label: 'Java Runtimes',
       icon: Cpu
     },
+    ...(isAdmin
+      ? [
+          {
+            id: 'users' as NavTab,
+            label: 'Cuentas & Accesos',
+            icon: Users,
+            badge: 'RBAC'
+          }
+        ]
+      : []),
     {
       id: 'settings' as NavTab,
       label: 'Configuración',
@@ -75,10 +86,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, serve
                 </div>
                 {item.badge && (
                   <span
-                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${
                       isActive
-                        ? 'bg-nebula-accent/20 text-nebula-accent font-semibold'
-                        : 'bg-nebula-850 text-slate-400'
+                        ? 'bg-nebula-accent/20 text-nebula-accent'
+                        : 'bg-nebula-800 text-slate-400'
                     }`}
                   >
                     {item.badge}
@@ -90,16 +101,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, serve
         </nav>
       </div>
 
-      {/* Footer / IDE Integration Callout */}
-      <div className="p-3 border-t border-nebula-800">
-        <div className="p-2.5 rounded-lg bg-nebula-950/80 border border-nebula-800 text-[11px] text-slate-400">
-          <div className="flex items-center gap-1.5 text-nebula-purple font-semibold mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Antigravity IDE Ready</span>
-          </div>
-          <p className="text-[10px] text-slate-500 leading-relaxed">
-            Edita archivos en vivo vía SFTP directo en el IDE.
-          </p>
+      {/* Footer System Status */}
+      <div className="p-3 border-t border-nebula-800/80 bg-nebula-950/40">
+        <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-nebula-accent animate-pulse" />
+            <span className="font-mono text-slate-300">Core Node</span>
+          </span>
+          <span className="font-mono text-slate-500">:3000</span>
         </div>
       </div>
     </aside>
