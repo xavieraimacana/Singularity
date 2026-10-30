@@ -80,16 +80,20 @@ export const consoleSocketPlugin: FastifyPluginAsync<ConsoleSocketOptions> = asy
         }
       };
 
+      processRunner.on('console-line', onLog);
       processRunner.on('log', onLog);
       processRunner.on('player-event', onPlayer);
       processRunner.on('crash-detected', onCrash);
+      processRunner.on('status-change', onStatus);
       processRunner.on('status-changed', onStatus);
 
       // Clean up when socket disconnects
       socket.on('close', () => {
+        processRunner.off('console-line', onLog);
         processRunner.off('log', onLog);
         processRunner.off('player-event', onPlayer);
         processRunner.off('crash-detected', onCrash);
+        processRunner.off('status-change', onStatus);
         processRunner.off('status-changed', onStatus);
       });
     };

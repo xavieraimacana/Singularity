@@ -154,7 +154,10 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
         });
       }
 
-      const executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
+      let executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
+      if (executable && executable !== 'java' && executable !== 'java.exe' && !fs.existsSync(executable)) {
+        executable = process.platform === 'win32' ? 'java.exe' : 'java';
+      }
       const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
 
       const state = await processRunner.startProcess(instance, {
@@ -249,7 +252,10 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
         });
       }
 
-      const executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
+      let executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
+      if (executable && executable !== 'java' && executable !== 'java.exe' && !fs.existsSync(executable)) {
+        executable = process.platform === 'win32' ? 'java.exe' : 'java';
+      }
       const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
 
       await processRunner.stopProcess(instance.id);

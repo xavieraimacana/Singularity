@@ -59,12 +59,14 @@ export async function inspectJavaBinary(executablePath: string): Promise<JavaRun
     }
 
     const isPortable = executablePath.includes(path.join('data', 'java')) || executablePath.includes('data/java');
+    const isCommand = executablePath === 'java' || executablePath === 'java.exe';
+    const resolvedPath = isCommand ? executablePath : path.resolve(executablePath);
 
     return {
-      id: `java-${parsed.majorVersion}-${path.basename(path.dirname(executablePath))}`,
+      id: `java-${parsed.majorVersion}-${isCommand ? 'system' : path.basename(path.dirname(executablePath))}`,
       majorVersion: parsed.majorVersion,
       versionString: parsed.versionString,
-      path: path.resolve(executablePath),
+      path: resolvedPath,
       vendor: parsed.vendor,
       isPortable
     };

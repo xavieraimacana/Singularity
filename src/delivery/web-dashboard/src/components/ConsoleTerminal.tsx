@@ -61,13 +61,12 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
     { label: '/stop', cmd: 'stop' }
   ];
 
-  const connect = (useAlternatePath = false) => {
+  const connect = () => {
     if (!isMountedRef.current) return;
     const term = termInstance.current;
     const token = getAuthToken() || '';
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const basePath = useAlternatePath ? '/api/ws/servers' : '/ws/servers';
-    const wsUrl = `${protocol}//${window.location.host}${basePath}/${serverId}/console?token=${encodeURIComponent(token)}`;
+    const wsUrl = `${protocol}//${window.location.host}/ws/servers/${serverId}/console?token=${encodeURIComponent(token)}`;
 
     // Clear any pending reconnection
     if (reconnectTimeoutRef.current) {
@@ -169,13 +168,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
         }
 
         retryCountRef.current += 1;
-        // If first attempt closed, try alternative path once
-        if (retryCountRef.current === 1 && !useAlternatePath) {
-          connect(true);
-          return;
-        }
-
-        if (retryCountRef.current > 3) {
+        if (retryCountRef.current > 4) {
           setProxyWarning(true);
         }
 
@@ -185,7 +178,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
 
         reconnectTimeoutRef.current = setTimeout(() => {
           if (isMountedRef.current && !intentionalCloseRef.current) {
-            connect(false);
+            connect();
           }
         }, 3000);
       };
@@ -254,8 +247,8 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
     };
     window.addEventListener('resize', handleResize);
 
-    // Initial connection
-    connect(false);
+    // Initial connection to canonical path
+    connect();
 
     return () => {
       isMountedRef.current = false;
@@ -322,7 +315,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
               onClick={() => {
                 setProxyWarning(false);
                 retryCountRef.current = 0;
-                connect(false);
+                connect();
               }}
               disabled={isReconnecting}
               className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-nebula-700 transition-colors disabled:opacity-50"
@@ -368,7 +361,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
             onClick={() => {
               setProxyWarning(false);
               retryCountRef.current = 0;
-              connect(false);
+              connect();
             }}
             className="px-2 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 rounded text-amber-300 font-bold shrink-0"
           >
