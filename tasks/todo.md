@@ -15,7 +15,7 @@
   - Verify: `npx vitest run tests/servers/` pasa.
   - Files: `src/servers/*`, `tests/servers/*`
 
-- [ ] Task 4: Motor de Diagnóstico Inteligente de Crashes (`src/process-supervisor/crash-analyzer`)
+- [x] Task 4: Motor de Diagnóstico Inteligente de Crashes (`src/process-supervisor/crash-analyzer`)
   - Acceptance: Detección precisa de OutOfMemory, Java incorrecto y mods de cliente en servidor.
   - Verify: `npx vitest run tests/process-supervisor/crash-analyzer.test.ts` pasa.
   - Files: `src/process-supervisor/crash-analyzer/*`, `tests/process-supervisor/crash-analyzer.test.ts`

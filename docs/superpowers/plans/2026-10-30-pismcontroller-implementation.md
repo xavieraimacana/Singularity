@@ -136,15 +136,15 @@
   - `CrashAnalyzer.analyze(logChunk: string): DiagnosticResult | null`
   - Reglas de detección: Java mismatch, Client-side mod on server, OutOfMemory, Missing dependency, Corrupted world.
 
-- [ ] **Step 1: Escribir tests con logs de crash reales de Minecraft**
+- [x] **Step 1: Escribir tests con logs de crash reales de Minecraft**
   Probar error `UnsupportedClassVersionError` (Java incorrecto), error `java.lang.OutOfMemoryError`, y mod de cliente como `rubidium` o `sodium` en servidor dedicado.
-- [ ] **Step 2: Ejecutar test y verificar fallo**
+- [x] **Step 2: Ejecutar test y verificar fallo**
   Run: `npx vitest run tests/process-supervisor/crash-analyzer.test.ts`
-- [ ] **Step 3: Implementar CrashRules y CrashAnalyzer**
+- [x] **Step 3: Implementar CrashRules y CrashAnalyzer**
   Patrones Regex de alta precisión, títulos en español, explicaciones amigables y acciones recomendadas automáticas.
-- [ ] **Step 4: Ejecutar test y comprobar que pasan**
+- [x] **Step 4: Ejecutar test y comprobar que pasan**
   Run: `npx vitest run tests/process-supervisor/crash-analyzer.test.ts`
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
   ```bash
   git add src/process-supervisor/crash-analyzer/ tests/process-supervisor/crash-analyzer.test.ts
   git commit -m "feat(diagnostics): implementar motor de diagnostico automatico de crashes"
