@@ -85,4 +85,16 @@ describe('MinecraftVersionsService', () => {
       }
     });
   });
+
+  describe('resolveServerJarUrl', () => {
+    it('should resolve Purpur direct download URL', async () => {
+      const url = await service.resolveServerJarUrl('1.21.4', 'purpur');
+      expect(url).toBe('https://api.purpurmc.org/v2/purpur/1.21.4/latest/download');
+    });
+
+    it('should return null for unsupported direct download loader like forge without jar', async () => {
+      const url = await service.resolveServerJarUrl('1.20.1', 'forge');
+      expect(url).toBeNull();
+    });
+  });
 });

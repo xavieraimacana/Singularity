@@ -39,7 +39,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     let errMsg = `Error de API (HTTP ${res.status})`;
     try {
       const data = await res.json();
-      if (data.error) errMsg = data.error;
+      if (data.message && typeof data.message === 'string') { errMsg = data.message; } else if (data.error && typeof data.error === 'string') { errMsg = data.error; }
     } catch {
       // ignore
     }

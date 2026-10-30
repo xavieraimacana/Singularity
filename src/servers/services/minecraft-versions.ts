@@ -237,6 +237,7 @@ export class MinecraftVersionsService {
 
   /**
    * Resolves the direct download URL for server.jar of a specific version and loader.
+   * Supports Vanilla, PaperMC (Fill v3 API), PurpurMC, Fabric, and Quilt.
    */
   async resolveServerJarUrl(gameVersion: string, loader: ServerLoader): Promise<string | null> {
     if (loader === 'vanilla') {
@@ -259,8 +260,85 @@ export class MinecraftVersionsService {
       }
     }
 
+    if (loader === 'paper') {
+      try {
+        const url = `https://fill.papermc.io/v3/projects/paper/versions/${encodeURIComponent(gameVersion)}/builds`;
+        const res = await fetch(url, {
+          headers: { 'User-Agent': 'NebulaX-Singularity/0.1.0' }
+        });
+        if (res.ok) {
+          const builds = (await res.json()) as Array<{
+            downloads?: {
+              'server:default'?: { url?: string };
+              application?: { url?: string };
+            };
+          }>;
+          if (Array.isArray(builds) && builds.length > 0) {
+            const latest = builds[0];
+            const download = latest?.downloads?.['server:default'] || latest?.downloads?.application;
+            if (download?.url) {
+              return download.url;
+            }
+          }
+        }
+      } catch {
+        return null;
+      }
+    }
+
     if (loader === 'purpur') {
       return `https://api.purpurmc.org/v2/purpur/${encodeURIComponent(gameVersion)}/latest/download`;
+    }
+
+    if (loader === 'spigot') {
+      try {
+        const url = `https://download.getbukkit.org/spigot/spigot-${encodeURIComponent(gameVersion)}.jar`;
+        const res = await fetch(url, {
+          method: 'HEAD',
+          headers: { 'User-Agent': 'NebulaX-Singularity/0.1.0' }
+        });
+        if (res.ok) {
+          return url;
+        }
+      } catch {
+        return null;
+      }
+    }
+
+    if (loader === 'fabric') {
+      try {
+        const url = `https://meta.fabricmc.net/v2/versions/loader/${encodeURIComponent(gameVersion)}`;
+        const res = await fetch(url, {
+          headers: { 'User-Agent': 'NebulaX-Singularity/0.1.0' }
+        });
+        if (res.ok) {
+          const loaders = (await res.json()) as Array<{ loader?: { version?: string } }>;
+          if (Array.isArray(loaders) && loaders.length > 0 && loaders[0]?.loader?.version) {
+            const loaderVersion = loaders[0].loader.version;
+            return `https://meta.fabricmc.net/v2/versions/loader/${encodeURIComponent(gameVersion)}/${encodeURIComponent(loaderVersion)}/1.0.1/server/jar`;
+          }
+        }
+      } catch {
+        return null;
+      }
+    }
+
+    if (loader === 'quilt') {
+      try {
+        const url = `https://meta.quiltmc.org/v3/versions/loader/${encodeURIComponent(gameVersion)}`;
+        const res = await fetch(url, {
+          headers: { 'User-Agent': 'NebulaX-Singularity/0.1.0' }
+        });
+        if (res.ok) {
+          const loaders = (await res.json()) as Array<{ loader?: { version?: string } }>;
+          if (Array.isArray(loaders) && loaders.length > 0 && loaders[0]?.loader?.version) {
+            const loaderVersion = loaders[0].loader.version;
+            return `https://meta.quiltmc.org/v3/versions/loader/${encodeURIComponent(gameVersion)}/${encodeURIComponent(loaderVersion)}/0.2.2/server/jar`;
+          }
+        }
+      } catch {
+        return null;
+      }
     }
 
     return null;

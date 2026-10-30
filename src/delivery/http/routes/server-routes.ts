@@ -147,8 +147,10 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
       }
 
       if (!fs.existsSync(jarPath)) {
+        const errorMsg = `No se encontró el archivo server.jar para el servidor '${instance.name}'. Descárgalo desde el panel de control o sube tu jar mediante SFTP (:2022).`;
         return reply.status(400).send({
-          error: `No se encontró el archivo server.jar para el servidor '${instance.name}'. Descárgalo desde el panel de control o sube tu jar mediante SFTP (:2022).`
+          error: errorMsg,
+          message: errorMsg
         });
       }
 
@@ -179,8 +181,10 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
     try {
       const jarUrl = await minecraftVersionsService.resolveServerJarUrl(instance.gameVersion, instance.loader);
       if (!jarUrl) {
+        const errorMsg = `Descarga automática no disponible directamente para loader '${instance.loader}'. Sube tu server.jar vía SFTP (:2022).`;
         return reply.status(400).send({
-          error: `Descarga automática no disponible directamente para loader '${instance.loader}'. Sube tu server.jar vía SFTP (:2022).`
+          error: errorMsg,
+          message: errorMsg
         });
       }
 
@@ -238,8 +242,10 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
       const jarPath = path.join(instanceDir, 'server.jar');
 
       if (!fs.existsSync(jarPath)) {
+        const errorMsg = `No se encontró el archivo server.jar para el servidor '${instance.name}'.`;
         return reply.status(400).send({
-          error: `No se encontró el archivo server.jar para el servidor '${instance.name}'.`
+          error: errorMsg,
+          message: errorMsg
         });
       }
 
