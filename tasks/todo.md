@@ -30,7 +30,7 @@
   - Verify: `npx vitest run tests/content-catalog/` pasa.
   - Files: `src/content-catalog/*`, `tests/content-catalog/*`
 
-- [ ] Task 7: Módulo de Autenticación, Roles y Base de Datos (`src/auth-identity`)
+- [x] Task 7: Módulo de Autenticación, Roles y Base de Datos (`src/auth-identity`)
   - Acceptance: SQLite nativo (`node:sqlite` DatabaseSync), hashing scrypt seguro, roles Admin/Operator/Viewer, JWT y credenciales por defecto (`admin`/`singularity`) con forzado de cambio de contraseña en primer login.
   - Verify: `npx vitest run tests/auth-identity/` pasa.
   - Files: `src/auth-identity/*`, `tests/auth-identity/*`
