@@ -73,8 +73,18 @@ describe('ProcessRunner', () => {
     // Send a command to stdin
     runner.sendCommand(mockInstance.id, 'say hello');
 
-    // Wait for output
-    await new Promise((r) => setTimeout(r, 200));
+    // Wait for output with retry loop
+    const startWait = Date.now();
+    while (Date.now() - startWait < 3000) {
+      const currentLines = runner.getBuffer(mockInstance.id)?.getLines() ?? [];
+      if (
+        currentLines.some((l) => l.includes('Starting minecraft server')) &&
+        currentLines.some((l) => l.includes('Executed: say hello'))
+      ) {
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 50));
+    }
 
     const lines = runner.getBuffer(mockInstance.id)?.getLines() ?? [];
     expect(lines.some((l) => l.includes('Starting minecraft server'))).toBe(true);

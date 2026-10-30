@@ -25,13 +25,13 @@
   - Verify: `npx vitest run tests/process-supervisor/` pasa.
   - Files: `src/process-supervisor/*`, `tests/process-supervisor/*`
 
-- [ ] Task 6: Catálogo de Contenidos y Descarga de Modpacks/Plugins (`src/content-catalog`)
+- [x] Task 6: Catálogo de Contenidos y Descarga de Modpacks/Plugins (`src/content-catalog`)
   - Acceptance: Proveedores Modrinth v2 y PaperMC activos por defecto, CurseForge opcional vía `CURSEFORGE_API_KEY`, resolución e instalación en `mods/`/`plugins/`.
   - Verify: `npx vitest run tests/content-catalog/` pasa.
   - Files: `src/content-catalog/*`, `tests/content-catalog/*`
 
 - [ ] Task 7: Módulo de Autenticación, Roles y Base de Datos (`src/auth-identity`)
-  - Acceptance: SQLite con `better-sqlite3`, hashing scrypt, roles Admin/Operator/Viewer, JWT y credenciales por defecto con forzado de cambio de contraseña en primer login.
+  - Acceptance: SQLite nativo (`node:sqlite` DatabaseSync), hashing scrypt seguro, roles Admin/Operator/Viewer, JWT y credenciales por defecto (`admin`/`singularity`) con forzado de cambio de contraseña en primer login.
   - Verify: `npx vitest run tests/auth-identity/` pasa.
   - Files: `src/auth-identity/*`, `tests/auth-identity/*`
 
@@ -48,34 +48,34 @@
 - [ ] Task 10: Vistas de Servidores, Wizard de Creación en 3 Clics y Mission Control
   - Acceptance: ServerCards reactivas, sparklines de métricas y wizard para crear instancias.
   - Verify: Componentes renderizan y crean servidores vía API.
-  - Files: `src/delivery/web-dashboard/src/pages/*`, `src/delivery/web-dashboard/src/components/*`
+  - Files: `src/delivery/web-dashboard/src/pages/ServersPage.tsx`, `ServerWizardModal.tsx`
 
 - [ ] Task 11: Vista de Detalle, Consola xterm.js y Gestor de Jugadores con Skins
-  - Acceptance: Emulación xterm.js ANSI, alertas de crash automáticas y avatares de jugadores conectados.
-  - Verify: Consola interactiva conectada a WebSocket.
-  - Files: `src/delivery/web-dashboard/src/components/*`
+  - Acceptance: Consola WebSocket bidireccional con xterm.js, comandos rápidos y lista de jugadores con avatares Crafatar.
+  - Verify: Terminal interactiva recibe y envía comandos fluidamente.
+  - Files: `src/delivery/web-dashboard/src/pages/ServerDetailPage.tsx`, `ConsoleTerminal.tsx`, `PlayerManager.tsx`
 
 - [ ] Task 12: Catálogo Integrado Prism (Mods, Plugins, Modpacks) y 1-Click Install
-  - Acceptance: Búsqueda en vivo en Modrinth/PaperMC y botón de instalación en servidor.
-  - Verify: Descarga e instalación reflejada en el servidor.
-  - Files: `src/delivery/web-dashboard/src/pages/CatalogExplorer.tsx`, `components/ContentCard.tsx`
+  - Acceptance: Búsqueda unificada Modrinth/CurseForge/PaperMC, filtros por loader y versión, botón '1-Click Install' con barra de progreso.
+  - Verify: Instalación de plugin/mod reflejada en la pestaña del servidor.
+  - Files: `src/delivery/web-dashboard/src/pages/ContentCatalogPage.tsx`
 
 - [ ] Task 13: Editor Visual de `server.properties` y Diseñador de MOTD en Vivo
-  - Acceptance: Formulario visual de propiedades y previsualización de tarjeta multijugador.
-  - Verify: Modificaciones se guardan y reflejan en `server.properties`.
-  - Files: `src/delivery/web-dashboard/src/pages/ServerConfig.tsx`, `components/MotdDesigner.tsx`
+  - Acceptance: Toggles para pvp, flight, whitelist, selector de dificultad, editor de MOTD con preview tipográfica Minecraft.
+  - Verify: Modificación de propiedades guardada y reflejada en disco.
+  - Files: `src/delivery/web-dashboard/src/components/PropertiesEditor.tsx`, `MotdDesigner.tsx`
 
 - [ ] Task 14: Micro-Servidor SFTP Embebido para Antigravity IDE (`src/delivery/sftp`)
-  - Acceptance: Servidor SFTP RFC 4253 en puerto 2022 con autenticación de usuarios y chroot por servidor seguro sin path traversal.
-  - Verify: `npx vitest run tests/delivery/sftp-server.test.ts` pasa.
-  - Files: `src/delivery/sftp/*`, `tests/delivery/sftp-server.test.ts`
+  - Acceptance: Servidor SFTP (`ssh2`) en puerto 2022 autenticado con credenciales de Singularity, chroot en `data/servers/`.
+  - Verify: Cliente SFTP se conecta, lista archivos y sube/edita archivos.
+  - Files: `src/delivery/sftp/*`, `tests/delivery/sftp.test.ts`
 
 - [ ] Task 15: Aplicación de Escritorio Electron con System Tray e Integración IDE (`src/delivery/desktop`)
-  - Acceptance: Ventana nativa Electron, System Tray, notificaciones nativas de crash y botón "Abrir en Antigravity IDE".
-  - Verify: Electron arranca y botón ejecuta apertura de carpeta o copia de conexión SFTP.
-  - Files: `src/delivery/desktop/*`, `src/delivery/web-dashboard/src/components/*`
+  - Acceptance: Shell Electron, bandeja del sistema con arranque en segundo plano, botón 'Abrir en Antigravity IDE'.
+  - Verify: Ventana Electron empaquetada carga el dashboard web.
+  - Files: `src/delivery/desktop/*`
 
-- [ ] Task 16: Verificación End-to-End y Script de Despliegue para Oracle Cloud (OCI)
-  - Acceptance: Suite de tests completa al 100%, build de producción unificado (web + desktop), script de despliegue OCI y servicio `systemd` (puertos 3000, 25565 y 2022).
-  - Verify: `npm test` && `npm run build` pasan.
-  - Files: `scripts/deploy-oci.sh`, `scripts/pismcontroller.service`, `README.md`
+- [ ] Task 16: Verificación End-to-End, Dockerfile/Docker-compose y Despliegue en Oracle Cloud
+  - Acceptance: Dockerfile multi-stage ligero con Java 21/17/8, docker-compose.yml para Coolify/CasaOS, script de inicialización y verificación total de la suite de pruebas.
+  - Verify: Contenedor levanta en puerto 3000 y 2022.
+  - Files: `Dockerfile`, `docker-compose.yml`, `scripts/deploy-oracle.sh`
