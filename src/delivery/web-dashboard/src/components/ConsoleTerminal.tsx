@@ -25,6 +25,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
   const termInstance = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
 
   // Preserve latest callbacks and flags across renders without re-triggering effects
   const callbacksRef = useRef({
@@ -76,6 +77,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
       }
     }
 
+    if (heartbeatRef.current) { clearInterval(heartbeatRef.current); heartbeatRef.current = null; }
     setIsReconnecting(true);
     if (term) {
       term.writeln(`\x1b[36m[Singularity]\x1b[0m Conectando a canal interactivo...`);
@@ -98,6 +100,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
         if (!term) return;
         try {
           const msg = JSON.parse(event.data);
+          if (msg.type === 'pong') return;
 
           if (msg.type === 'history' && Array.isArray(msg.lines)) {
             term.clear();

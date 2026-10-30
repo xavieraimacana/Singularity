@@ -116,6 +116,12 @@ export const consoleSocketPlugin: FastifyPluginAsync<ConsoleSocketOptions> = asy
           return;
         }
 
+        // Handle heartbeat ping
+        if (msg.type === 'ping') {
+          sendJson({ type: 'pong', timestamp: Date.now() });
+          return;
+        }
+
         // Handle commands
         if (msg.type === 'command' && typeof msg.command === 'string') {
           processRunner.sendCommand(instanceId, msg.command);
