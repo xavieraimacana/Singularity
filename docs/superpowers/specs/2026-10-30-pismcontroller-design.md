@@ -10,6 +10,11 @@
    - **Gestor de Jugadores con Skins en Vivo**: Lista en tiempo real de jugadores conectados con avatares 3D/2D (Minotar/Crafatar) y acciones rápidas (OP, Whitelist, Kick, Ban).
    - **Command Palette (`Ctrl+K`)**: Búsqueda universal rápida para saltar entre servidores, buscar mods y lanzar comandos de inmediato.
    - **Snapshots y Backups**: Creación de copias de seguridad de mundos y carpetas antes de actualizaciones de mods.
+4. **Experiencia de Escritorio e Integración con Antigravity IDE**:
+   - **Aplicación de Escritorio Nativa (Electron)**: Ventana independiente sin depender del navegador web, minimizable a la bandeja del sistema (System Tray), con notificaciones nativas de Windows/Linux para crashes o alertas de rendimiento.
+   - **Integración con Antigravity IDE / VS Code**:
+     - **En local**: Botón "Abrir en Antigravity IDE" que lanza el espacio de trabajo del servidor directamente en el editor.
+     - **En remoto (VPS / Oracle Cloud)**: **Micro-servidor SFTP embebido** (`ssh2`) con autenticación de cuentas PismController y enjaulado *chroot* por instancia, permitiendo editar `server.properties`, configs de mods, datapacks y scripts de KubeJS directamente desde Antigravity IDE con autoguardado en vivo.
 
 ---
 
@@ -22,8 +27,10 @@
 | **Backend Framework** | Fastify | v5.x (Alto rendimiento, bajo overhead HTTP y WebSockets via `@fastify/websocket`) |
 | **Persistencia** | SQLite | `better-sqlite3` (Síncrono, ultrarrápido, cero configuración) |
 | **Seguridad & Auth** | Argon2 / JWT | `@fastify/jwt` con cookies HTTP-only para sesiones multi-usuario |
+| **Servidor SFTP** | `ssh2` | Servidor SFTP RFC 4253 embebido para Antigravity IDE |
 | **Procesos & Subprocess** | Node `child_process` / `events` | Wrapper de supervisión con pipes bidireccionales, terminación en árbol (`tree-kill`), timeout de apagado ordenado (15s) y `pidusage` para métricas |
 | **Frontend Framework** | React 19 + Vite | SPA de alto rendimiento |
+| **Desktop Shell** | Electron 34+ | Aplicación de escritorio nativa con System Tray y notificaciones |
 | **Estilos & UI** | Tailwind CSS + Lucide Icons | Estética industrial limpia NebulaX Studio |
 | **Consola Web** | `@xterm/xterm` + `@xterm/addon-fit` | Emulador de terminal ANSI completo para logs y comandos |
 | **Testing** | Vitest | Pruebas unitarias rápidas y aislamiento de I/O |
@@ -120,11 +127,20 @@ pismcontroller/
 │       │   └── java-routes.ts
 │       ├── websocket/                  # Canales en tiempo real (consola y métricas)
 │       │   └── console-socket.ts
-│       └── web-dashboard/              # Aplicación React (SPA)
-│           ├── src/
-│           │   ├── components/         # Terminal, Header, ServerCard, CommandPalette, MotdDesigner
-│           │   ├── pages/              # Dashboard, ServerDetail, CatalogExplorer, PlayersView, Settings
-│           │   └── services/           # Clientes API REST y WebSocket
+│       ├── sftp/                       # Servidor SFTP para Antigravity IDE
+│       │   ├── sftp-server.ts
+│       │   ├── sftp-authenticator.ts
+│       │   └── virtual-fs-bridge.ts
+│       ├── web-dashboard/              # Aplicación React (SPA)
+│       │   ├── src/
+│       │   │   ├── components/         # Terminal, Header, ServerCard, CommandPalette, MotdDesigner
+│       │   │   ├── pages/              # Dashboard, ServerDetail, CatalogExplorer, PlayersView, Settings
+│       │   │   └── services/           # Clientes API REST y WebSocket
+│       └── desktop/                    # Shell de escritorio nativo Electron
+│           ├── main.ts                 # Ciclo de vida de la ventana y proceso principal
+│           ├── tray.ts                 # Bandeja del sistema (System Tray) y menú rápido
+│           ├── notifications.ts        # Alertas de escritorio para crashes y eventos
+│           └── ide-bridge.ts           # Integración y apertura con Antigravity IDE
 └── package.json
 ```
 
@@ -216,3 +232,7 @@ export class ContentInstallerService {
    - Búsqueda global instantánea accesible mediante atajo de teclado para navegar servidores, comandos y catálogo.
 10. **Despliegue Nativo para Oracle Cloud / Linux VPS**:
     - Backend headless configurable con `HOST=0.0.0.0` y `PORT=3000`, paths normalizados y compatibilidad completa con Linux (Ubuntu/Debian) y Windows.
+11. **Aplicación de Escritorio Nativa**:
+    - Ejecutar PismController como cliente de escritorio independiente (Electron) con soporte para System Tray y notificaciones de sistema para eventos y crashes.
+12. **Integración de Archivos con Antigravity IDE**:
+    - Botón "Abrir en Antigravity IDE" para servidores locales y servidor SFTP seguro embebido (`ssh2`, puerto por defecto 2022) para editar archivos de servidores remotos con guardado instantáneo en vivo.

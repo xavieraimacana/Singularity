@@ -34,10 +34,10 @@
   Ignorar `node_modules/`, `dist/`, `data/servers/`, `data/pism.db`, `.env`.
 
 - [ ] **Step 2: Crear package.json con scripts de compilación, test y desarrollo**
-  Definir scripts `dev`, `build`, `test`, `test:coverage`, `lint`. Dependencias clave: `fastify`, `@fastify/websocket`, `@fastify/cors`, `@fastify/jwt`, `better-sqlite3`, `pidusage`, `tree-kill`, `dotenv`, `zod`. Dependencias dev: `typescript`, `vitest`, `@types/node`, `@types/better-sqlite3`.
+  Definir scripts `dev`, `dev:desktop`, `build`, `build:desktop`, `test`, `test:coverage`, `lint`. Dependencias clave: `fastify`, `@fastify/websocket`, `@fastify/cors`, `@fastify/jwt`, `better-sqlite3`, `pidusage`, `tree-kill`, `ssh2`, `dotenv`, `zod`. Dependencias dev: `typescript`, `vitest`, `electron`, `@types/node`, `@types/better-sqlite3`, `@types/ssh2`.
 
 - [ ] **Step 3: Crear tsconfig.json y vitest.config.ts**
-  Configurar target ES2022, moduleResolution NodeNext, strict mode. Generar `.env.example` con `PORT=3000`, `HOST=0.0.0.0`, `JWT_SECRET=`, `CURSEFORGE_API_KEY=` (opcional), `DEFAULT_ADMIN_USER=admin`, `DEFAULT_ADMIN_PASSWORD=admin`.
+  Configurar target ES2022, moduleResolution NodeNext, strict mode. Generar `.env.example` con `PORT=3000`, `HOST=0.0.0.0`, `SFTP_PORT=2022`, `JWT_SECRET=`, `CURSEFORGE_API_KEY=` (opcional), `DEFAULT_ADMIN_USER=admin`, `DEFAULT_ADMIN_PASSWORD=admin`.
 
 - [ ] **Step 4: Instalar dependencias iniciales**
   Ejecutar `npm install`.
@@ -415,7 +415,74 @@
 
 ---
 
-### Task 14: Verificación End-to-End y Script de Despliegue para Oracle Cloud (OCI)
+### Task 14: Micro-Servidor SFTP Embebido para Antigravity IDE (`src/delivery/sftp`)
+
+**Files:**
+- Create: `src/delivery/sftp/sftp-server.ts`
+- Create: `src/delivery/sftp/sftp-authenticator.ts`
+- Create: `src/delivery/sftp/virtual-fs-bridge.ts`
+- Test: `tests/delivery/sftp-server.test.ts`
+
+**Interfaces:**
+- Produces:
+  - Servidor SFTP en puerto `2022` que valida credenciales de usuario contra `auth-identity`.
+  - Enjaulado virtual (`chroot`) que confina al usuario dentro de `data/servers/<id>` impidiendo fugas de directorio.
+  - Soporte completo para lectura, escritura, creación y borrado de archivos desde extensiones SFTP de Antigravity IDE / VS Code.
+
+- [ ] **Step 1: Escribir tests para autenticación SFTP y restricción de path traversal**
+  Verificar que usuarios inválidos son rechazados y que intentos de `../` fuera de la carpeta de servidores se bloquean.
+- [ ] **Step 2: Ejecutar test y verificar fallo**
+  Run: `npx vitest run tests/delivery/sftp-server.test.ts`
+- [ ] **Step 3: Implementar SftpAuthenticator y VirtualFsBridge**
+  Mapear operaciones POSIX de `ssh2` a operaciones seguras de Node.js `fs/promises`.
+- [ ] **Step 4: Implementar SftpServer integrado en el ciclo de vida del backend**
+  Inicializar host key automáticamente (`data/sftp_host_key`) y arrancar en puerto configurable.
+- [ ] **Step 5: Ejecutar test y verificar éxito**
+  Run: `npx vitest run tests/delivery/sftp-server.test.ts`
+- [ ] **Step 6: Commit**
+  ```bash
+  git add src/delivery/sftp/ tests/delivery/sftp-server.test.ts
+  git commit -m "feat(sftp): implementar micro-servidor sftp embebido para antigravity ide"
+  ```
+
+---
+
+### Task 15: Aplicación de Escritorio Electron con System Tray e Integración IDE (`src/delivery/desktop`)
+
+**Files:**
+- Create: `src/delivery/desktop/main.ts`
+- Create: `src/delivery/desktop/tray.ts`
+- Create: `src/delivery/desktop/notifications.ts`
+- Create: `src/delivery/desktop/ide-bridge.ts`
+- Create: `src/delivery/desktop/preload.ts`
+- Modify: `src/delivery/web-dashboard/src/components/Header.tsx`
+- Modify: `src/delivery/web-dashboard/src/pages/ServerDetail.tsx`
+
+**Interfaces:**
+- Produces:
+  - Ventana nativa Electron de PismController con soporte offline/online.
+  - Bandeja del sistema (System Tray) con menú contextual (Abrir, Estado de Servidores, Salir).
+  - Notificaciones nativas del sistema operativo en caso de crash o alerta de servidor.
+  - Botón "Abrir en Antigravity IDE": en local ejecuta la apertura directa de la carpeta del servidor en Antigravity IDE; en remoto copia o configura la cadena de conexión SFTP.
+
+- [ ] **Step 1: Configurar proceso principal de Electron en TypeScript**
+  Cargar la SPA React construida o el servidor dev en tiempo de desarrollo.
+- [ ] **Step 2: Implementar System Tray y alertas de escritorio**
+  Minimizar a la bandeja al cerrar la ventana en lugar de terminar la aplicación.
+- [ ] **Step 3: Implementar IdeBridge**
+  Detección del ejecutable `antigravity` / protocolo `antigravity://file/...` y comando para abrir directorios de servidores locales.
+- [ ] **Step 4: Integrar botón "Abrir en Antigravity IDE" en ServerDetail**
+- [ ] **Step 5: Probar ejecución de Electron**
+  Run: `npm run dev:desktop`
+- [ ] **Step 6: Commit**
+  ```bash
+  git add src/delivery/desktop/ src/delivery/web-dashboard/
+  git commit -m "feat(desktop): implementar aplicacion de escritorio electron e integracion con antigravity ide"
+  ```
+
+---
+
+### Task 16: Verificación End-to-End y Script de Despliegue para Oracle Cloud (OCI)
 
 **Files:**
 - Create: `scripts/deploy-oci.sh`
@@ -426,7 +493,7 @@
 - Produces:
   - Verificación de la suite completa de pruebas (`npm test`).
   - Build de producción completo (`npm run build`).
-  - Script automatizado para instalación y configuración del servicio `systemd` en Linux Ubuntu/Debian en Oracle Cloud.
+  - Script automatizado para instalación y configuración del servicio `systemd` en Linux Ubuntu/Debian en Oracle Cloud (con puertos 3000, 25565 y 2022).
 
 - [ ] **Step 1: Ejecutar suite de pruebas completa**
   Run: `npm test`

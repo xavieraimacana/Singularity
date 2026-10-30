@@ -65,7 +65,17 @@
   - Verify: Modificaciones se guardan y reflejan en `server.properties`.
   - Files: `src/delivery/web-dashboard/src/pages/ServerConfig.tsx`, `components/MotdDesigner.tsx`
 
-- [ ] Task 14: Verificación End-to-End y Script de Despliegue para Oracle Cloud (OCI)
-  - Acceptance: Suite de tests completa al 100%, build de producción, script de despliegue OCI y servicio `systemd`.
+- [ ] Task 14: Micro-Servidor SFTP Embebido para Antigravity IDE (`src/delivery/sftp`)
+  - Acceptance: Servidor SFTP RFC 4253 en puerto 2022 con autenticación de usuarios y chroot por servidor seguro sin path traversal.
+  - Verify: `npx vitest run tests/delivery/sftp-server.test.ts` pasa.
+  - Files: `src/delivery/sftp/*`, `tests/delivery/sftp-server.test.ts`
+
+- [ ] Task 15: Aplicación de Escritorio Electron con System Tray e Integración IDE (`src/delivery/desktop`)
+  - Acceptance: Ventana nativa Electron, System Tray, notificaciones nativas de crash y botón "Abrir en Antigravity IDE".
+  - Verify: Electron arranca y botón ejecuta apertura de carpeta o copia de conexión SFTP.
+  - Files: `src/delivery/desktop/*`, `src/delivery/web-dashboard/src/components/*`
+
+- [ ] Task 16: Verificación End-to-End y Script de Despliegue para Oracle Cloud (OCI)
+  - Acceptance: Suite de tests completa al 100%, build de producción unificado (web + desktop), script de despliegue OCI y servicio `systemd` (puertos 3000, 25565 y 2022).
   - Verify: `npm test` && `npm run build` pasan.
   - Files: `scripts/deploy-oci.sh`, `scripts/pismcontroller.service`, `README.md`

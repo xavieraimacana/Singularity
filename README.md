@@ -22,6 +22,8 @@
   - 👥 **Gestor de Jugadores con Skins**: Visualiza avatares en tiempo real y ejecuta acciones rápidas (OP, Kick, Ban, Whitelist).
   - 🖥️ **Terminal Interactiva en Vivo**: Consola VT100 (xterm.js) con comandos interactivos en tiempo real vía WebSockets y filtros inteligentes de logs.
   - ⚡ **Command Palette (`Ctrl+K`)**: Búsqueda global instantánea para saltar entre servidores, mods y comandos.
+  - 🖥️ **Aplicación de Escritorio Nativa (Electron)**: Olvídate de buscar pestañas en el navegador: ventana independiente con bandeja del sistema (System Tray) para dejar servidores corriendo en segundo plano y alertas nativas de escritorio.
+  - 💻 **Integración con Antigravity IDE y VS Code**: Botón de 1-clic "Abrir en Antigravity IDE" para servidores locales, y **Micro-Servidor SFTP embebido** (puerto `2022`) para editar configs de mods, `.properties` y scripts directamente en tu IDE con guardado en vivo en la nube.
   - ☁️ **Optimizado para Oracle Cloud / VPS**: Diseñado tanto para desarrollo local como para operar como daemon 24/7 en servidores Linux (Oracle Cloud Infrastructure, Ubuntu, Debian).
 
 ---
@@ -37,7 +39,7 @@ src/
 ├── servers/             # Dominio de instancias, configs y puertos
 ├── content-catalog/     # Proveedores (Modrinth, CurseForge, PaperMC) e instalador
 ├── process-supervisor/  # Ejecución de procesos Java, I/O terminal y métricas
-└── delivery/            # Mecanismo de entrega: Fastify API + Panel React
+└── delivery/            # Mecanismo de entrega: Fastify API + Panel React + Desktop Electron + SFTP
 ```
 
 Consulta los documentos de arquitectura:
@@ -88,24 +90,27 @@ Para operar PismController en un VPS en la nube (como instancias Ubuntu/Debian e
 |---|---|---|
 | `3000` | TCP | Panel Web y WebSocket de PismController |
 | `25565` | TCP / UDP | Puerto por defecto de servidores de Minecraft |
+| `2022` | TCP | Micro-Servidor SFTP para Antigravity IDE / VS Code |
 
 ### 2. Reglas de Ingreso en Oracle Cloud (OCI)
 En la consola de Oracle Cloud:
 1. Ve a **Networking** > **Virtual Cloud Networks (VCN)** > Tu VCN > **Security Lists**.
 2. Añade las siguientes **Ingress Rules** (Reglas de Ingreso):
-   - **CIDR:** `0.0.0.0/0` | **Protocol:** TCP | **Destination Port Range:** `3000, 25565`
+   - **CIDR:** `0.0.0.0/0` | **Protocol:** TCP | **Destination Port Range:** `3000, 2022, 25565`
    - **CIDR:** `0.0.0.0/0` | **Protocol:** UDP | **Destination Port Range:** `25565` (requerido para consultas Bedrock/Geyser y ping UDP)
 
 ### 3. Firewall en el Sistema Operativo (Ubuntu/Debian)
 ```bash
 # Si usas UFW:
 sudo ufw allow 3000/tcp
+sudo ufw allow 2022/tcp
 sudo ufw allow 25565/tcp
 sudo ufw allow 25565/udp
 sudo ufw reload
 
 # Si usas iptables nativo de Oracle Linux / Ubuntu OCI:
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 3000 -j ACCEPT
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 2022 -j ACCEPT
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 25565 -j ACCEPT
 sudo iptables -I INPUT 6 -m state --state NEW -p udp --dport 25565 -j ACCEPT
 sudo netfilter-persistent save

@@ -16,4 +16,6 @@ Documento canónico guardado en: [`docs/superpowers/plans/2026-10-30-pismcontrol
 - [ ] Task 11: Vista de Detalle, Consola xterm.js y Gestor de Jugadores con Skins
 - [ ] Task 12: Catálogo Integrado Prism (Mods, Plugins, Modpacks) y 1-Click Install
 - [ ] Task 13: Editor Visual de `server.properties` y Diseñador de MOTD en Vivo
-- [ ] Task 14: Verificación End-to-End y Script de Despliegue para Oracle Cloud (OCI)
+- [ ] Task 14: Micro-Servidor SFTP Embebido para Antigravity IDE (`src/delivery/sftp`)
+- [ ] Task 15: Aplicación de Escritorio Electron con System Tray e Integración IDE (`src/delivery/desktop`)
+- [ ] Task 16: Verificación End-to-End y Script de Despliegue para Oracle Cloud (OCI)
