@@ -1,4 +1,4 @@
-# Todo: PismController
+# Todo: Singularity
 
 - [ ] Task 1: Scaffolding del Proyecto y Entorno de Desarrollo
   - Acceptance: `package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`, `npm test` funcionando.

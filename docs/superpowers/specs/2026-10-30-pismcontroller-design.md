@@ -1,7 +1,7 @@
-# Spec: PismController (Crafty Controller + Prism Launcher Hybrid)
+# Spec: Singularity (Crafty Controller + Prism Launcher Hybrid)
 
 ## Objective
-**PismController** es una suite de orquestación y administración de servidores de Minecraft diseñada para uso local o despliegue en la nube (como instancias VPS de Oracle Cloud Infrastructure - OCI) que fusiona:
+**Singularity** es una suite de orquestación y administración de servidores de Minecraft diseñada para uso local o despliegue en la nube (como instancias VPS de Oracle Cloud Infrastructure - OCI) que fusiona:
 1. **La potencia operativa y monitoreo de Crafty Controller**: Control 24/7 de múltiples servidores independientes, panel web responsive estilo "Mission Control", terminal interactiva en tiempo real (bidireccional con xterm.js), métricas en vivo (CPU, RAM, TPS, latencia) y gestión de roles y permisos.
 2. **La experiencia de usuario y catálogo de Prism Launcher**: Asistente visual e intuitivo de creación de instancias (Vanilla, Paper, Purpur, Fabric, Forge, NeoForge), gestor integrado de contenidos para buscar e instalar en 1-click **Modpacks** (Modrinth .mrpack / CurseForge zip), **Mods**, **Plugins** y **Datapacks**, con resolución automática de dependencias y actualización en 1-clic.
 3. **Herramientas Profesionales sin Fricción**:

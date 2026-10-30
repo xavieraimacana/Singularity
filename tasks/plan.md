@@ -1,4 +1,4 @@
-# Plan de Implementación de PismController
+# Plan de Implementación de Singularity
 
 Documento canónico guardado en: [`docs/superpowers/plans/2026-10-30-pismcontroller-implementation.md`](file:///C:/Users/GAMING/Desktop/pismcontroller/docs/superpowers/plans/2026-10-30-pismcontroller-implementation.md)
 

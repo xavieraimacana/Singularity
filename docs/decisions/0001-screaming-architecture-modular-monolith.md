@@ -17,7 +17,7 @@ Requisitos clave:
 - Cumplimiento de las directrices de arquitectura de **NebulaX Studio** (Screaming Architecture, lógica desacoplada de la UI/CLI).
 
 ## Decisión
-Construir **PismController** como un **Monolito Modular** en **TypeScript** bajo **Screaming Architecture**, utilizando:
+Construir **Singularity** como un **Monolito Modular** en **TypeScript** bajo **Screaming Architecture**, utilizando:
 - **Backend Core**: Node.js + Fastify (por su velocidad récord en benchmarks HTTP/WebSocket y bajo footprint de memoria).
 - **Base de Datos / Estado**: SQLite ligero vía `better-sqlite3` para persistencia atómica de usuarios, roles e instancias.
 - **Frontend**: Single Page Application con React, Tailwind CSS, Lucide Icons y xterm.js para emulación de terminal VT100.

@@ -1,8 +1,8 @@
-# PismController Implementation Plan
+# Singularity Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Construir **PismController**, una suite modular para orquestación de servidores de Minecraft que fusiona el control 24/7 y consola web de **Crafty Controller** con el catálogo integrado de mods/plugins/modpacks, analizador de crashes y configurador visual de **Prism Launcher**.
+**Goal:** Construir **Singularity**, una suite modular para orquestación de servidores de Minecraft que fusiona el control 24/7 y consola web de **Crafty Controller** con el catálogo integrado de mods/plugins/modpacks, analizador de crashes y configurador visual de **Prism Launcher**.
 
 **Architecture:** Screaming Architecture Modular Monolith en TypeScript. Lógica de dominio pura (`java-manager`, `servers`, `process-supervisor`, `crash-analyzer`, `content-catalog`, `auth-identity`) 100% independiente del framework web Fastify y de la interfaz React. Diseñado para ejecución local o en VPS Linux de Oracle Cloud (OCI).
 

@@ -1,114 +1,230 @@
-# 🎮 PismController
+<div align="center">
 
-> **El orquestador de servidores de Minecraft definitivo: El control 24/7 y la potencia de Crafty Controller unidos a la sencillez y catálogo de Prism Launcher.**
+# 🌌 Singularity
+### *The Next-Generation Minecraft Server Orchestrator & Mission Control*
+**Un producto oficial de NebulaX Studio**
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Fastify](https://img.shields.io/badge/Fastify-5.x-black.svg)](https://fastify.dev/)
-[![React](https://img.shields.io/badge/React-19.x-61dafb.svg)](https://react.dev/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0--alpha-blueviolet.svg?style=for-the-badge)](https://github.com/nebulax-studio/singularity)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-24+-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Fastify](https://img.shields.io/badge/Fastify-5.x-000000.svg?style=for-the-badge&logo=fastify&logoColor=white)](https://fastify.dev/)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Electron](https://img.shields.io/badge/Electron-34+-47848F.svg?style=for-the-badge&logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003b57.svg?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![License](https://img.shields.io/badge/License-MIT-emerald.svg?style=for-the-badge)](LICENSE)
+
+<br/>
+
+**Singularity** unifica en una sola plataforma la potencia operativa 24/7 y monitoreo en tiempo real de **Crafty Controller**, la facilidad de instalación de modpacks y plugins de **Prism Launcher**, la agilidad de una **Aplicación de Escritorio con System Tray** y la comodidad de editar archivos directamente desde **Antigravity IDE / VS Code** mediante un micro-servidor SFTP embebido.
+
+[Características](#-características-principales) • [Arquitectura](#-arquitectura-screaming-architecture) • [Stack Tecnológico](#-stack-tecnológico) • [Inicio Rápido](#-inicio-rápido) • [Integración con Antigravity IDE](#-integración-con-antigravity-ide--vs-code) • [Despliegue en la Nube (OCI)](#-despliegue-en-vps-y-oracle-cloud-oci) • [Documentación](#-documentación-técnica)
 
 ---
 
-## 🌟 ¿Qué es PismController?
+</div>
 
-**PismController** nace para resolver el mayor dolor de cabeza de los administradores y jugadores de Minecraft:
-- Administrar servidores en herramientas como Crafty Controller o paneles clásicos requiere buscar manualmente los archivos `.jar`, descargar plugins o mods en páginas externas, subirlos por FTP/gestor de archivos y lidiar con versiones incompatibles de Java.
-- **PismController** integra la revolucionaria experiencia de **Prism Launcher** directamente dentro de un panel de control para servidores:
-  - 🚀 **Despliegue Instantáneo**: Crea servidores Vanilla, Paper, Purpur, Fabric, Forge o NeoForge con un asistente visual.
-  - 📦 **Catálogo de Contenido Integrado**: Busca e instala **Modpacks**, **Mods**, **Plugins** y **Datapacks** directamente desde **Modrinth**, **CurseForge** y **PaperMC** en un solo clic, con resolución automática de dependencias y actualización en 1-clic.
-  - ☕ **Gestión Inteligente de Java**: Detecta automáticamente los runtimes instalados (Java 8, 11, 17, 21, 25) y selecciona la versión exacta requerida por la versión de Minecraft elegida, aplicando banderas JVM optimizadas (*Aikar's Flags*).
-  - 🩺 **Diagnóstico Inteligente de Crashes**: Analiza automáticamente logs de errores y crash reports identificando la causa (Java incorrecto, mods incompatibles, mods de cliente instalados en el servidor) y ofrece solución en 1-clic.
-  - 🎨 **Editor Visual de `server.properties` y MOTD en Vivo**: Olvídate de editar archivos de texto a ciegas: switches visuales, sliders y previsualización exacta de la tarjeta del servidor multijugador.
-  - 👥 **Gestor de Jugadores con Skins**: Visualiza avatares en tiempo real y ejecuta acciones rápidas (OP, Kick, Ban, Whitelist).
-  - 🖥️ **Terminal Interactiva en Vivo**: Consola VT100 (xterm.js) con comandos interactivos en tiempo real vía WebSockets y filtros inteligentes de logs.
-  - ⚡ **Command Palette (`Ctrl+K`)**: Búsqueda global instantánea para saltar entre servidores, mods y comandos.
-  - 🖥️ **Aplicación de Escritorio Nativa (Electron)**: Olvídate de buscar pestañas en el navegador: ventana independiente con bandeja del sistema (System Tray) para dejar servidores corriendo en segundo plano y alertas nativas de escritorio.
-  - 💻 **Integración con Antigravity IDE y VS Code**: Botón de 1-clic "Abrir en Antigravity IDE" para servidores locales, y **Micro-Servidor SFTP embebido** (puerto `2022`) para editar configs de mods, `.properties` y scripts directamente en tu IDE con guardado en vivo en la nube.
-  - ☁️ **Optimizado para Oracle Cloud / VPS**: Diseñado tanto para desarrollo local como para operar como daemon 24/7 en servidores Linux (Oracle Cloud Infrastructure, Ubuntu, Debian).
+## 🌟 ¿Por qué Singularity?
+
+Administrar servidores de Minecraft ha estado fragmentado durante años:
+- **Paneles Web Tradicionales**: Requieren buscar manualmente archivos `.jar`, descargar plugins o mods en navegadores externos, subirlos penosamente por gestores web o FTPs lentos, y descifrar a ciegas crash reports crípticos.
+- **Launchers de Cliente (como Prism Launcher)**: Tienen el mejor catálogo del mundo (Modrinth, CurseForge) y resolución automática de dependencias, pero solo funcionan en el cliente de juego local, no en servidores dedicados 24/7.
+
+**Singularity condensa todo ese ecosistema en una única solución de alta ingeniería:**
+1. **Despliegue en 3 Clics**: Crea instancias de Vanilla, Paper, Purpur, Fabric, Forge o NeoForge con detección automática del runtime Java requerido.
+2. **Catálogo Prism Integrado**: Busca e instala Modpacks (`.mrpack`), Mods, Plugins y Datapacks de **Modrinth**, **CurseForge** y **PaperMC** en 1 clic.
+3. **Diagnóstico Inteligente de Crashes**: Analiza automáticamente logs de errores identificando al instante la causa (Java incorrecto, mods incompatibles, mods client-side en servidor) y ofrece solución en 1 clic.
+4. **Desktop Nativo & System Tray**: Minimiza la app al área de notificación de Windows/Linux sin depender de pestañas de navegador.
+5. **Edición Remota en Vivo desde Antigravity IDE**: Micro-servidor SFTP interno que te permite abrir el servidor como un proyecto en tu editor y guardar cambios en vivo.
+
+---
+
+## ⚡ Características Principales
+
+| Módulo | Descripción |
+|---|---|
+| 🚀 **Orquestador Multi-Instancia** | Control total e independiente de múltiples servidores simultáneos (Vanilla, Paper, Purpur, Fabric, Forge, NeoForge). |
+| 📦 **Catálogo de Contenido Prism** | Integración nativa con **Modrinth v2**, **PaperMC** y **CurseForge** con resolución automática de dependencias y actualización en 1 clic. |
+| 🩺 **Motor de Diagnóstico de Crashes** | Reconocimiento heurístico en logs de `UnsupportedClassVersionError`, `OutOfMemory`, mods de cliente en servidor y mundos corruptos. |
+| 💻 **Antigravity IDE / VS Code Bridge** | Botón local "Abrir en Antigravity IDE" y **Micro-servidor SFTP embebido** (puerto `2022`) para edición remota de configs con guardado en vivo. |
+| 🖥️ **Aplicación de Escritorio Nativa** | Shell Electron con bandeja del sistema (System Tray), alertas nativas del SO para caídas de servidor y selector multi-nodo (Local/VPS). |
+| ☕ **Java Runtime Manager** | Auto-detección de runtimes Java (8, 11, 17, 21, 25), validación de compatibilidad con versiones de Minecraft y banderas optimizadas (*Aikar's Flags*). |
+| 🎨 **Editor Visual & MOTD en Vivo** | Configuración visual de `server.properties` con switches, sliders y previsualizador en vivo de la tarjeta multijugador con soporte de colores `§` y MiniMessage. |
+| 👥 **Gestor de Jugadores con Skins** | Visualización en tiempo real de jugadores conectados con avatares 2D/3D (Minotar API) y comandos rápidos (OP, Kick, Ban, Whitelist). |
+| 🖥️ **Terminal VT100 en Tiempo Real** | Emulador ANSI completo vía `@xterm/xterm` y WebSockets bidireccionales con buffer circular y filtros inteligentes. |
+| ⚡ **Command Palette (`Ctrl+K`)** | Búsqueda global instantánea para alternar entre servidores, buscar mods y lanzar comandos con atajos de teclado. |
+| 🛡️ **Supervisión Concurrente Blindada** | Terminación en árbol (`tree-kill` en Windows / Process Groups en Linux) y timeout de 15s tras `/stop` para evitar procesos huérfanos. |
 
 ---
 
 ## 🏛️ Arquitectura (Screaming Architecture)
 
-Siguiendo los estándares de ingeniería de **NebulaX Studio**, el núcleo del sistema es 100% independiente del framework web y la interfaz de usuario:
+Siguiendo las directrices de arquitectura de **NebulaX Studio**, la capa de entrega (Web, Desktop, SFTP) es un simple adaptador. La lógica de negocio del dominio de Minecraft es **100% pura y agnóstica de frameworks**:
 
 ```
 src/
-├── auth-identity/       # Cuentas, roles y sesiones
-├── java-manager/        # Detección y compatibilidad de runtimes Java
-├── servers/             # Dominio de instancias, configs y puertos
-├── content-catalog/     # Proveedores (Modrinth, CurseForge, PaperMC) e instalador
-├── process-supervisor/  # Ejecución de procesos Java, I/O terminal y métricas
-└── delivery/            # Mecanismo de entrega: Fastify API + Panel React + Desktop Electron + SFTP
+├── auth-identity/       # Dominio: Cuentas, roles (Admin, Operator, Viewer), JWT y sesiones
+├── java-manager/        # Dominio: Detección de runtimes Java, compatibilidad y Aikar's Flags
+├── servers/             # Dominio: Instancias de servidor, ciclo de vida, properties y backups
+├── content-catalog/     # Dominio: Proveedores (Modrinth, PaperMC, CurseForge) e instalador
+├── process-supervisor/  # Dominio: Supervisión de procesos Java, I/O terminal y diagnósticos
+└── delivery/            # Mecanismo de Entrega (Delivery Mechanism)
+    ├── http/            # API RESTful de alto rendimiento con Fastify
+    ├── websocket/       # Streaming en tiempo real de consola y métricas
+    ├── sftp/            # Micro-servidor SFTP embebido para Antigravity IDE
+    ├── web-dashboard/   # SPA moderna en React 19 + Tailwind CSS + Lucide
+    └── desktop/         # Shell de escritorio nativo Electron + System Tray
 ```
 
-Consulta los documentos de arquitectura:
-- [Mapa de Capacidades](docs/CAPABILITY_MAP.md)
-- [Especificación Técnica Completa](docs/superpowers/specs/2026-10-30-pismcontroller-design.md)
-- [ADR-001: Screaming Architecture y Monolito Modular](docs/decisions/0001-screaming-architecture-modular-monolith.md)
-- [ADR-002: Abstracción de Proveedores para el Catálogo](docs/decisions/0002-content-catalog-provider-abstraction.md)
+```mermaid
+flowchart TD
+    classDef domain fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+    classDef delivery fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+
+    subgraph Dominio [" Dominio Central (Agnóstico de Frameworks) "]
+        auth["auth-identity"]:::domain
+        java["java-manager"]:::domain
+        servers["servers"]:::domain
+        catalog["content-catalog"]:::domain
+        proc["process-supervisor"]:::domain
+    end
+
+    subgraph MecanismoEntrega [" Mecanismos de Entrega (Delivery) "]
+        api["delivery-api (Fastify REST & WebSockets)"]:::delivery
+        sftp["sftp-server (ssh2 para Antigravity IDE)"]:::delivery
+        ui["web-dashboard (React 19 + Tailwind)"]:::delivery
+        desktop["desktop-app (Electron + System Tray)"]:::delivery
+    end
+
+    java --> servers
+    java --> proc
+    servers --> catalog
+    servers --> proc
+    auth --> api
+    auth --> sftp
+    servers --> sftp
+    servers --> api
+    catalog --> api
+    proc --> api
+    api --> ui
+    ui --> desktop
+    api --> desktop
+```
+
+---
+
+## 📦 Stack Tecnológico
+
+| Capa | Componente | Tecnología | Versión | Justificación |
+|---|---|---|---|---|
+| **Runtime** | Motor de Ejecución | Node.js | `v24.15+ LTS` | Soporte nativo para ESM, TypeScript y bajo consumo de recursos. |
+| **Backend** | Framework HTTP / WS | Fastify | `v5.x` | Rendimiento líder en I/O asíncrono y streaming no bloqueante. |
+| **Persistencia** | Base de Datos | SQLite | `better-sqlite3` | Síncrono, embebido, ultrarrápido y libre de administración externa. |
+| **Seguridad** | Cifrado y Sesiones | Argon2 / JWT | `@fastify/jwt` | Autenticación robusta basada en roles (*Admin*, *Operator*, *Viewer*). |
+| **Remoto** | Servidor SFTP | ssh2 | `v1.x` | Protocolo estándar de la industria para edición remota en IDEs. |
+| **Frontend** | Interfaz Web | React 19 + Vite | `v19.x` | Renderizado ultra reactivo y bundling optimizado. |
+| **Desktop** | Shell de Escritorio | Electron | `v34+` | Acceso nativo a System Tray, notificaciones del SO y atajos de sistema. |
+| **Terminal** | Emulador Web ANSI | xterm.js | `v5.x` | Emulación VT100 fiel para consola de servidor y filtros de logs. |
+| **Testing** | Suite de Pruebas | Vitest | `v2.x` | Tests unitarios de dominio rápidos y aislamiento de I/O. |
 
 ---
 
 ## 🚀 Inicio Rápido
 
 ### Requisitos Previos
-- **Node.js**: v20.0+ (probado en v24.15)
-- **Java**: Java 17, 21 o 25 instalado en el sistema
+* **Node.js**: `v20.0+` (Recomendado `v24.15+ LTS`)
+* **Java**: Java 17, 21 o 25 instalado en el sistema
+* **Git**: Para control de versiones
 
-### Instalación y Ejecución
+### 1. Clonar e Instalar Dependencias
 ```bash
-# 1. Clonar el repositorio
-git clone <url-del-repo>
-cd pismcontroller
+# Clonar el repositorio
+git clone https://github.com/nebulax-studio/singularity.git
+cd singularity
 
-# 2. Instalar dependencias
+# Instalar dependencias del proyecto
 npm install
 
-# 3. Iniciar en modo desarrollo
-npm run dev
+# Configurar variables de entorno
+cp .env.example .env
 ```
 
-El panel estará disponible en `http://localhost:3000`.
+### 2. Ejecutar en Modo Desarrollo
 
-### 🔑 Credenciales Iniciales
-Al arrancar por primera vez, el sistema inicializa una cuenta de administrador por defecto:
-- **Usuario:** `admin`
-- **Contraseña:** `admin`
+```bash
+# Iniciar Servidor Fastify + Dashboard Web con Hot Reload
+npm run dev
+
+# (Opcional) Iniciar la Aplicación de Escritorio Electron
+npm run dev:desktop
+```
+
+El panel estará disponible de inmediato en:
+🌐 **`http://localhost:3000`**
+
+### 🔑 Credenciales Iniciales de Administrador
+Al arrancar por primera vez, Singularity inicializa una cuenta de administrador por defecto:
+* **Usuario:** `admin`
+* **Contraseña:** `admin`
 
 > [!IMPORTANT]
-> **Cambio Obligatorio:** En el primer inicio de sesión, el panel solicitará automáticamente actualizar la contraseña por razones de seguridad.
+> **Rotación Obligatoria de Credenciales:** Por motivos de seguridad, en el primer inicio de sesión el sistema solicitará obligatoriamente actualizar la contraseña de administrador.
+
+---
+
+## 💻 Integración con Antigravity IDE / VS Code
+
+Singularity te permite modificar configs de mods (`.toml`, `.json`), `server.properties`, datapacks y scripts de KubeJS directamente desde tu editor favorito sin tocar el panel web:
+
+### A. Para Servidores Locales
+En la vista de detalle de cualquier servidor dentro de Singularity, pulsa el botón **"Abrir en Antigravity IDE"**. La carpeta de la instancia (`data/servers/<id>/`) se abrirá de inmediato en tu editor.
+
+### B. Para Servidores Remotos (VPS / Oracle Cloud)
+1. Instala en **Antigravity IDE** o **VS Code** cualquier extensión SFTP estándar (ej. *SFTP* por Natizyskunk o *Remote - SSH*).
+2. Añade en tu proyecto local el archivo `.vscode/sftp.json`:
+```json
+{
+  "name": "Singularity VPS",
+  "host": "IP_DE_TU_VPS",
+  "protocol": "sftp",
+  "port": 2022,
+  "username": "admin",
+  "password": "TU_PASSWORD",
+  "remotePath": "/servers/srv_01",
+  "uploadOnSave": true
+}
+```
+3. ¡Listo! Cada vez que guardes con `Ctrl + S`, el archivo se actualizará al instante en tu servidor en la nube.
 
 ---
 
 ## ☁️ Despliegue en VPS y Oracle Cloud (OCI)
 
-Para operar PismController en un VPS en la nube (como instancias Ubuntu/Debian en Oracle Cloud Infrastructure), asegúrate de abrir los puertos de red necesarios:
+Singularity está diseñado para operar de forma desatendida 24/7 en servidores Linux en la nube (Ubuntu / Debian / Oracle Linux):
 
-### 1. Puertos Requeridos
+### 1. Puertos de Red Requeridos
 | Puerto | Protocolo | Servicio |
-|---|---|---|
-| `3000` | TCP | Panel Web y WebSocket de PismController |
-| `25565` | TCP / UDP | Puerto por defecto de servidores de Minecraft |
-| `2022` | TCP | Micro-Servidor SFTP para Antigravity IDE / VS Code |
+|:---:|:---:|---|
+| **`3000`** | TCP | Panel Web, API REST y WebSocket de Consola |
+| **`2022`** | TCP | Micro-Servidor SFTP para Antigravity IDE / VS Code |
+| **`25565`** | TCP / UDP | Puerto por defecto para servidores de Minecraft |
 
-### 2. Reglas de Ingreso en Oracle Cloud (OCI)
-En la consola de Oracle Cloud:
-1. Ve a **Networking** > **Virtual Cloud Networks (VCN)** > Tu VCN > **Security Lists**.
+### 2. Configuración en Oracle Cloud Infrastructure (OCI)
+En la consola web de Oracle Cloud:
+1. Navega a **Networking** > **Virtual Cloud Networks (VCN)** > Tu VCN > **Security Lists**.
 2. Añade las siguientes **Ingress Rules** (Reglas de Ingreso):
-   - **CIDR:** `0.0.0.0/0` | **Protocol:** TCP | **Destination Port Range:** `3000, 2022, 25565`
-   - **CIDR:** `0.0.0.0/0` | **Protocol:** UDP | **Destination Port Range:** `25565` (requerido para consultas Bedrock/Geyser y ping UDP)
+   * **CIDR:** `0.0.0.0/0` | **Protocolo:** TCP | **Destination Port Range:** `3000, 2022, 25565`
+   * **CIDR:** `0.0.0.0/0` | **Protocolo:** UDP | **Destination Port Range:** `25565` (consultas UDP y Bedrock/Geyser)
 
-### 3. Firewall en el Sistema Operativo (Ubuntu/Debian)
+### 3. Reglas de Firewall en Linux
 ```bash
-# Si usas UFW:
+# En sistemas con UFW (Ubuntu/Debian):
 sudo ufw allow 3000/tcp
 sudo ufw allow 2022/tcp
 sudo ufw allow 25565/tcp
 sudo ufw allow 25565/udp
 sudo ufw reload
 
-# Si usas iptables nativo de Oracle Linux / Ubuntu OCI:
+# En sistemas con iptables nativo (Oracle Linux / Ubuntu OCI):
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 3000 -j ACCEPT
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 2022 -j ACCEPT
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 25565 -j ACCEPT
@@ -118,5 +234,50 @@ sudo netfilter-persistent save
 
 ---
 
+## 🧪 Pruebas y Control de Calidad
+
+Singularity aplica **Test-Driven Development (TDD)** con aislamiento riguroso de I/O y mocks de red:
+
+```bash
+# Ejecutar todas las pruebas unitarias
+npm test
+
+# Ejecutar pruebas con reporte de cobertura
+npm run test:coverage
+
+# Análisis estático de tipos y linter
+npm run lint
+
+# Compilación de producción completa (Backend + Web + Desktop)
+npm run build
+```
+
+---
+
+## 📑 Documentación Técnica
+
+* 🗺️ [Mapa de Capacidades del Sistema](docs/CAPABILITY_MAP.md)
+* 📐 [Especificación Técnica Completa](docs/superpowers/specs/2026-10-30-pismcontroller-design.md)
+* 📋 [Plan de Implementación Detallado (16 Tareas)](docs/superpowers/plans/2026-10-30-pismcontroller-implementation.md)
+* 📝 [Registro de Decisiones Arquitectónicas (ADRs)](docs/decisions/)
+  * [ADR-001: Screaming Architecture y Monolito Modular](docs/decisions/0001-screaming-architecture-modular-monolith.md)
+  * [ADR-002: Abstracción de Proveedores para el Catálogo](docs/decisions/0002-content-catalog-provider-abstraction.md)
+* 📊 [Auditoría Crítica de la Documentación](C:/Users/GAMING/.gemini/antigravity-cli/brain/05757d6a-6754-4e8e-b92c-d4e80f26b193/analisis-critico-documentacion.md)
+
+---
+
+## 🤝 Estándares de Contribución
+
+Como producto de **NebulaX Studio**, seguimos estándares de ingeniería estrictos:
+* **Commits:** Aplicamos [Conventional Commits](https://www.conventionalcommits.org/) en español (`feat: ...`, `fix: ...`, `test: ...`, `docs: ...`).
+* **Clean Code:** Principios SOLID, tipado estricto en TypeScript sin `any`, y respeto absoluto a la independencia del dominio frente a los frameworks.
+
+---
+
 ## 📄 Licencia
-Este proyecto está bajo la Licencia MIT.
+
+Este proyecto está bajo la Licencia **MIT** — consulta el archivo `LICENSE` para más detalles.
+
+<div align="center">
+  <sub>Desarrollado con precisión por <strong>NebulaX Studio</strong> para la comunidad global de Minecraft.</sub>
+</div>
