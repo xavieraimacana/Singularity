@@ -60,7 +60,7 @@
   - Verify: Instalación de plugin/mod reflejada en la pestaña del servidor.
   - Files: `src/delivery/web-dashboard/src/pages/ContentCatalogPage.tsx`
 
-- [ ] Task 13: Editor Visual de `server.properties` y Diseñador de MOTD en Vivo
+- [x] Task 13: Editor Visual de `server.properties` y Diseñador de MOTD en Vivo
   - Acceptance: Toggles para pvp, flight, whitelist, selector de dificultad, editor de MOTD con preview tipográfica Minecraft.
   - Verify: Modificación de propiedades guardada y reflejada en disco.
   - Files: `src/delivery/web-dashboard/src/components/PropertiesEditor.tsx`, `MotdDesigner.tsx`

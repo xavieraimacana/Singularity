@@ -15,6 +15,7 @@ import { ConsoleTerminal } from '../components/ConsoleTerminal.js';
 import { PlayerManager, type PlayerData } from '../components/PlayerManager.js';
 import { CrashAlertBanner, type CrashDiagnosticData } from '../components/CrashAlertBanner.js';
 import { InstalledContentList } from '../components/InstalledContentList.js';
+import { PropertiesEditor } from '../components/PropertiesEditor.js';
 
 interface ServerDetailPageProps {
   serverId: string;
@@ -266,8 +267,12 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
         )}
 
         {activeTab === 'properties' && (
-          <div className="p-6 rounded-xl bg-nebula-900 border border-nebula-800 text-xs text-slate-300">
-            Editor de `server.properties` visual integrado en el siguiente paso.
+          <div className="h-full overflow-y-auto pr-1">
+            <PropertiesEditor
+              serverId={server.id}
+              serverName={server.name}
+              onSaved={() => fetchServerDetails()}
+            />
           </div>
         )}
 
