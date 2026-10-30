@@ -110,13 +110,13 @@ export const InstalledContentList: React.FC<InstalledContentListProps> = ({
           <Package className="w-8 h-8 text-slate-600 mx-auto mb-2" />
           <h4 className="text-xs font-semibold text-slate-300">No hay contenido instalado</h4>
           <p className="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto mb-4">
-            Usa el Catálogo Unificado Prism para añadir mods de optimización (Sodium, FerriteCore) o plugins Bukkit con un solo clic.
+            Usa el Catálogo Unificado Singularity para añadir mods de optimización (Sodium, FerriteCore) o plugins Bukkit con un solo clic.
           </p>
           <button
             onClick={onExploreCatalog}
             className="px-3.5 py-1.5 bg-nebula-800 hover:bg-nebula-700 text-slate-200 text-xs font-medium rounded-lg border border-nebula-700 transition-colors"
           >
-            Abrir Catálogo Prism
+            Abrir Catálogo Singularity
           </button>
         </div>
       ) : (

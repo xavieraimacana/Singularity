@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ServerLifecycleService } from '../../../servers/services/server-lifecycle.js';
 import type { ProcessRunner } from '../../../process-supervisor/services/process-runner.js';
@@ -6,6 +7,7 @@ import type { AuthService } from '../../../auth-identity/services/auth-service.j
 import { createAuthHook, requireRole } from '../middleware/auth-hook.js';
 import type { CreateServerInstanceOptions } from '../../../servers/models/server-instance.js';
 import type { PropertyValue } from '../../../servers/models/server-properties.js';
+import { minecraftVersionsService } from '../../../servers/services/minecraft-versions.js';
 
 export interface ServerRoutesOptions {
   serverLifecycle: ServerLifecycleService;
@@ -29,11 +31,24 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
   // Enforce granular server permission on all /:id subroutes
   fastify.addHook('preHandler', async (request, reply) => {
     const params = request.params as { id?: string } | undefined;
-    if (params?.id) {
+    if (params?.id && params.id !== 'versions') {
       if (!checkServerPermission(request, params.id)) {
         return reply.status(403).send({ error: 'Acceso denegado: No tienes permisos para gestionar este servidor' });
       }
     }
+  });
+
+  // List all Minecraft versions with full metadata (VIEWER, OPERATOR, ADMIN)
+  fastify.get<{
+    Querystring: {
+      includeSnapshots?: string;
+      search?: string;
+    };
+  }>('/versions', async (request, reply) => {
+    const includeSnapshots = request.query.includeSnapshots === 'true';
+    const search = request.query.search;
+    const versionsData = await minecraftVersionsService.getVersions({ includeSnapshots, search });
+    return reply.status(200).send(versionsData);
   });
 
   // List all servers (VIEWER, OPERATOR, ADMIN)
@@ -99,7 +114,7 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
     }
 
     await serverLifecycle.deleteInstance(instance.id);
-    return reply.status(200).send({ message: `Servidor ${instance.id} eliminado correctamente` });
+    return reply.status(200).send({ message: `Servidor '${instance.name}' eliminado correctamente` });
   });
 
   // Start server (OPERATOR, ADMIN)
@@ -113,8 +128,31 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
 
     try {
       const instanceDir = serverLifecycle.getInstanceDir(instance.id);
-      const executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
       const jarPath = path.join(instanceDir, 'server.jar');
+
+      // Auto-download server.jar if missing and loader supports direct resolution
+      if (!fs.existsSync(jarPath)) {
+        const jarUrl = await minecraftVersionsService.resolveServerJarUrl(instance.gameVersion, instance.loader);
+        if (jarUrl) {
+          try {
+            const res = await fetch(jarUrl);
+            if (res.ok) {
+              const buffer = Buffer.from(await res.arrayBuffer());
+              await fs.promises.writeFile(jarPath, buffer);
+            }
+          } catch {
+            // ignore download error and fall through to check
+          }
+        }
+      }
+
+      if (!fs.existsSync(jarPath)) {
+        return reply.status(400).send({
+          error: `No se encontró el archivo server.jar para el servidor '${instance.name}'. Descárgalo desde el panel de control o sube tu jar mediante SFTP (:2022).`
+        });
+      }
+
+      const executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
       const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
 
       const state = await processRunner.startProcess(instance, {
@@ -129,6 +167,45 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
     }
   });
 
+  // Download or update server.jar for an instance (OPERATOR, ADMIN)
+  fastify.post<{
+    Params: { id: string };
+  }>('/:id/download-jar', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    const instance = await serverLifecycle.getInstance(request.params.id);
+    if (!instance) {
+      return reply.status(404).send({ error: 'Servidor no encontrado' });
+    }
+
+    try {
+      const jarUrl = await minecraftVersionsService.resolveServerJarUrl(instance.gameVersion, instance.loader);
+      if (!jarUrl) {
+        return reply.status(400).send({
+          error: `Descarga automática no disponible directamente para loader '${instance.loader}'. Sube tu server.jar vía SFTP (:2022).`
+        });
+      }
+
+      const instanceDir = serverLifecycle.getInstanceDir(instance.id);
+      const jarPath = path.join(instanceDir, 'server.jar');
+      const res = await fetch(jarUrl);
+      if (!res.ok) {
+        return reply.status(502).send({
+          error: `Fallo al descargar server.jar desde el repositorio remoto (HTTP ${res.status})`
+        });
+      }
+
+      const buffer = Buffer.from(await res.arrayBuffer());
+      await fs.promises.writeFile(jarPath, buffer);
+
+      return reply.status(200).send({
+        success: true,
+        message: `server.jar descargado correctamente para ${instance.loader} ${instance.gameVersion} (${(buffer.length / (1024 * 1024)).toFixed(1)} MB)`
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al descargar jar';
+      return reply.status(500).send({ error: message });
+    }
+  });
+
   // Stop server (OPERATOR, ADMIN)
   fastify.post<{
     Params: { id: string };
@@ -138,8 +215,13 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
       return reply.status(404).send({ error: 'Servidor no encontrado' });
     }
 
-    await processRunner.stopProcess(instance.id);
-    return reply.status(200).send({ message: `Detención solicitada para ${instance.id}` });
+    try {
+      await processRunner.stopProcess(instance.id);
+      return reply.status(200).send({ message: 'Señal de detención enviada' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al detener servidor';
+      return reply.status(500).send({ error: message });
+    }
   });
 
   // Restart server (OPERATOR, ADMIN)
@@ -151,35 +233,53 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
       return reply.status(404).send({ error: 'Servidor no encontrado' });
     }
 
-    await processRunner.stopProcess(instance.id);
-    const instanceDir = serverLifecycle.getInstanceDir(instance.id);
-    const executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
-    const jarPath = path.join(instanceDir, 'server.jar');
-    const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
+    try {
+      const instanceDir = serverLifecycle.getInstanceDir(instance.id);
+      const jarPath = path.join(instanceDir, 'server.jar');
 
-    const state = await processRunner.startProcess(instance, {
-      executable,
-      args,
-      cwd: instanceDir
-    });
-    return reply.status(200).send(state);
+      if (!fs.existsSync(jarPath)) {
+        return reply.status(400).send({
+          error: `No se encontró el archivo server.jar para el servidor '${instance.name}'.`
+        });
+      }
+
+      const executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
+      const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
+
+      await processRunner.stopProcess(instance.id);
+      const state = await processRunner.startProcess(instance, {
+        executable,
+        args,
+        cwd: instanceDir
+      });
+      return reply.status(200).send(state);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al reiniciar servidor';
+      return reply.status(500).send({ error: message });
+    }
   });
 
-  // Send interactive command to console (OPERATOR, ADMIN)
+  // Send command to server console (OPERATOR, ADMIN)
   fastify.post<{
     Params: { id: string };
     Body: { command: string };
   }>('/:id/command', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
     const { command } = request.body || {};
-    if (!command) {
-      return reply.status(400).send({ error: 'Comando requerido' });
+    if (!command || typeof command !== 'string') {
+      return reply.status(400).send({ error: 'El comando es requerido' });
+    }
+
+    const state = processRunner.getState(request.params.id);
+    if (!state || state.status !== 'online') {
+      return reply.status(400).send({ error: 'No se pueden enviar comandos a un servidor offline' });
     }
 
     try {
       processRunner.sendCommand(request.params.id, command);
-      return reply.status(200).send({ success: true, command });
-    } catch {
-      return reply.status(400).send({ error: 'El servidor no está en ejecución para recibir comandos' });
+      return reply.status(200).send({ message: 'Comando enviado' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al enviar comando';
+      return reply.status(500).send({ error: message });
     }
   });
 
@@ -188,10 +288,11 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
     Params: { id: string };
   }>('/:id/properties', async (request, reply) => {
     try {
-      const props = await serverLifecycle.getProperties(request.params.id);
-      return reply.status(200).send(props.properties);
-    } catch {
-      return reply.status(404).send({ error: 'Archivo server.properties no encontrado' });
+      const config = await serverLifecycle.getProperties(request.params.id);
+      return reply.status(200).send(config.properties);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al leer propiedades';
+      return reply.status(500).send({ error: message });
     }
   });
 

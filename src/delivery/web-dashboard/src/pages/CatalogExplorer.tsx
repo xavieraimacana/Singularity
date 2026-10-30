@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Package, Orbit, RotateCw } from 'lucide-react';
+import { Search, Package, Orbit, RotateCw, Sparkles } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import { ContentCard, type CatalogItemData } from '../components/ContentCard.js';
 import { ContentInstallModal } from '../components/ContentInstallModal.js';
@@ -8,6 +8,17 @@ interface SearchResponse {
   items: CatalogItemData[];
   totalHits: number;
 }
+
+const POPULAR_MODS = [
+  { name: 'Sodium', type: 'Optimización' },
+  { name: 'Lithium', type: 'Físicas' },
+  { name: 'FerriteCore', type: 'Memoria RAM' },
+  { name: 'Spark', type: 'Profiler / Anti-lag' },
+  { name: 'LuckPerms', type: 'Permisos' },
+  { name: 'ViaVersion', type: 'Multi-versión' },
+  { name: 'EssentialsX', type: 'Comandos' },
+  { name: 'WorldEdit', type: 'Construcción' }
+];
 
 export const CatalogExplorer: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -56,7 +67,7 @@ export const CatalogExplorer: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2.5">
             <Package className="w-6 h-6 text-nebula-purple" />
-            <span>Catálogo Unificado Prism</span>
+            <span>Catálogo Unificado Singularity</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
             Explora e instala mods de Modrinth, plugins Paper/Spigot y modpacks en 1-clic
@@ -98,6 +109,27 @@ export const CatalogExplorer: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Search Chips */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1 shrink-0 mr-1">
+          <Sparkles className="w-3.5 h-3.5 text-nebula-accent" />
+          Sugeridos:
+        </span>
+        {POPULAR_MODS.map((pm) => (
+          <button
+            key={pm.name}
+            onClick={() => setQuery(pm.name)}
+            className={`px-2.5 py-1 rounded-lg font-mono text-xs border transition-colors shrink-0 ${
+              query.toLowerCase() === pm.name.toLowerCase()
+                ? 'bg-nebula-accent text-slate-950 font-bold border-nebula-accent'
+                : 'bg-nebula-950 text-slate-300 border-nebula-800 hover:border-nebula-700 hover:text-white'
+            }`}
+          >
+            <span>{pm.name}</span>
+          </button>
+        ))}
+      </div>
+
       {/* Search Input Bar & Type Filter Tabs */}
       <div className="space-y-3">
         <div className="relative flex items-center">
@@ -107,7 +139,7 @@ export const CatalogExplorer: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por nombre (ej. Sodium, ViaVersion, EssentialsX, Paper, FerriteCore)..."
-            className="w-full pl-10 pr-4 py-2.5 bg-nebula-900 border border-nebula-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-nebula-purple transition-colors shadow-inner"
+            className="w-full pl-10 pr-4 py-2.5 bg-nebula-900 border border-nebula-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-nebula-purple transition-colors shadow-inner font-mono"
           />
         </div>
 

@@ -5,11 +5,12 @@ import {
   ChevronRight,
   ChevronLeft,
   Sparkles,
-  Orbit,
   Cpu,
   HardDrive,
   AlertTriangle,
-  Info
+  Info,
+  Search,
+  Layers
 } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import type { ServerInstanceData } from '../components/ServerCard.js';
@@ -27,6 +28,24 @@ interface JavaRuntimeInfo {
   path: string;
   vendor: string;
   isPortable: boolean;
+}
+
+export interface MinecraftVersionItem {
+  id: string;
+  name: string;
+  type: 'release' | 'snapshot' | 'old_beta' | 'old_alpha';
+  releaseTime: string;
+  recommendedJava: number;
+  isLatestRelease: boolean;
+  isLatestSnapshot: boolean;
+}
+
+interface VersionsApiResponse {
+  latest: {
+    release: string;
+    snapshot: string;
+  };
+  versions: MinecraftVersionItem[];
 }
 
 export type WizardLoader = 'paper' | 'purpur' | 'spigot' | 'fabric' | 'forge' | 'neoforge' | 'quilt' | 'vanilla';
@@ -52,7 +71,7 @@ const LOADERS: LoaderDefinition[] = [
     badge: 'Estándar Oro',
     badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
     desc: 'El software de servidor más usado. Rendimiento extremo, optimizaciones anti-lag y 100% compatible con plugins Bukkit y Spigot.',
-    recommendedJava: 'Java 21 (1.20.5+) o Java 17'
+    recommendedJava: 'Java 21 (1.20.5+ / 26.x) o Java 17'
   },
   {
     id: 'purpur',
@@ -82,7 +101,7 @@ const LOADERS: LoaderDefinition[] = [
     badge: 'Ligero & Rápido',
     badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
     desc: 'Carga mods a velocidad récord con bajo consumo de memoria. Ideal para mods de optimización (Lithium, FerriteCore) y técnicos.',
-    recommendedJava: 'Java 21 o Java 17'
+    recommendedJava: 'Java 21 (26.x / 1.21+) o Java 17'
   },
   {
     id: 'neoforge',
@@ -127,6 +146,17 @@ const LOADERS: LoaderDefinition[] = [
   }
 ];
 
+const POPULAR_VERSIONS = [
+  { id: '26.3', label: '26.3 (Última Oficial)', badge: 'Nuevo 2026' },
+  { id: '26.1', label: '26.1', badge: 'Estable 2026' },
+  { id: '1.21.4', label: '1.21.4', badge: 'Moderna' },
+  { id: '1.20.1', label: '1.20.1', badge: 'Top Mods' },
+  { id: '1.16.5', label: '1.16.5', badge: 'Nether' },
+  { id: '1.12.2', label: '1.12.2', badge: 'Modpacks' },
+  { id: '1.8.8', label: '1.8.8', badge: 'PvP' },
+  { id: '1.7.10', label: '1.7.10', badge: 'Vintage' }
+];
+
 export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
   isOpen,
   onClose,
@@ -142,17 +172,25 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
   // Form Fields
   const [name, setName] = useState('Nuevo Servidor');
   const [loader, setLoader] = useState<WizardLoader>('paper');
-  const [gameVersion, setGameVersion] = useState('1.21.4');
+  const [gameVersion, setGameVersion] = useState('26.3');
   const [memoryMb, setMemoryMb] = useState(4096);
   const [port, setPort] = useState(25565);
   const [javaPath, setJavaPath] = useState<string>('');
   const [motd, setMotd] = useState('§aUn servidor administrado con §bSingularity');
 
+  // Minecraft Versions from API
+  const [versionsList, setVersionsList] = useState<MinecraftVersionItem[]>([]);
+  const [isLoadingVersions, setIsLoadingVersions] = useState(false);
+  const [includeSnapshots, setIncludeSnapshots] = useState(false);
+  const [versionSearch, setVersionSearch] = useState('');
+
   // Installed Java runtimes on host
   const [installedJavas, setInstalledJavas] = useState<JavaRuntimeInfo[]>([]);
 
+  // Fetch installed Java and Minecraft versions
   useEffect(() => {
     if (isOpen) {
+      // Fetch detected Java runtimes
       api.get<JavaRuntimeInfo[]>('/java/detect')
         .then((runtimes) => {
           setInstalledJavas(runtimes);
@@ -166,9 +204,48 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
     }
   }, [isOpen]);
 
+  // Fetch Minecraft versions
+  useEffect(() => {
+    if (isOpen) {
+      setIsLoadingVersions(true);
+      const url = `/servers/versions?includeSnapshots=${includeSnapshots}`;
+      api.get<VersionsApiResponse>(url)
+        .then((res) => {
+          if (res.versions && res.versions.length > 0) {
+            setVersionsList(res.versions);
+            // Default to latest release if current version is unset or not found
+            if (res.latest?.release) {
+              setGameVersion((curr) => curr || res.latest.release);
+            }
+          }
+        })
+        .catch(() => {
+          // Fallback to popular versions
+          setVersionsList(
+            POPULAR_VERSIONS.map((pv) => ({
+              id: pv.id,
+              name: pv.label,
+              type: 'release',
+              releaseTime: new Date().toISOString(),
+              recommendedJava: pv.id.startsWith('26') || pv.id.startsWith('1.21') ? 21 : pv.id.startsWith('1.20') ? 17 : 8,
+              isLatestRelease: pv.id === '26.3',
+              isLatestSnapshot: false
+            }))
+          );
+        })
+        .finally(() => {
+          setIsLoadingVersions(false);
+        });
+    }
+  }, [isOpen, includeSnapshots]);
+
   // Recommended Java major version based on gameVersion
   const recommendedJava = useMemo((): number => {
-    const parts = gameVersion.split('.').map((p) => parseInt(p, 10));
+    const clean = gameVersion.trim();
+    const firstPart = parseInt(clean.split('.')[0] ?? '0', 10);
+    if (firstPart >= 22) return 21;
+
+    const parts = clean.split('.').map((p) => parseInt(p, 10));
     const minor = parts[1] ?? 0;
     const patch = parts[2] ?? 0;
 
@@ -178,11 +255,24 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
     return 8;
   }, [gameVersion]);
 
+  // Check if recommended Java is installed
+  const hasMatchingJava = useMemo(() => {
+    if (installedJavas.length === 0) return true; // System PATH java might match
+    return installedJavas.some((j) => j.majorVersion === recommendedJava);
+  }, [installedJavas, recommendedJava]);
+
   // Filtered Loaders
   const filteredLoaders = useMemo(() => {
     if (selectedCategory === 'all') return LOADERS;
     return LOADERS.filter((l) => l.category === selectedCategory);
   }, [selectedCategory]);
+
+  // Filtered Versions List for Select / Search
+  const filteredVersions = useMemo(() => {
+    if (!versionSearch.trim()) return versionsList;
+    const q = versionSearch.toLowerCase().trim();
+    return versionsList.filter((v) => v.id.toLowerCase().includes(q) || v.name.toLowerCase().includes(q));
+  }, [versionsList, versionSearch]);
 
   if (!isOpen) return null;
 
@@ -228,7 +318,7 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
               </h2>
               <p className="text-[11px] text-slate-400">
                 {step === 1 && 'Selecciona el motor (loader) y nombre del servidor'}
-                {step === 2 && 'Elige la versión de Minecraft y el entorno Java'}
+                {step === 2 && 'Elige la versión de Minecraft (hasta 26.3) y runtime Java'}
                 {step === 3 && 'Asigna memoria RAM, puerto de red y mensaje de bienvenida'}
               </p>
             </div>
@@ -277,7 +367,7 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      const ideas = ['Survival SMP', 'Cosmic Realm', 'Aether World', 'Anarchy Lab', 'Pixelmon Arena', 'Create City'];
+                      const ideas = ['Survival SMP', 'Cosmic Realm', 'Aether World', 'Anarchy Lab', 'Pixelmon Arena', 'Create City', 'Singularity Realm'];
                       setName(ideas[Math.floor(Math.random() * ideas.length)] || 'Servidor');
                     }}
                     className="px-3 py-2 text-xs font-mono text-slate-400 bg-nebula-950 hover:bg-nebula-850 border border-nebula-800 rounded-lg transition-colors"
@@ -305,7 +395,7 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
                           : 'text-slate-400 hover:text-slate-200'
                       }`}
                     >
-                      Todos
+                      Todos (8)
                     </button>
                     <button
                       type="button"
@@ -387,32 +477,91 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
             </div>
           )}
 
-          {/* STEP 2: Version and Smart Java Assistant */}
+          {/* STEP 2: Version (All 103+ versions up to 26.3) and Smart Java Assistant */}
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-slate-200 mb-1.5">
-                  Versión de Minecraft
-                </label>
-                <select
-                  value={gameVersion}
-                  onChange={(e) => setGameVersion(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-nebula-950 border border-nebula-800 rounded-lg text-slate-100 focus:outline-none focus:border-nebula-accent font-mono"
-                >
-                  <option value="1.21.4">1.21.4 (Última versión estable — Requiere Java 21)</option>
-                  <option value="1.21.1">1.21.1 (Alta compatibilidad de mods — Requiere Java 21)</option>
-                  <option value="1.20.4">1.20.4 (Requiere Java 17)</option>
-                  <option value="1.20.1">1.20.1 (Versión principal para Forge/NeoForge — Requiere Java 17)</option>
-                  <option value="1.19.4">1.19.4 (Requiere Java 17)</option>
-                  <option value="1.18.2">1.18.2 (Caves & Cliffs Parte II — Requiere Java 17)</option>
-                  <option value="1.16.5">1.16.5 (Era dorada de mods clásicos — Requiere Java 8)</option>
-                  <option value="1.12.2">1.12.2 (El catálogo más grande de modpacks legendarios — Requiere Java 8)</option>
-                  <option value="1.8.8">1.8.8 (PvP Competitivo Clásico — Requiere Java 8)</option>
-                  <option value="1.7.10">1.7.10 (Vintage Modpacks — Requiere Java 8)</option>
-                </select>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-nebula-accent" />
+                    Versión de Minecraft
+                  </label>
+
+                  {/* Toggle Snapshots */}
+                  <label className="flex items-center gap-2 text-[11px] text-slate-400 cursor-pointer font-mono">
+                    <input
+                      type="checkbox"
+                      checked={includeSnapshots}
+                      onChange={(e) => setIncludeSnapshots(e.target.checked)}
+                      className="rounded border-nebula-800 bg-nebula-950 text-nebula-accent focus:ring-0"
+                    />
+                    <span>Incluir Snapshots / Pruebas</span>
+                  </label>
+                </div>
+
+                {/* Popular Version Quick Chips */}
+                <div className="flex flex-wrap gap-1.5 mb-2.5">
+                  {POPULAR_VERSIONS.map((pv) => {
+                    const isSelected = gameVersion === pv.id;
+                    return (
+                      <button
+                        key={pv.id}
+                        type="button"
+                        onClick={() => setGameVersion(pv.id)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+                          isSelected
+                            ? 'bg-nebula-accent text-slate-950 font-bold border-nebula-accent shadow-sm'
+                            : 'bg-nebula-950 text-slate-300 border-nebula-850 hover:border-nebula-700 hover:text-white'
+                        }`}
+                      >
+                        <span>{pv.id}</span>
+                        {pv.id === '26.3' && <span className="ml-1 text-[9px] bg-slate-950/20 px-1 rounded font-sans">⭐ 26.3</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Search & Comprehensive Version Dropdown */}
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={versionSearch}
+                      onChange={(e) => setVersionSearch(e.target.value)}
+                      placeholder="Filtrar entre todas las versiones (ej. 26.3, 26.2, 1.21, 1.20, 1.16)..."
+                      className="w-full pl-9 pr-3 py-1.5 text-xs bg-nebula-950 border border-nebula-800 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent font-mono"
+                    />
+                  </div>
+
+                  <select
+                    value={gameVersion}
+                    onChange={(e) => setGameVersion(e.target.value)}
+                    disabled={isLoadingVersions}
+                    className="w-full px-3 py-2.5 text-xs bg-nebula-950 border border-nebula-800 rounded-lg text-slate-100 focus:outline-none focus:border-nebula-accent font-mono"
+                  >
+                    {isLoadingVersions ? (
+                      <option value={gameVersion}>Cargando catálogo completo de versiones desde Mojang...</option>
+                    ) : filteredVersions.length === 0 ? (
+                      <option value={gameVersion}>No hay versiones que coincidan con "{versionSearch}"</option>
+                    ) : (
+                      filteredVersions.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.name} &bull; Requiere Java {v.recommendedJava} LTS {v.type === 'snapshot' ? '[SNAPSHOT]' : ''}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1.5 px-0.5 font-mono">
+                  <span>Total versiones disponibles: {versionsList.length || '100+'}</span>
+                  <span className="text-nebula-cyber font-semibold">Seleccionada: {gameVersion}</span>
+                </div>
+
                 {loader === 'neoforge' && gameVersion.startsWith('1.1') && (
                   <span className="text-[11px] text-amber-400 mt-1 block">
-                    ⚠️ Nota: NeoForge fue creado para Minecraft 1.20.2 o superior. Para versiones anteriores usa Forge Clásico.
+                    ⚠️ Nota: NeoForge fue creado para Minecraft 1.20.2 o superior. Para versiones anteriores como {gameVersion} usa Forge Clásico.
                   </span>
                 )}
               </div>
@@ -429,8 +578,17 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Para Minecraft <strong>{gameVersion}</strong> con <strong>{loader.toUpperCase()}</strong>, Singularity detecta que la máquina virtual correcta es <strong>Java {recommendedJava}</strong>.
+                  Para Minecraft <strong>{gameVersion}</strong> con <strong>{loader.toUpperCase()}</strong>, Singularity detecta que la máquina virtual correcta es <strong>Java {recommendedJava} LTS</strong>.
                 </p>
+
+                {!hasMatchingJava && (
+                  <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs flex items-center gap-2 mt-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>
+                      Atención: No se detectó <strong>Java {recommendedJava}</strong> en tu sistema. Puedes descargarlo en 1-clic desde la sección <strong>Java Runtimes</strong> de la barra lateral.
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -450,7 +608,7 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
                   >
                     {installedJavas.map((j) => (
                       <option key={j.id} value={j.path}>
-                        Java {j.majorVersion} ({j.vendor}) {j.majorVersion === recommendedJava ? '⭐ [Recomendado]' : ''} - {j.path}
+                        Java {j.majorVersion} ({j.vendor}) {j.majorVersion === recommendedJava ? '⭐ [Recomendado para esta versión]' : ''} - {j.path}
                       </option>
                     ))}
                   </select>
@@ -534,9 +692,51 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-200 mb-1.5">
-                  Mensaje del Día (MOTD)
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-slate-200">
+                    Mensaje del Día (MOTD)
+                  </label>
+
+                  {/* Formatting Shortcuts */}
+                  <div className="flex items-center gap-1 text-[10px] font-mono">
+                    <button
+                      type="button"
+                      onClick={() => setMotd((m) => m + '§a')}
+                      className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 hover:bg-emerald-900"
+                    >
+                      §a Verde
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMotd((m) => m + '§b')}
+                      className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 hover:bg-cyan-900"
+                    >
+                      §b Celeste
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMotd((m) => m + '§6')}
+                      className="px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 hover:bg-amber-900"
+                    >
+                      §6 Oro
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMotd((m) => m + '§c')}
+                      className="px-1.5 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800 hover:bg-rose-900"
+                    >
+                      §c Rojo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMotd((m) => m + '§l')}
+                      className="px-1.5 py-0.5 rounded bg-slate-800 text-white font-bold border border-slate-700 hover:bg-slate-700"
+                    >
+                      §l Negrita
+                    </button>
+                  </div>
+                </div>
+
                 <input
                   type="text"
                   value={motd}
@@ -546,16 +746,16 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
                 />
 
                 {/* Minecraft-style MOTD Preview Box */}
-                <div className="p-3 rounded-xl bg-black/80 border border-nebula-800 font-mono text-xs flex items-center justify-between shadow-inner">
-                  <div className="space-y-0.5">
-                    <span className="text-slate-100 font-bold block">{name}</span>
-                    <span className="text-emerald-400 block font-normal">
+                <div className="p-3.5 rounded-xl bg-black border border-nebula-800 font-mono text-xs flex items-center justify-between shadow-2xl">
+                  <div className="space-y-0.5 overflow-hidden pr-2">
+                    <span className="text-slate-100 font-bold block truncate">{name}</span>
+                    <span className="text-emerald-400 block font-normal break-all">
                       {motd.replace(/§[0-9a-fk-or]/gi, '')}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-500 block">0 / 20</span>
-                    <span className="text-[10px] text-nebula-cyber block">ping 12ms</span>
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-slate-500 block font-mono">0 / 20</span>
+                    <span className="text-[10px] text-nebula-cyber block font-mono">● 18ms</span>
                   </div>
                 </div>
               </div>
@@ -578,35 +778,37 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
             <div />
           )}
 
-          {step < 3 ? (
-            <button
-              type="button"
-              onClick={() => setStep((s) => (s + 1) as 2 | 3)}
-              className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold bg-nebula-accent hover:bg-emerald-600 text-slate-950 rounded-lg shadow-sm shadow-nebula-accent/20 transition-all"
-            >
-              <span>Continuar al Paso {step + 1}</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled={isCreating}
-              onClick={handleDeploy}
-              className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold bg-nebula-accent hover:bg-emerald-600 text-slate-950 rounded-lg shadow-lg shadow-nebula-accent/20 transition-all disabled:opacity-50"
-            >
-              {isCreating ? (
-                <>
-                  <Orbit className="w-4 h-4 animate-spin" />
-                  <span>Desplegando Servidor...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Desplegar Servidor ({loader.toUpperCase()})</span>
-                </>
-              )}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {step < 3 ? (
+              <button
+                type="button"
+                onClick={() => setStep((s) => (s + 1) as 2 | 3)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-nebula-accent hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-nebula-accent/20 transition-all"
+              >
+                <span>Continuar</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={isCreating}
+                onClick={handleDeploy}
+                className="flex items-center gap-2 px-5 py-2 bg-nebula-accent hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-nebula-accent/20 transition-all disabled:opacity-50"
+              >
+                {isCreating ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Desplegando Servidor...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Crear Instancia Ahora</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

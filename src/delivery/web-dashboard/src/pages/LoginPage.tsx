@@ -304,7 +304,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         {/* Studio Signature Footer */}
         <div className="mt-4 text-center space-y-1">
           <p className="text-[11px] font-mono text-slate-500">
-            NEBULAX STUDIO &bull; CRAFTY + PRISM FUSION &bull; SCREAMING ARCHITECTURE
+            NEBULAX STUDIO &bull; CRAFTY + SINGULARITY FUSION &bull; SCREAMING ARCHITECTURE
           </p>
           <p className="text-[10px] text-slate-600">
             Diseñado para servidores 24/7 en Oracle Cloud, VPS y Docker

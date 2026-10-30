@@ -234,6 +234,24 @@ describe('Delivery API (Fastify REST & WebSocket)', () => {
       expect(updatedProps['max-players']).toBe(50);
       expect(updatedProps['difficulty']).toBe('hard');
     });
+
+    it('should list all available minecraft versions including 26.3', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/servers/versions',
+        headers: { authorization: `Bearer ${authToken}` }
+      });
+
+      expect(res.statusCode).toBe(200);
+      const data = JSON.parse(res.payload);
+      expect(data.latest).toBeDefined();
+      expect(data.latest.release).toBe('26.3');
+      expect(Array.isArray(data.versions)).toBe(true);
+
+      const versionIds = data.versions.map((v: any) => v.id);
+      expect(versionIds).toContain('26.3');
+      expect(versionIds).toContain('1.21.4');
+    });
   });
 
   describe('Java Manager Routes (/api/java)', () => {

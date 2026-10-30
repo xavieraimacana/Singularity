@@ -62,7 +62,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
     {
       id: 'nav-catalog',
-      label: 'Explorar Catálogo Prism (Mods / Plugins / Paper)',
+      label: 'Explorar Catálogo Singularity (Mods / Plugins / Paper)',
       icon: Package,
       category: 'Navegación',
       action: () => {

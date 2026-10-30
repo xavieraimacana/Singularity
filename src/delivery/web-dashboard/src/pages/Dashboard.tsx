@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Server, Plus, HardDrive, Activity, RotateCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Server, Plus, HardDrive, Activity, RotateCw, Search } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import { ServerCard, type ServerInstanceData } from '../components/ServerCard.js';
 import { CreateServerWizard } from './CreateServerWizard.js';
@@ -20,6 +20,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [servers, setServers] = useState<ServerInstanceData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'online' | 'offline'>('all');
 
   const fetchServers = useCallback(async (quiet = false) => {
     if (!quiet) setIsRefreshing(true);
@@ -45,6 +47,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return () => clearInterval(interval);
   }, [fetchServers]);
 
+  // Filtered servers list
+  const filteredServers = useMemo(() => {
+    return servers.filter((s) => {
+      if (statusFilter === 'online' && s.status !== 'online') return false;
+      if (statusFilter === 'offline' && s.status === 'online') return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesName = s.name.toLowerCase().includes(q);
+        const matchesLoader = s.loader.toLowerCase().includes(q);
+        const matchesVersion = s.gameVersion.toLowerCase().includes(q);
+        const matchesPort = s.port.toString().includes(q);
+        return matchesName || matchesLoader || matchesVersion || matchesPort;
+      }
+      return true;
+    });
+  }, [servers, statusFilter, searchQuery]);
+
   // Aggregate Metrics
   const onlineCount = servers.filter((s) => s.status === 'online').length;
   const startingCount = servers.filter((s) => s.status === 'starting').length;
@@ -60,7 +79,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <span>Mission Control</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Panel de control y monitorización de instancias de Minecraft
+            Panel de control central y telemetría en tiempo real de instancias de Minecraft
           </p>
         </div>
 
@@ -128,7 +147,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               Activo :2022
             </div>
             <span className="text-[10px] text-slate-500 mt-0.5 block">
-              Listo para Antigravity IDE
+              Listo para Antigravity IDE / VS Code
             </span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-nebula-purple/10 border border-nebula-purple/20 flex items-center justify-center text-nebula-purple font-mono font-bold text-xs">
@@ -136,6 +155,55 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Filter and Search Bar */}
+      {servers.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar por nombre, loader, versión o puerto..."
+              className="w-full pl-9 pr-3 py-2 text-xs bg-nebula-900 border border-nebula-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-nebula-accent font-mono transition-colors"
+            />
+          </div>
+
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-nebula-900 border border-nebula-800 text-xs font-mono self-start sm:self-auto">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                statusFilter === 'all'
+                  ? 'bg-nebula-800 text-white font-bold'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Todos ({servers.length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('online')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                statusFilter === 'online'
+                  ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              En Línea ({onlineCount})
+            </button>
+            <button
+              onClick={() => setStatusFilter('offline')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                statusFilter === 'offline'
+                  ? 'bg-slate-800 text-slate-200 font-bold'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Detenidos ({servers.length - onlineCount})
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Servers Grid */}
       {isLoading ? (
@@ -149,7 +217,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             No tienes servidores desplegados
           </h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
-            Crea tu primera instancia de Minecraft (PaperMC, Purpur, Fabric o Vanilla) con nuestro asistente guiado.
+            Crea tu primera instancia de Minecraft (PaperMC, Purpur, Spigot, Fabric, Forge, NeoForge, Quilt o Vanilla Oficial) con nuestro asistente guiado.
           </p>
           <button
             onClick={onOpenWizard}
@@ -158,9 +226,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
             Abrir Asistente de Creación
           </button>
         </div>
+      ) : filteredServers.length === 0 ? (
+        <div className="py-12 text-center border border-dashed border-nebula-800 rounded-xl bg-nebula-900/30">
+          <p className="text-xs font-mono text-slate-400">
+            No hay servidores que coincidan con los filtros aplicados.
+          </p>
+          <button
+            onClick={() => {
+              setSearchQuery('');
+              setStatusFilter('all');
+            }}
+            className="mt-2 text-xs text-nebula-accent hover:underline font-mono"
+          >
+            Limpiar filtros
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {servers.map((srv) => (
+          {filteredServers.map((srv) => (
             <ServerCard
               key={srv.id}
               server={srv}
