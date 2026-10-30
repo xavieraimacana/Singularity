@@ -10,6 +10,27 @@ export const CRASH_RULES: CrashRule[] = [
   {
     id: 'java-mismatch',
     match(log: string): DiagnosticResult | null {
+      // Paper / Purpur / Vanilla pre-flight check: "Minecraft 26.1 and newer requires running the server with Java 25 or above"
+      const preflightMatch = log.match(/requires running the server with Java (\d+) or above/i);
+      if (preflightMatch && preflightMatch[1]) {
+        const javaRequired = parseInt(preflightMatch[1], 10);
+        return {
+          code: 'JAVA_VERSION_MISMATCH',
+          severity: 'critical',
+          title: 'Java Incompatible: Se Requiere una Versión Más Reciente',
+          explanation: `Minecraft requiere Java ${javaRequired} o superior para ejecutarse. Actualiza el runtime Java configurado para esta instancia.`,
+          suggestedAction: {
+            type: 'CHANGE_JAVA_VERSION',
+            label: `Cambiar a Java ${javaRequired}`,
+            targetVersion: javaRequired
+          },
+          details: {
+            javaRequired,
+            javaCurrent: 0
+          }
+        };
+      }
+
       const match = log.match(
         /UnsupportedClassVersionError:.*?class file version (\d+(?:\.\d+)?).*?up to (\d+(?:\.\d+)?)/i
       );

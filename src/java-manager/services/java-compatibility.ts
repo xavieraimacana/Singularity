@@ -18,7 +18,25 @@ export function parseMcVersion(version: string): ParsedMcVersion {
 export function getJavaRequirement(mcVersion: string): JavaRequirement {
   const v = parseMcVersion(mcVersion);
 
-  // Minecraft 1.20.5 and newer requires Java 21+
+  // Modern Calendar Versioning (Mojang 2026+: 26.1, 26.2, 26.3, etc.)
+  // Class file version 69.0 requires Java 25 or above.
+  if (v.major >= 26) {
+    return {
+      minMajorVersion: 25,
+      recommendedMajorVersion: 25
+    };
+  }
+
+  // Intermediate Calendar Versioning (22.x - 25.x)
+  if (v.major >= 22) {
+    return {
+      minMajorVersion: 21,
+      recommendedMajorVersion: 21
+    };
+  }
+
+  // Classic semantic 1.x versioning
+  // Minecraft 1.20.5 and newer (up to 1.21.x) requires Java 21+
   if (v.minor > 20 || (v.minor === 20 && v.patch >= 5)) {
     return {
       minMajorVersion: 21,

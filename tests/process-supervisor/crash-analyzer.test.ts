@@ -22,6 +22,18 @@ Exception in thread "main" java.lang.UnsupportedClassVersionError: net/minecraft
     expect(result?.suggestedAction.targetVersion).toBe(21);
   });
 
+  it('should detect Java version mismatch from Paper preflight check', () => {
+    const log = `Minecraft 26.1 and newer requires running the server with Java 25 or above. For information on how to update Java, see https://docs.papermc.io/misc/java-install`;
+
+    const result = analyzer.analyze(log);
+
+    expect(result).not.toBeNull();
+    expect(result?.code).toBe('JAVA_VERSION_MISMATCH');
+    expect(result?.severity).toBe('critical');
+    expect(result?.suggestedAction.type).toBe('CHANGE_JAVA_VERSION');
+    expect(result?.suggestedAction.targetVersion).toBe(25);
+  });
+
   it('should detect OutOfMemoryError and suggest increasing RAM', () => {
     const log = `
 [Server thread/ERROR]: Encountered an unexpected exception

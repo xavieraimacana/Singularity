@@ -71,7 +71,7 @@ const LOADERS: LoaderDefinition[] = [
     badge: 'Estándar Oro',
     badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
     desc: 'El software de servidor más usado. Rendimiento extremo, optimizaciones anti-lag y 100% compatible con plugins Bukkit y Spigot.',
-    recommendedJava: 'Java 21 (1.20.5+ / 26.x) o Java 17'
+    recommendedJava: 'Java 25 (26.x), Java 21 (1.20.5+) o Java 17'
   },
   {
     id: 'purpur',
@@ -101,7 +101,7 @@ const LOADERS: LoaderDefinition[] = [
     badge: 'Ligero & Rápido',
     badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
     desc: 'Carga mods a velocidad récord con bajo consumo de memoria. Ideal para mods de optimización (Lithium, FerriteCore) y técnicos.',
-    recommendedJava: 'Java 21 (26.x / 1.21+) o Java 17'
+    recommendedJava: 'Java 25 (26.x), Java 21 (1.21+) o Java 17'
   },
   {
     id: 'neoforge',
@@ -142,7 +142,7 @@ const LOADERS: LoaderDefinition[] = [
     badge: 'Puro sin Mods',
     badgeColor: 'bg-slate-500/10 text-slate-300 border-slate-500/30',
     desc: 'El archivo server.jar oficial directo de Mojang Studios. La experiencia pura de Minecraft sin añadidos ni modificaciones.',
-    recommendedJava: 'Java 21 LTS'
+    recommendedJava: 'Java 25 (26.x) o Java 21 LTS'
   }
 ];
 
@@ -227,7 +227,7 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
               name: pv.label,
               type: 'release',
               releaseTime: new Date().toISOString(),
-              recommendedJava: pv.id.startsWith('26') || pv.id.startsWith('1.21') ? 21 : pv.id.startsWith('1.20') ? 17 : 8,
+              recommendedJava: pv.id.startsWith('26') ? 25 : pv.id.startsWith('1.21') ? 21 : pv.id.startsWith('1.20') ? 17 : 8,
               isLatestRelease: pv.id === '26.3',
               isLatestSnapshot: false
             }))
@@ -243,6 +243,7 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
   const recommendedJava = useMemo((): number => {
     const clean = gameVersion.trim();
     const firstPart = parseInt(clean.split('.')[0] ?? '0', 10);
+    if (firstPart >= 26) return 25;
     if (firstPart >= 22) return 21;
 
     const parts = clean.split('.').map((p) => parseInt(p, 10));
@@ -254,6 +255,18 @@ export const CreateServerWizard: React.FC<CreateServerWizardProps> = ({
     if (minor === 17) return 16;
     return 8;
   }, [gameVersion]);
+
+  // Auto-select best matching installed Java when gameVersion or installedJavas change
+  useEffect(() => {
+    if (installedJavas.length > 0) {
+      const match = installedJavas.find((j) => j.majorVersion === recommendedJava);
+      if (match) {
+        setJavaPath(match.path);
+      } else if (!javaPath || !installedJavas.some((j) => j.path === javaPath)) {
+        setJavaPath(installedJavas[0]?.path || '');
+      }
+    }
+  }, [recommendedJava, installedJavas]);
 
   // Check if recommended Java is installed
   const hasMatchingJava = useMemo(() => {

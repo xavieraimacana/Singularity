@@ -5,9 +5,15 @@ import type { ServerLifecycleService } from '../../../servers/services/server-li
 import type { ProcessRunner } from '../../../process-supervisor/services/process-runner.js';
 import type { AuthService } from '../../../auth-identity/services/auth-service.js';
 import { createAuthHook, requireRole } from '../middleware/auth-hook.js';
-import type { CreateServerInstanceOptions } from '../../../servers/models/server-instance.js';
+import type { CreateServerInstanceOptions, ServerInstance } from '../../../servers/models/server-instance.js';
 import type { PropertyValue } from '../../../servers/models/server-properties.js';
 import { minecraftVersionsService } from '../../../servers/services/minecraft-versions.js';
+import {
+  detectSystemRuntimes,
+  inspectJavaBinary,
+  isRuntimeCompatible,
+  selectBestRuntime
+} from '../../../java-manager/index.js';
 
 export interface ServerRoutesOptions {
   serverLifecycle: ServerLifecycleService;
@@ -37,6 +43,36 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
       }
     }
   });
+
+  async function resolveCompatibleJavaExecutable(instance: ServerInstance): Promise<string> {
+    const defaultFallback = process.platform === 'win32' ? 'java.exe' : 'java';
+    let candidate = instance.javaPath?.trim();
+
+    // Check if current configured binary exists and satisfies compatibility
+    let currentRuntime = null;
+    if (candidate && candidate !== 'java' && candidate !== 'java.exe' && fs.existsSync(candidate)) {
+      currentRuntime = await inspectJavaBinary(candidate);
+    } else {
+      currentRuntime = await inspectJavaBinary(defaultFallback);
+    }
+
+    if (!currentRuntime || !isRuntimeCompatible(currentRuntime, instance.gameVersion)) {
+      try {
+        const detected = await detectSystemRuntimes();
+        const best = selectBestRuntime(detected, instance.gameVersion);
+        if (best) {
+          if (instance.javaPath !== best.path) {
+            await serverLifecycle.updateInstance(instance.id, { javaPath: best.path }).catch(() => {});
+          }
+          return best.path;
+        }
+      } catch {
+        // ignore detection failure
+      }
+    }
+
+    return currentRuntime?.path || candidate || defaultFallback;
+  }
 
   // List all Minecraft versions with full metadata (VIEWER, OPERATOR, ADMIN)
   fastify.get<{
@@ -74,6 +110,17 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
     Body: CreateServerInstanceOptions;
   }>('/', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
     try {
+      if (!request.body.javaPath) {
+        try {
+          const runtimes = await detectSystemRuntimes();
+          const best = selectBestRuntime(runtimes, request.body.gameVersion);
+          if (best) {
+            request.body.javaPath = best.path;
+          }
+        } catch {
+          // ignore detection error
+        }
+      }
       const created = await serverLifecycle.createInstance(request.body);
       return reply.status(201).send(created);
     } catch (err: unknown) {
@@ -154,10 +201,7 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
         });
       }
 
-      let executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
-      if (executable && executable !== 'java' && executable !== 'java.exe' && !fs.existsSync(executable)) {
-        executable = process.platform === 'win32' ? 'java.exe' : 'java';
-      }
+      const executable = await resolveCompatibleJavaExecutable(instance);
       const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
 
       const state = await processRunner.startProcess(instance, {
@@ -252,10 +296,7 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
         });
       }
 
-      let executable = instance.javaPath || (process.platform === 'win32' ? 'java.exe' : 'java');
-      if (executable && executable !== 'java' && executable !== 'java.exe' && !fs.existsSync(executable)) {
-        executable = process.platform === 'win32' ? 'java.exe' : 'java';
-      }
+      const executable = await resolveCompatibleJavaExecutable(instance);
       const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
 
       await processRunner.stopProcess(instance.id);

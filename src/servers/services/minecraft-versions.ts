@@ -104,6 +104,9 @@ export function getRecommendedJavaForVersion(versionStr: string): number {
 
   // Calendar versioning (2026+: 26.x, 27.x, etc.)
   const firstPart = parseInt(clean.split('.')[0] ?? '0', 10);
+  if (firstPart >= 26) {
+    return 25;
+  }
   if (firstPart >= 22) {
     return 21;
   }

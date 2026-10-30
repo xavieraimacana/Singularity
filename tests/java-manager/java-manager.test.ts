@@ -10,6 +10,18 @@ import {
 import type { JavaRuntime } from '../../src/java-manager/models/java-runtime.js';
 
 describe('JavaCompatibility', () => {
+  it('should require Java 25 for Minecraft 26.x calendar versioning', () => {
+    const req263 = getJavaRequirement('26.3');
+    expect(req263.minMajorVersion).toBe(25);
+    expect(req263.recommendedMajorVersion).toBe(25);
+
+    const req262 = getJavaRequirement('26.2');
+    expect(req262.minMajorVersion).toBe(25);
+
+    const req261 = getJavaRequirement('26.1');
+    expect(req261.minMajorVersion).toBe(25);
+  });
+
   it('should require Java 21 for Minecraft 1.20.5 and newer', () => {
     const req121 = getJavaRequirement('1.21.4');
     expect(req121.minMajorVersion).toBe(21);
@@ -41,6 +53,15 @@ describe('JavaCompatibility', () => {
   });
 
   it('should correctly evaluate if runtime is compatible', () => {
+    const java25: JavaRuntime = {
+      id: 'java-25',
+      majorVersion: 25,
+      versionString: '25.0.5',
+      path: '/usr/lib/jvm/java-25/bin/java',
+      vendor: 'Eclipse Adoptium',
+      isPortable: false
+    };
+
     const java21: JavaRuntime = {
       id: 'java-21',
       majorVersion: 21,
@@ -68,6 +89,10 @@ describe('JavaCompatibility', () => {
       isPortable: false
     };
 
+    expect(isRuntimeCompatible(java25, '26.3')).toBe(true);
+    expect(isRuntimeCompatible(java25, '26.2')).toBe(true);
+    expect(isRuntimeCompatible(java21, '26.2')).toBe(false);
+
     expect(isRuntimeCompatible(java21, '1.21.4')).toBe(true);
     expect(isRuntimeCompatible(java17, '1.21.4')).toBe(false);
 
@@ -81,8 +106,12 @@ describe('JavaCompatibility', () => {
     const runtimes: JavaRuntime[] = [
       { id: '1', majorVersion: 8, versionString: '1.8.0_391', path: '/j8', vendor: 'Oracle', isPortable: false },
       { id: '2', majorVersion: 17, versionString: '17.0.10', path: '/j17', vendor: 'Adoptium', isPortable: false },
-      { id: '3', majorVersion: 21, versionString: '21.0.6', path: '/j21', vendor: 'Adoptium', isPortable: false }
+      { id: '3', majorVersion: 21, versionString: '21.0.6', path: '/j21', vendor: 'Adoptium', isPortable: false },
+      { id: '4', majorVersion: 25, versionString: '25.0.5', path: '/j25', vendor: 'Adoptium', isPortable: false }
     ];
+
+    const bestFor26 = selectBestRuntime(runtimes, '26.3');
+    expect(bestFor26?.majorVersion).toBe(25);
 
     const bestFor121 = selectBestRuntime(runtimes, '1.21.4');
     expect(bestFor121?.majorVersion).toBe(21);
@@ -96,6 +125,18 @@ describe('JavaCompatibility', () => {
 });
 
 describe('JavaDetector output parsing', () => {
+  it('should parse modern OpenJDK output (Java 25)', () => {
+    const output = `openjdk version "25.0.5" 2026-01-20
+OpenJDK Runtime Environment Temurin-25.0.5+8 (build 25.0.5+8)
+OpenJDK 64-Bit Server VM Temurin-25.0.5+8 (build 25.0.5+8, mixed mode, sharing)`;
+
+    const parsed = parseJavaVersionOutput(output);
+    expect(parsed).not.toBeNull();
+    expect(parsed?.majorVersion).toBe(25);
+    expect(parsed?.versionString).toBe('25.0.5');
+    expect(parsed?.vendor).toContain('Temurin');
+  });
+
   it('should parse modern OpenJDK output (Java 21)', () => {
     const output = `openjdk version "21.0.6" 2025-01-21 LTS
 OpenJDK Runtime Environment Temurin-21.0.6+7 (build 21.0.6+7)

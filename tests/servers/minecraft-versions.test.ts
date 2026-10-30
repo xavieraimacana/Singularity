@@ -12,11 +12,11 @@ describe('MinecraftVersionsService', () => {
   });
 
   describe('getRecommendedJavaForVersion', () => {
-    it('should assign Java 21 LTS for 26.x calendar versioning', () => {
-      expect(getRecommendedJavaForVersion('26.3')).toBe(21);
-      expect(getRecommendedJavaForVersion('26.2')).toBe(21);
-      expect(getRecommendedJavaForVersion('26.1')).toBe(21);
-      expect(getRecommendedJavaForVersion('26.1.2')).toBe(21);
+    it('should assign Java 25 for 26.x calendar versioning', () => {
+      expect(getRecommendedJavaForVersion('26.3')).toBe(25);
+      expect(getRecommendedJavaForVersion('26.2')).toBe(25);
+      expect(getRecommendedJavaForVersion('26.1')).toBe(25);
+      expect(getRecommendedJavaForVersion('26.1.2')).toBe(25);
     });
 
     it('should assign Java 21 LTS for 1.20.5+ and 1.21.x', () => {

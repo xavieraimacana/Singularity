@@ -33,12 +33,20 @@ interface TemurinPreset {
 
 const TEMURIN_PRESETS: TemurinPreset[] = [
   {
+    majorVersion: 25,
+    label: 'Java 25 GA',
+    badge: 'Requerido 26.1+ (2026+)',
+    badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+    recommendedFor: 'Minecraft 26.1, 26.2, 26.3+',
+    description: 'Obligatorio para la nueva generación de servidores Minecraft 26.x. Ofrece compatibilidad nativa con class file 69.0 y mejoras críticas de recolección de basura.'
+  },
+  {
     majorVersion: 21,
     label: 'Java 21 LTS',
-    badge: 'Estándar 1.20.5+',
+    badge: 'Estándar 1.20.5 - 1.21.x',
     badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-    recommendedFor: 'Minecraft 1.20.5 a 1.21.4+',
-    description: 'Obligatorio para las versiones modernas de Minecraft. Incorpora optimizaciones de Garbage Collection ZGC y mayor rendimiento de ticks.'
+    recommendedFor: 'Minecraft 1.20.5 a 1.21.x',
+    description: 'Requerido para las versiones 1.20.5 hasta 1.21.x. Incorpora optimizaciones de Garbage Collection ZGC y mayor rendimiento de ticks.'
   },
   {
     majorVersion: 17,
