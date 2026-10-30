@@ -65,7 +65,7 @@
   - Verify: Modificación de propiedades guardada y reflejada en disco.
   - Files: `src/delivery/web-dashboard/src/components/PropertiesEditor.tsx`, `MotdDesigner.tsx`
 
-- [ ] Task 14: Micro-Servidor SFTP Embebido para Antigravity IDE (`src/delivery/sftp`)
+- [x] Task 14: Micro-Servidor SFTP Embebido para Antigravity IDE (`src/delivery/sftp`)
   - Acceptance: Servidor SFTP (`ssh2`) en puerto 2022 autenticado con credenciales de Singularity, chroot en `data/servers/`.
   - Verify: Cliente SFTP se conecta, lista archivos y sube/edita archivos.
   - Files: `src/delivery/sftp/*`, `tests/delivery/sftp.test.ts`

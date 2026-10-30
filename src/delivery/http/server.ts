@@ -20,6 +20,8 @@ import { catalogRoutes } from './routes/catalog-routes.js';
 import { javaRoutes } from './routes/java-routes.js';
 import { consoleSocketPlugin } from '../websocket/console-socket.js';
 
+import { SftpServer } from '../sftp/index.js';
+
 export interface ServerOptions {
   dbPath?: string;
   serversDir?: string;
@@ -86,6 +88,9 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
     });
   }
 
+  fastify.decorate('authService', authService);
+  fastify.decorate('serversDir', serversDir);
+
   return fastify;
 }
 
@@ -98,6 +103,22 @@ if (process.argv[1]?.endsWith('server.ts') || process.argv[1]?.endsWith('server.
     .then(async (app) => {
       await app.listen({ port, host });
       console.log(`🌌 Singularity API Server escuchando en http://${host}:${port}`);
+
+      const sftpPort = parseInt(process.env['SINGULARITY_SFTP_PORT'] || '2022', 10);
+      const sftpHost = process.env['SINGULARITY_SFTP_HOST'] || '0.0.0.0';
+      const authService = (app as any).authService;
+      const serversDir = (app as any).serversDir;
+
+      if (authService) {
+        const sftpServer = new SftpServer({
+          authService,
+          port: sftpPort,
+          host: sftpHost,
+          rootDir: serversDir
+        });
+        await sftpServer.start();
+        console.log(`🔒 Micro-Servidor SFTP activo en sftp://${sftpHost}:${sftpPort} (Antigravity IDE & VS Code)`);
+      }
     })
     .catch((err) => {
       console.error('Error al iniciar Singularity Server:', err);
