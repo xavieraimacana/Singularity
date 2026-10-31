@@ -8,6 +8,8 @@ directories:
 
 files:
   - dist/**/*
+  - "!dist/installers/**"
+  - "!dist/web-dashboard/**"
   - package.json
 
 extraResources:
