@@ -35,12 +35,40 @@ export class CurseForgeProvider implements IContentProvider {
 
   constructor(private readonly apiKey: string | undefined = process.env.CURSEFORGE_API_KEY) {}
 
+  private get cleanApiKey(): string | undefined {
+    if (!this.apiKey) return undefined;
+    // Strip surrounding quotes or whitespace that Coolify/Docker often passes
+    const cleaned = this.apiKey.trim().replace(/^["']|["']$/g, '').trim();
+    return cleaned.length > 0 ? cleaned : undefined;
+  }
+
   get isEnabled(): boolean {
-    return Boolean(this.apiKey && this.apiKey.trim().length > 0);
+    return Boolean(this.cleanApiKey);
+  }
+
+  private format403Error(errBody: string): string {
+    const key = this.cleanApiKey || '';
+    const isTruncated = key.length < 30 || !key.startsWith('$2a$');
+
+    if (isTruncated) {
+      return (
+        `CurseForge rechazó la API Key (HTTP 403 Forbidden: ${errBody || 'API Key missing or invalid'}). ` +
+        `Detectamos que la clave recibida por el servidor parece truncada o incompleta (longitud: ${key.length} caracteres). ` +
+        `Si tu clave original empieza por '$2a$10$', en Coolify o docker-compose debes escapar los signos de dólar ` +
+        `escribiendo '$$2a$$10$' para evitar que Docker Compose los reemplace como variables vacías.`
+      );
+    }
+
+    return (
+      `CurseForge rechazó la API Key (HTTP 403 Forbidden: ${errBody || 'API Key missing or invalid'}). ` +
+      `Verifica que la clave corresponda a una aplicación creada en https://console.curseforge.com/ ` +
+      `y que no tenga restricciones de IP o esté deshabilitada.`
+    );
   }
 
   async search(query: CatalogSearchQuery): Promise<CatalogSearchResult> {
-    if (!this.isEnabled) {
+    const apiKey = this.cleanApiKey;
+    if (!apiKey) {
       return {
         items: [],
         totalHits: 0,
@@ -73,12 +101,17 @@ export class CurseForgeProvider implements IContentProvider {
     const res = await fetch(`${this.baseUrl}/mods/search?${params.toString()}`, {
       headers: {
         'Accept': 'application/json',
-        'x-api-key': this.apiKey!
+        'User-Agent': 'NebulaX-Singularity/0.1.0 (contact@nebulaxstudio.top)',
+        'x-api-key': apiKey
       }
     });
 
     if (!res.ok) {
-      throw new Error(`Error al consultar CurseForge API (HTTP ${res.status})`);
+      const errBody = await res.text().catch(() => '');
+      if (res.status === 403) {
+        throw new Error(this.format403Error(errBody));
+      }
+      throw new Error(`Error al consultar CurseForge API (HTTP ${res.status}): ${errBody}`);
     }
 
     const data = (await res.json()) as {
@@ -120,7 +153,8 @@ export class CurseForgeProvider implements IContentProvider {
     gameVersion?: string,
     _loader?: string
   ): Promise<ContentVersion[]> {
-    if (!this.isEnabled) {
+    const apiKey = this.cleanApiKey;
+    if (!apiKey) {
       return [];
     }
 
@@ -128,12 +162,17 @@ export class CurseForgeProvider implements IContentProvider {
     const res = await fetch(url, {
       headers: {
         'Accept': 'application/json',
-        'x-api-key': this.apiKey!
+        'User-Agent': 'NebulaX-Singularity/0.1.0 (contact@nebulaxstudio.top)',
+        'x-api-key': apiKey
       }
     });
 
     if (!res.ok) {
-      throw new Error(`Error al obtener versiones de CurseForge para ${projectId} (HTTP ${res.status})`);
+      const errBody = await res.text().catch(() => '');
+      if (res.status === 403) {
+        throw new Error(this.format403Error(errBody));
+      }
+      throw new Error(`Error al obtener versiones de CurseForge para ${projectId} (HTTP ${res.status}): ${errBody}`);
     }
 
     interface CurseForgeFile {
