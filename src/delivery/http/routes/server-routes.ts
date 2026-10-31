@@ -8,6 +8,8 @@ import { createAuthHook, requireRole } from '../middleware/auth-hook.js';
 import type { CreateServerInstanceOptions, ServerInstance } from '../../../servers/models/server-instance.js';
 import type { PropertyValue } from '../../../servers/models/server-properties.js';
 import { minecraftVersionsService } from '../../../servers/services/minecraft-versions.js';
+import { BackupService } from '../../../backups/index.js';
+import { FileManagerService } from '../../../file-manager/index.js';
 import {
   detectSystemRuntimes,
   inspectJavaBinary,
@@ -19,10 +21,14 @@ export interface ServerRoutesOptions {
   serverLifecycle: ServerLifecycleService;
   processRunner: ProcessRunner;
   authService: AuthService;
+  backupService?: BackupService;
+  fileManagerService?: FileManagerService;
 }
 
 export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fastify, opts) => {
   const { serverLifecycle, processRunner, authService } = opts;
+  const backupService = opts.backupService ?? new BackupService(serverLifecycle, processRunner);
+  const fileManagerService = opts.fileManagerService ?? new FileManagerService(serverLifecycle);
   const authenticate = createAuthHook(authService);
 
   // Apply authentication to all server routes
@@ -389,5 +395,210 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
       pid: state.pid,
       startedAt: state.startedAt
     });
+  });
+
+  // ==================== BACKUPS ENDPOINTS ====================
+
+  // List all backups for server instance (VIEWER, OPERATOR, ADMIN)
+  fastify.get<{
+    Params: { id: string };
+  }>('/:id/backups', async (request, reply) => {
+    try {
+      const list = await backupService.listBackups(request.params.id);
+      return reply.status(200).send(list);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al listar backups';
+      return reply.status(500).send({ error: message });
+    }
+  });
+
+  // Create new backup (OPERATOR, ADMIN)
+  fastify.post<{
+    Params: { id: string };
+    Body: { comment?: string };
+  }>('/:id/backups', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    try {
+      const entry = await backupService.createBackup(request.params.id, {
+        comment: request.body?.comment
+      });
+      return reply.status(201).send(entry);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al crear backup';
+      return reply.status(500).send({ error: message });
+    }
+  });
+
+  // Restore backup (ADMIN only - requires confirmation)
+  fastify.post<{
+    Params: { id: string; backupId: string };
+  }>('/:id/backups/:backupId/restore', { preHandler: [requireRole(['ADMIN'])] }, async (request, reply) => {
+    try {
+      await backupService.restoreBackup(request.params.id, request.params.backupId);
+      return reply.status(200).send({ message: 'Backup restaurado exitosamente' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al restaurar backup';
+      return reply.status(400).send({ error: message });
+    }
+  });
+
+  // Delete backup (ADMIN only)
+  fastify.delete<{
+    Params: { id: string; backupId: string };
+  }>('/:id/backups/:backupId', { preHandler: [requireRole(['ADMIN'])] }, async (request, reply) => {
+    try {
+      const ok = await backupService.deleteBackup(request.params.id, request.params.backupId);
+      return reply.status(200).send({ success: ok });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al eliminar backup';
+      return reply.status(500).send({ error: message });
+    }
+  });
+
+  // Download backup archive file
+  fastify.get<{
+    Params: { id: string; backupId: string };
+  }>('/:id/backups/:backupId/download', async (request, reply) => {
+    try {
+      const backups = await backupService.listBackups(request.params.id);
+      const backup = backups.find((b) => b.id === request.params.backupId || b.filename === request.params.backupId);
+      if (!backup) {
+        return reply.status(404).send({ error: 'Backup no encontrado' });
+      }
+
+      const fullPath = backupService.getBackupFilePath(request.params.id, backup.filename);
+      reply.header('Content-Disposition', `attachment; filename="${backup.filename}"`);
+      reply.header('Content-Type', 'application/gzip');
+      const stream = fs.createReadStream(fullPath);
+      return reply.send(stream);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al descargar backup';
+      return reply.status(500).send({ error: message });
+    }
+  });
+
+  // ==================== FILE MANAGER ENDPOINTS ====================
+
+  // List files & folders in instance path
+  fastify.get<{
+    Params: { id: string };
+    Querystring: { path?: string };
+  }>('/:id/files', async (request, reply) => {
+    try {
+      const targetPath = request.query.path || '';
+      const items = await fileManagerService.listFiles(request.params.id, targetPath);
+      return reply.status(200).send(items);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al listar archivos';
+      return reply.status(400).send({ error: message });
+    }
+  });
+
+  // Read text file content
+  fastify.get<{
+    Params: { id: string };
+    Querystring: { path: string };
+  }>('/:id/files/content', async (request, reply) => {
+    if (!request.query.path) {
+      return reply.status(400).send({ error: 'Ruta de archivo requerida' });
+    }
+    try {
+      const res = await fileManagerService.readFileContent(request.params.id, request.query.path);
+      return reply.status(200).send(res);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al leer archivo';
+      return reply.status(400).send({ error: message });
+    }
+  });
+
+  // Write / save text file content (OPERATOR, ADMIN)
+  fastify.put<{
+    Params: { id: string };
+    Body: { path: string; content: string };
+  }>('/:id/files/content', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    const { path: filePath, content } = request.body || {};
+    if (!filePath || content === undefined) {
+      return reply.status(400).send({ error: 'Ruta y contenido requeridos' });
+    }
+    try {
+      await fileManagerService.writeFileContent(request.params.id, filePath, content);
+      return reply.status(200).send({ message: 'Archivo guardado exitosamente' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al guardar archivo';
+      return reply.status(400).send({ error: message });
+    }
+  });
+
+  // Create directory (OPERATOR, ADMIN)
+  fastify.post<{
+    Params: { id: string };
+    Body: { path: string };
+  }>('/:id/files/mkdir', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    const { path: dirPath } = request.body || {};
+    if (!dirPath) {
+      return reply.status(400).send({ error: 'Ruta de carpeta requerida' });
+    }
+    try {
+      await fileManagerService.createDirectory(request.params.id, dirPath);
+      return reply.status(201).send({ message: 'Carpeta creada exitosamente' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al crear carpeta';
+      return reply.status(400).send({ error: message });
+    }
+  });
+
+  // Delete file or directory (OPERATOR, ADMIN)
+  fastify.delete<{
+    Params: { id: string };
+    Querystring: { path: string };
+  }>('/:id/files', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    if (!request.query.path) {
+      return reply.status(400).send({ error: 'Ruta requerida' });
+    }
+    try {
+      await fileManagerService.deleteFileOrDirectory(request.params.id, request.query.path);
+      return reply.status(200).send({ message: 'Elemento eliminado exitosamente' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al eliminar elemento';
+      return reply.status(400).send({ error: message });
+    }
+  });
+
+  // Rename file or directory (OPERATOR, ADMIN)
+  fastify.post<{
+    Params: { id: string };
+    Body: { oldPath: string; newPath: string };
+  }>('/:id/files/rename', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    const { oldPath, newPath } = request.body || {};
+    if (!oldPath || !newPath) {
+      return reply.status(400).send({ error: 'oldPath y newPath son requeridos' });
+    }
+    try {
+      await fileManagerService.rename(request.params.id, oldPath, newPath);
+      return reply.status(200).send({ message: 'Elemento renombrado exitosamente' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al renombrar elemento';
+      return reply.status(400).send({ error: message });
+    }
+  });
+
+  // Download raw file
+  fastify.get<{
+    Params: { id: string };
+    Querystring: { path: string };
+  }>('/:id/files/download', async (request, reply) => {
+    if (!request.query.path) {
+      return reply.status(400).send({ error: 'Ruta requerida' });
+    }
+    try {
+      const fullPath = fileManagerService.resolveSafePath(request.params.id, request.query.path);
+      const filename = path.basename(fullPath);
+      reply.header('Content-Disposition', `attachment; filename="${filename}"`);
+      reply.header('Content-Type', 'application/octet-stream');
+      const stream = fs.createReadStream(fullPath);
+      return reply.send(stream);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al descargar archivo';
+      return reply.status(400).send({ error: message });
+    }
   });
 };

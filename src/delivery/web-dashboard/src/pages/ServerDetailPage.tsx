@@ -16,7 +16,8 @@ import {
   AlertTriangle,
   X,
   ChevronDown,
-  FolderOpen
+  FolderOpen,
+  Archive
 } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import type { ServerInstanceData } from '../components/ServerCard.js';
@@ -25,6 +26,8 @@ import { PlayerManager, type PlayerData } from '../components/PlayerManager.js';
 import { CrashAlertBanner, type CrashDiagnosticData } from '../components/CrashAlertBanner.js';
 import { InstalledContentList } from '../components/InstalledContentList.js';
 import { PropertiesEditor } from '../components/PropertiesEditor.js';
+import { FileManager } from '../components/FileManager.js';
+import { BackupManager } from '../components/BackupManager.js';
 
 interface ServerDetailPageProps {
   serverId: string;
@@ -39,7 +42,7 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
 }) => {
   const [server, setServer] = useState<ServerInstanceData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'console' | 'properties' | 'content'>('console');
+  const [activeTab, setActiveTab] = useState<'console' | 'files' | 'properties' | 'content' | 'backups'>('console');
   const [activeCrash, setActiveCrash] = useState<CrashDiagnosticData | null>(null);
   const [isActing, setIsActing] = useState(false);
   const [isDownloadingJar, setIsDownloadingJar] = useState(false);
@@ -447,8 +450,10 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
       <div className="flex items-center gap-2 border-b border-nebula-800 shrink-0 text-xs">
         {[
           { id: 'console' as const, label: 'Consola y Jugadores', icon: TerminalIcon },
+          { id: 'files' as const, label: 'Archivos', icon: FolderOpen },
           { id: 'properties' as const, label: 'server.properties', icon: Sliders },
-          { id: 'content' as const, label: 'Mods y Plugins', icon: Package }
+          { id: 'content' as const, label: 'Mods y Plugins', icon: Package },
+          { id: 'backups' as const, label: 'Copias de Seguridad', icon: Archive }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -547,6 +552,18 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
               serverId={server.id}
               onExploreCatalog={() => onNavigateToCatalog?.()}
             />
+          </div>
+        )}
+
+        {activeTab === 'files' && (
+          <div className="h-full overflow-hidden">
+            <FileManager serverId={server.id} />
+          </div>
+        )}
+
+        {activeTab === 'backups' && (
+          <div className="h-full overflow-hidden">
+            <BackupManager serverId={server.id} isOnline={isOnline} />
           </div>
         )}
       </div>

@@ -21,6 +21,8 @@ import { javaRoutes } from './routes/java-routes.js';
 import { consoleSocketPlugin } from '../websocket/console-socket.js';
 
 import { SftpServer } from '../sftp/index.js';
+import { BackupService } from '../../backups/index.js';
+import { FileManagerService } from '../../file-manager/index.js';
 
 export interface ServerOptions {
   dbPath?: string;
@@ -88,7 +90,16 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
 
   // Register REST API Routes
   await fastify.register(authRoutes, { prefix: '/api/auth', authService });
-  await fastify.register(serverRoutes, { prefix: '/api/servers', serverLifecycle, processRunner, authService });
+  const backupService = new BackupService(serverLifecycle, processRunner);
+  const fileManagerService = new FileManagerService(serverLifecycle);
+  await fastify.register(serverRoutes, {
+    prefix: '/api/servers',
+    serverLifecycle,
+    processRunner,
+    authService,
+    backupService,
+    fileManagerService
+  });
   await fastify.register(catalogRoutes, { prefix: '/api/catalog', providers, installer: contentInstaller, authService });
   await fastify.register(javaRoutes, { prefix: '/api/java', authService });
 
@@ -122,6 +133,8 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   fastify.decorate('serversDir', serversDir);
   fastify.decorate('serverLifecycle', serverLifecycle);
   fastify.decorate('processRunner', processRunner);
+  fastify.decorate('backupService', backupService);
+  fastify.decorate('fileManagerService', fileManagerService);
 
   return fastify;
 }
