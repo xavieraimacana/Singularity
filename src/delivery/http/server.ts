@@ -1,6 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import Fastify, { type FastifyInstance } from 'fastify';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import cors from '@fastify/cors';
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyStatic from '@fastify/static';
@@ -23,6 +27,8 @@ import { consoleSocketPlugin } from '../websocket/console-socket.js';
 import { SftpServer } from '../sftp/index.js';
 import { BackupService } from '../../backups/index.js';
 import { FileManagerService } from '../../file-manager/index.js';
+import { SqliteTaskRepository, TaskSchedulerService } from '../../task-scheduler/index.js';
+import { schedulerRoutes } from './routes/scheduler-routes.js';
 
 export interface ServerOptions {
   dbPath?: string;
@@ -92,6 +98,34 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   await fastify.register(authRoutes, { prefix: '/api/auth', authService });
   const backupService = new BackupService(serverLifecycle, processRunner);
   const fileManagerService = new FileManagerService(serverLifecycle);
+
+  const taskRepo = new SqliteTaskRepository(db);
+  taskRepo.initSchema();
+
+  const taskScheduler = new TaskSchedulerService({
+    taskRepo,
+    backupService,
+    processRunner,
+    serverLifecycle,
+    serverLauncher: async (serverId: string) => {
+      const instance = await serverLifecycle.getInstance(serverId);
+      if (!instance) throw new Error(`Servidor '${serverId}' no encontrado.`);
+      const instanceDir = serverLifecycle.getInstanceDir(instance.id);
+      const jarPath = path.join(instanceDir, 'server.jar');
+      const executable = instance.javaPath || 'java';
+      const args = [...(instance.jvmArgs || ['-Xms1G', `-Xmx${instance.memoryMb}M`]), '-jar', jarPath, 'nogui'];
+      return processRunner.startProcess(instance, {
+        executable,
+        args,
+        cwd: instanceDir
+      });
+    }
+  });
+
+  taskScheduler.start();
+  fastify.addHook('onClose', async () => {
+    taskScheduler.stop();
+  });
   await fastify.register(serverRoutes, {
     prefix: '/api/servers',
     serverLifecycle,
@@ -102,6 +136,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   });
   await fastify.register(catalogRoutes, { prefix: '/api/catalog', providers, installer: contentInstaller, authService });
   await fastify.register(javaRoutes, { prefix: '/api/java', authService });
+  await fastify.register(schedulerRoutes, { prefix: '/api/tasks', taskScheduler, authService });
 
   // Register WebSocket plugin
   await fastify.register(consoleSocketPlugin, { processRunner, authService });
@@ -118,8 +153,15 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   });
 
   // Serve Web Dashboard Static Files if present
-  const staticPath = path.join(process.cwd(), 'dist', 'web-dashboard');
-  if (fs.existsSync(staticPath)) {
+  const staticCandidates = [
+    path.join(process.cwd(), 'dist', 'web-dashboard'),
+    path.join(__dirname, '..', '..', 'web-dashboard'),
+    path.join(__dirname, '..', '..', 'dist', 'web-dashboard'),
+    path.join((process as any).resourcesPath || '', 'web-dashboard'),
+    path.join((process as any).resourcesPath || '', 'dist', 'web-dashboard')
+  ];
+  const staticPath = staticCandidates.find((p): p is string => Boolean(p && fs.existsSync(p)));
+  if (staticPath) {
     await fastify.register(fastifyStatic, {
       root: staticPath,
       prefix: '/'
@@ -135,6 +177,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   fastify.decorate('processRunner', processRunner);
   fastify.decorate('backupService', backupService);
   fastify.decorate('fileManagerService', fileManagerService);
+  fastify.decorate('taskScheduler', taskScheduler);
 
   return fastify;
 }

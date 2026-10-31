@@ -17,7 +17,8 @@ import {
   X,
   ChevronDown,
   FolderOpen,
-  Archive
+  Archive,
+  Clock
 } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import type { ServerInstanceData } from '../components/ServerCard.js';
@@ -28,6 +29,7 @@ import { InstalledContentList } from '../components/InstalledContentList.js';
 import { PropertiesEditor } from '../components/PropertiesEditor.js';
 import { FileManager } from '../components/FileManager.js';
 import { BackupManager } from '../components/BackupManager.js';
+import { TaskScheduler } from '../components/TaskScheduler.js';
 
 interface ServerDetailPageProps {
   serverId: string;
@@ -42,7 +44,7 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
 }) => {
   const [server, setServer] = useState<ServerInstanceData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'console' | 'files' | 'properties' | 'content' | 'backups'>('console');
+  const [activeTab, setActiveTab] = useState<'console' | 'files' | 'properties' | 'content' | 'backups' | 'scheduler'>('console');
   const [activeCrash, setActiveCrash] = useState<CrashDiagnosticData | null>(null);
   const [isActing, setIsActing] = useState(false);
   const [isDownloadingJar, setIsDownloadingJar] = useState(false);
@@ -453,7 +455,8 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
           { id: 'files' as const, label: 'Archivos', icon: FolderOpen },
           { id: 'properties' as const, label: 'server.properties', icon: Sliders },
           { id: 'content' as const, label: 'Mods y Plugins', icon: Package },
-          { id: 'backups' as const, label: 'Copias de Seguridad', icon: Archive }
+          { id: 'backups' as const, label: 'Copias de Seguridad', icon: Archive },
+          { id: 'scheduler' as const, label: 'Tareas Programadas', icon: Clock }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -564,6 +567,12 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
         {activeTab === 'backups' && (
           <div className="h-full overflow-hidden">
             <BackupManager serverId={server.id} isOnline={isOnline} />
+          </div>
+        )}
+
+        {activeTab === 'scheduler' && (
+          <div className="h-full overflow-hidden">
+            <TaskScheduler serverId={server.id} />
           </div>
         )}
       </div>

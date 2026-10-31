@@ -5,7 +5,8 @@ dist-electron/
 coverage/
 
 # Persistence & Runtime Data
-data/servers/
+data/
+!data/.gitkeep
 data/*.db
 data/*.db-journal
 data/*.db-wal

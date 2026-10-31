@@ -1,0 +1,39 @@
+appId: studio.nebulax.singularity
+productName: Singularity
+copyright: Copyright © 2026 NebulaX Studio
+
+directories:
+  output: dist/installers
+  buildResources: build
+
+files:
+  - dist/**/*
+  - package.json
+
+extraResources:
+  - from: dist/web-dashboard
+    to: web-dashboard
+    filter:
+      - '**/*'
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: build/icon.ico
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Singularity
+  artifactName: Singularity-Setup-${version}.${ext}
+  uninstallDisplayName: Singularity Minecraft Server Mission Control
+
+portable:
+  artifactName: Singularity-Portable-${version}.${ext}
