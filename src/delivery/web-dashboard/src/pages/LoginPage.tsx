@@ -10,8 +10,12 @@ import {
   Server,
   Sparkles,
   Check,
-  KeyRound
+  KeyRound,
+  Cloud,
+  Monitor
 } from 'lucide-react';
+import { ConnectionSwitcherModal } from '../components/ConnectionSwitcherModal.js';
+import type { ServerConnectionProfile } from '../types/desktop.js';
 
 export interface LoginPageProps {
   onLogin: (username: string, password: string) => Promise<void>;
@@ -31,9 +35,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [autoFilled, setAutoFilled] = useState(false);
 
+  // Connection management & modal state
+  const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false);
+  const [activeProfile, setActiveProfile] = useState<ServerConnectionProfile | null>(null);
+
   // Real-time backend health status
   const [serverStatus, setServerStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [latency, setLatency] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.singularityDesktop?.getActiveConnection) {
+      window.singularityDesktop.getActiveConnection().then(setActiveProfile).catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -105,7 +119,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       {/* Main Glassmorphic HUD Container */}
       <div className="w-full max-w-md relative z-10">
         {/* Top Floating Telemetry Status Banner */}
-        <div className="mb-4 flex items-center justify-between text-[11px] font-mono px-3 py-1.5 rounded-full bg-nebula-900/90 border border-nebula-800/80 backdrop-blur-md shadow-lg text-slate-400">
+        <div className="mb-3 flex items-center justify-between text-[11px] font-mono px-3 py-1.5 rounded-full bg-nebula-900/90 border border-nebula-800/80 backdrop-blur-md shadow-lg text-slate-400">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
@@ -129,6 +143,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </div>
         </div>
 
+        {/* Server Target & Switcher Widget */}
+        <div className="mb-4 flex items-center justify-between text-xs px-3.5 py-2 rounded-xl bg-nebula-900/90 border border-nebula-800 backdrop-blur-md shadow-md">
+          <div className="flex items-center gap-2 text-slate-300">
+            {activeProfile?.type === 'local' ? (
+              <Monitor className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <Cloud className="w-4 h-4 text-cyan-400 shrink-0" />
+            )}
+            <span className="text-[11px] font-mono text-slate-400">Servidor:</span>
+            <span className="font-semibold text-slate-200">
+              {activeProfile?.name || (typeof window !== 'undefined' && window.location.hostname !== '127.0.0.1' ? 'NebulaX Cloud VPS' : 'Local PC')}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsConnectionModalOpen(true)}
+            className="text-[11px] font-mono font-semibold text-nebula-cyber hover:text-cyan-300 transition-colors flex items-center gap-1 hover:underline"
+          >
+            <span>Cambiar</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
+
         {/* Central Authentication Card with Sci-Fi HUD Corners */}
         <div className="bg-nebula-900/85 backdrop-blur-2xl border border-nebula-750/70 rounded-2xl p-7 shadow-2xl shadow-black/80 relative overflow-hidden">
           {/* Subtle Accent Glow Line at Card Top */}
@@ -150,48 +188,38 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 <Sparkles className="w-3 h-3 text-nebula-cyber" />
               </div>
             </div>
-
-            <div className="space-y-0.5">
-              <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
-                <span>SINGULARITY</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-nebula-accent/15 text-nebula-accent border border-nebula-accent/30">
-                  CLI & WEB
-                </span>
-              </h1>
-              <p className="text-xs text-slate-400 font-medium">
-                Mission Control Suite para Servidores Minecraft
-              </p>
-            </div>
+            
+            <h1 className="text-2xl font-black text-slate-100 tracking-tight flex items-center gap-2">
+              <span>SINGULARITY</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-nebula-accent/20 text-nebula-accent border border-nebula-accent/40 font-mono font-semibold">
+                MISSION CONTROL
+              </span>
+            </h1>
+            <p className="text-xs text-slate-400 mt-1 max-w-xs font-mono">
+              Centro de Mando Aeroespacial para Servidores Minecraft 24/7
+            </p>
           </div>
 
-          {/* Error Alert Box */}
+          {/* Error Banner */}
           {error && (
-            <div className="mb-5 p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <span className="font-semibold block text-rose-200">Error de autenticación</span>
-                <span className="text-[11px] leading-relaxed opacity-90">{error}</span>
-              </div>
+            <div className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2.5 animate-shake">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+              <span className="flex-1 font-medium">{error}</span>
             </div>
           )}
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username Field */}
-            <div className="space-y-1.5">
-              <label 
-                htmlFor="login-username" 
-                className="block text-[11px] font-mono uppercase font-semibold text-slate-300 tracking-wider"
-              >
-                Identificador de Usuario
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>Operador / Usuario</span>
+                <span className="text-[10px] text-slate-500 lowercase font-sans">credencial de acceso</span>
               </label>
-              <div className="relative group">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-nebula-accent transition-colors">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                   <User className="w-4 h-4" />
                 </div>
                 <input
-                  id="login-username"
-                  name="username"
                   type="text"
                   required
                   autoFocus
@@ -199,97 +227,84 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="admin"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-nebula-950/90 border border-nebula-750 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent focus:ring-2 focus:ring-nebula-accent/20 transition-all font-mono"
+                  className="w-full pl-10 pr-3 py-2.5 bg-nebula-950/80 border border-nebula-800 rounded-xl text-slate-100 text-xs font-mono placeholder-slate-600 focus:outline-none focus:border-nebula-accent focus:ring-1 focus:ring-nebula-accent transition-all shadow-inner"
                 />
               </div>
             </div>
 
-            {/* Password Field */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label 
-                  htmlFor="login-password" 
-                  className="block text-[11px] font-mono uppercase font-semibold text-slate-300 tracking-wider"
-                >
-                  Contraseña Maestra
-                </label>
-              </div>
-              <div className="relative group">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-nebula-accent transition-colors">
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>Contraseña Maestra</span>
+                <span className="text-[10px] text-slate-500 lowercase font-sans">clave de seguridad</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
-                  id="login-password"
-                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 text-xs bg-nebula-950/90 border border-nebula-750 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-nebula-accent focus:ring-2 focus:ring-nebula-accent/20 transition-all font-mono"
+                  className="w-full pl-10 pr-10 py-2.5 bg-nebula-950/80 border border-nebula-800 rounded-xl text-slate-100 text-xs font-mono placeholder-slate-600 focus:outline-none focus:border-nebula-accent focus:ring-1 focus:ring-nebula-accent transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors p-1"
-                  title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Quick Demo Credentials Autofill Pill */}
-            <div className="pt-0.5">
+            {/* Quick Fill Default Button for Fresh Deployments */}
+            <div className="flex items-center justify-between pt-1">
               <button
                 type="button"
                 onClick={fillDefaultCredentials}
-                className="w-full flex items-center justify-between px-3 py-1.5 rounded-lg bg-nebula-950/60 hover:bg-nebula-850 border border-nebula-800 text-[11px] text-slate-400 hover:text-slate-200 transition-colors group cursor-pointer"
+                className="text-[11px] font-mono text-slate-500 hover:text-nebula-accent transition-colors flex items-center gap-1 group"
+                title="Llenar con credenciales por defecto (admin / singularity)"
               >
-                <div className="flex items-center gap-1.5 font-mono">
-                  <KeyRound className="w-3.5 h-3.5 text-nebula-accent group-hover:scale-110 transition-transform" />
-                  <span>Predeterminado:</span>
-                  <span className="text-slate-300 font-semibold">admin</span>
-                  <span className="text-slate-600">/</span>
-                  <span className="text-slate-300 font-semibold">singularity</span>
-                </div>
-                <span className="text-[10px] text-nebula-accent font-semibold flex items-center gap-1">
-                  {autoFilled ? (
-                    <>
-                      <Check className="w-3 h-3" />
-                      <span>Rellenado</span>
-                    </>
-                  ) : (
-                    <span>Autocompletar</span>
-                  )}
-                </span>
+                {autoFilled ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400 font-semibold">Credenciales aplicadas</span>
+                  </>
+                ) : (
+                  <>
+                    <KeyRound className="w-3.5 h-3.5 text-slate-500 group-hover:text-nebula-accent" />
+                    <span>Usar clave inicial (admin / singularity)</span>
+                  </>
+                )}
               </button>
             </div>
 
-            {/* Submit Button with High-Quality Spring Feel */}
+            {/* Submit Action */}
             <button
               type="submit"
               disabled={isSubmitting || isLoading}
-              className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-nebula-accent via-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
             >
               {isSubmitting || isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                  <span>Autenticando en Singularity Core...</span>
+                  <span>Autenticando Operador...</span>
                 </>
               ) : (
                 <>
-                  <span>Entrar a Mission Control</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <span>Ingresar a la Consola Central</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Architecture & Security Highlights */}
-          <div className="mt-6 pt-5 border-t border-nebula-800/80 grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
+          {/* Security Features Badge */}
+          <div className="mt-6 pt-5 border-t border-nebula-800/80 grid grid-cols-2 gap-3 text-[10px] font-mono text-slate-400">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span className="truncate">Scrypt + JWT Blindado</span>
@@ -311,6 +326,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </p>
         </div>
       </div>
+
+      {/* Connection Switcher Modal */}
+      <ConnectionSwitcherModal
+        isOpen={isConnectionModalOpen}
+        onClose={() => setIsConnectionModalOpen(false)}
+        onSwitched={(p) => setActiveProfile(p)}
+      />
     </div>
   );
 };

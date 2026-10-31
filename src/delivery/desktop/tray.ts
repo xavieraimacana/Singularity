@@ -1,13 +1,16 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { Tray, Menu, nativeImage, type NativeImage, type BrowserWindow, shell, app } from 'electron';
+import { Tray, Menu, nativeImage, type NativeImage, type BrowserWindow, shell } from 'electron';
 import type { IdeBridge } from './ide-bridge.js';
+import type { ConnectionManager } from './connection-manager.js';
 
 export interface TrayManagerOptions {
   mainWindow: BrowserWindow;
   ideBridge: IdeBridge;
   serversDir: string;
   onQuit: () => void;
+  connectionManager?: ConnectionManager;
+  onSwitchConnection?: (id: string) => Promise<void>;
 }
 
 export class TrayManager {
@@ -16,12 +19,16 @@ export class TrayManager {
   private readonly ideBridge: IdeBridge;
   private readonly serversDir: string;
   private readonly onQuit: () => void;
+  private readonly connectionManager?: ConnectionManager;
+  private readonly onSwitchConnection?: (id: string) => Promise<void>;
 
   constructor(options: TrayManagerOptions) {
     this.mainWindow = options.mainWindow;
     this.ideBridge = options.ideBridge;
     this.serversDir = options.serversDir;
     this.onQuit = options.onQuit;
+    this.connectionManager = options.connectionManager;
+    this.onSwitchConnection = options.onSwitchConnection;
   }
 
   private createTrayIcon(): NativeImage {
@@ -70,15 +77,37 @@ export class TrayManager {
     return nativeImage.createFromBuffer(buffer, { width: size, height: size });
   }
 
-  init(): void {
-    const icon = this.createTrayIcon();
-    this.tray = new Tray(icon);
-    this.tray.setToolTip('🌌 Singularity - Minecraft Server Mission Control');
+  buildContextMenu(): Menu {
+    const profiles = this.connectionManager?.getProfiles() || [];
+    const activeProfile = this.connectionManager?.getActiveProfile();
 
-    const contextMenu = Menu.buildFromTemplate([
+    const connectionSubmenu = profiles.map((p) => ({
+      label: `${p.name} (${p.type === 'remote' ? '☁️ Remoto' : '💻 Local'})`,
+      type: 'radio' as const,
+      checked: p.id === activeProfile?.id,
+      click: async () => {
+        if (this.onSwitchConnection && p.id !== activeProfile?.id) {
+          await this.onSwitchConnection(p.id);
+          this.updateMenu();
+        }
+      }
+    }));
+
+    const activeLabel = activeProfile ? `📡 ${activeProfile.name}` : '🌌 Singularity';
+
+    return Menu.buildFromTemplate([
       {
         label: 'Singularity Mission Control',
         enabled: false
+      },
+      {
+        label: activeLabel,
+        enabled: false
+      },
+      { type: 'separator' },
+      {
+        label: 'Cambiar Entorno / Servidor',
+        submenu: connectionSubmenu.length > 0 ? connectionSubmenu : undefined
       },
       { type: 'separator' },
       {
@@ -115,8 +144,19 @@ export class TrayManager {
         }
       }
     ]);
+  }
 
-    this.tray.setContextMenu(contextMenu);
+  updateMenu(): void {
+    if (this.tray) {
+      this.tray.setContextMenu(this.buildContextMenu());
+    }
+  }
+
+  init(): void {
+    const icon = this.createTrayIcon();
+    this.tray = new Tray(icon);
+    this.tray.setToolTip('🌌 Singularity - Minecraft Server Mission Control');
+    this.updateMenu();
 
     this.tray.on('click', () => {
       if (this.mainWindow.isVisible()) {

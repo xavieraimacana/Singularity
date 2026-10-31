@@ -1,21 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.js';
-import { Search, LogOut, Shield, Terminal, Key } from 'lucide-react';
+import { Search, LogOut, Shield, Terminal, Key, Cloud, Monitor } from 'lucide-react';
 import { getMinecraftAvatarUrl, STEVE_AVATAR_SVG } from '../utils/minecraft-skin';
+import type { ServerConnectionProfile } from '../types/desktop.js';
 
 interface HeaderProps {
   onOpenCommandPalette: () => void;
   onOpenSftpModal: () => void;
   onOpenProfileModal?: () => void;
+  onOpenConnectionModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenCommandPalette,
   onOpenSftpModal,
-  onOpenProfileModal
+  onOpenProfileModal,
+  onOpenConnectionModal
 }) => {
   const { user, logout } = useAuth();
   const skinNick = user?.minecraftUsername || user?.username || 'Steve';
+
+  const [activeProfile, setActiveProfile] = useState<ServerConnectionProfile | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.singularityDesktop?.getActiveConnection) {
+      window.singularityDesktop.getActiveConnection().then(setActiveProfile).catch(() => {});
+    }
+  }, []);
 
   return (
     <header className="h-14 border-b border-nebula-800 bg-nebula-900/90 backdrop-blur-md px-4 flex items-center justify-between z-20 select-none">
@@ -33,8 +44,25 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
 
-      {/* Right: SFTP, IDE status & User Info */}
-      <div className="flex items-center gap-3">
+      {/* Right: Remote/Local Connection Switcher, SFTP, IDE status & User Info */}
+      <div className="flex items-center gap-2.5">
+        {/* Environment / Server Connection Switcher Badge */}
+        <button
+          onClick={onOpenConnectionModal}
+          className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium rounded-lg transition-all border border-nebula-800 bg-nebula-950 hover:border-nebula-700 text-slate-300 shadow-inner group"
+          title="Cambiar entre servidor VPS Cloud y Servidor Local"
+        >
+          {activeProfile?.type === 'local' ? (
+            <Monitor className="w-3.5 h-3.5 text-emerald-400" />
+          ) : (
+            <Cloud className="w-3.5 h-3.5 text-cyan-400" />
+          )}
+          <span className="hidden sm:inline font-semibold group-hover:text-slate-100 transition-colors">
+            {activeProfile?.name || (typeof window !== 'undefined' && window.location.hostname !== '127.0.0.1' ? 'NebulaX Cloud' : 'Local PC')}
+          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
+        </button>
+
         <button
           onClick={onOpenSftpModal}
           className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium text-nebula-cyber bg-nebula-cyber/10 border border-nebula-cyber/30 rounded-lg hover:bg-nebula-cyber/20 transition-all"

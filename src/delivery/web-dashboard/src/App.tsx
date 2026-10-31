@@ -8,6 +8,7 @@ import { ServerDetailPage } from './pages/ServerDetailPage.js';
 import { CatalogExplorer } from './pages/CatalogExplorer.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { UserProfileModal } from './components/UserProfileModal.js';
+import { ConnectionSwitcherModal } from './components/ConnectionSwitcherModal.js';
 import { UsersManagementPage } from './pages/UsersManagementPage.js';
 import { JavaManagerPage } from './pages/JavaManagerPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
@@ -31,6 +32,7 @@ export const App: React.FC = () => {
   const [isSftpModalOpen, setIsSftpModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false);
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
 
   // Selected Server for Detail View
@@ -76,6 +78,7 @@ export const App: React.FC = () => {
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenSftpModal={() => setIsSftpModalOpen(true)}
         onOpenProfileModal={() => setIsProfileModalOpen(true)}
+        onOpenConnectionModal={() => setIsConnectionModalOpen(true)}
       />
 
       {/* Main Workspace (Sidebar + Content Area) */}
@@ -335,6 +338,12 @@ export const App: React.FC = () => {
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+      />
+
+      {/* Server & Environment Connection Switcher Modal */}
+      <ConnectionSwitcherModal
+        isOpen={isConnectionModalOpen}
+        onClose={() => setIsConnectionModalOpen(false)}
       />
     </div>
   );
