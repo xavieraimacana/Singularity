@@ -83,19 +83,23 @@ export class IdeBridge {
    * Runs checks concurrently via Promise.all for high performance.
    */
   async getAvailableIdes(): Promise<IdeInfo[]> {
-    const [hasAgy, hasAntigravity, hasCode, hasCursor] = await Promise.all([
-      this.checkCommandExists('agy'),
+    const [hasAgyIde, hasAntigravity, hasAgy, hasCode, hasCursor] = await Promise.all([
+      this.checkCommandExists('antigravity-ide'),
       this.checkCommandExists('antigravity'),
+      this.checkCommandExists('agy'),
       this.checkCommandExists('code'),
       this.checkCommandExists('cursor')
     ]);
+
+    const isAntigravityAvailable = hasAgyIde || hasAntigravity || hasAgy;
+    const antigravityCmd = hasAgyIde ? 'antigravity-ide' : hasAntigravity ? 'antigravity' : hasAgy ? 'agy' : 'antigravity-ide';
 
     return [
       {
         id: 'antigravity',
         name: 'Antigravity IDE',
-        command: hasAntigravity ? 'antigravity' : hasAgy ? 'agy' : 'antigravity',
-        isAvailable: hasAntigravity || hasAgy
+        command: antigravityCmd,
+        isAvailable: isAntigravityAvailable
       },
       {
         id: 'vscode',
@@ -129,6 +133,11 @@ export class IdeBridge {
 
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    // Direct Explorer Request
+    if (preferredIde === 'explorer') {
+      return this.openFolderInExplorer(targetDir);
     }
 
     const ides = await this.getAvailableIdes();
@@ -169,11 +178,16 @@ export class IdeBridge {
     }
 
     // 3. Fallback: OS Native Explorer/Finder
+    return this.openFolderInExplorer(targetDir);
+  }
+
+  async openFolderInExplorer(targetDir: string): Promise<{ success: boolean; ideUsed: string; error?: string }> {
     try {
       const isWin = process.platform === 'win32';
       const isMac = process.platform === 'darwin';
       if (isWin) {
-        spawn('explorer.exe', [targetDir], { detached: true, stdio: 'ignore' }).unref();
+        const winPath = path.win32.normalize(targetDir);
+        spawn('explorer.exe', [winPath], { detached: true, stdio: 'ignore' }).unref();
         return { success: true, ideUsed: 'Explorador de Archivos' };
       } else if (isMac) {
         spawn('open', [targetDir], { detached: true, stdio: 'ignore' }).unref();
@@ -191,10 +205,12 @@ export class IdeBridge {
   private async spawnIdeProcess(command: string, args: string[]): Promise<boolean> {
     return new Promise((resolve) => {
       try {
+        const isWindows = process.platform === 'win32';
         const proc = spawn(command, args, {
           detached: true,
           stdio: 'ignore',
-          windowsHide: true
+          shell: isWindows,
+          windowsHide: false
         });
 
         proc.unref();
@@ -206,7 +222,7 @@ export class IdeBridge {
         // If it hasn't errored immediately, consider spawned
         setTimeout(() => {
           resolve(true);
-        }, 300);
+        }, 500);
       } catch {
         resolve(false);
       }
