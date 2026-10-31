@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <style>
       :root {
-        --ground: #090d16;
+        --ground: #060911;
         --ink: #f8fafc;
         --accent: #06b6d4;
         --accent-success: #10b981;
@@ -39,68 +39,16 @@
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="48"
+      data-duration="56"
       data-width="1920"
       data-height="1080"
     >
-      <!-- Scene 0: Developer Discovery, Git Clone, Web & Desktop Install -->
+      <!-- Scene 01: Fullscreen Windows App, Terminal Clone & Login Interaction -->
       <div
-        id="scene-00-discovery"
-        data-composition-id="scene-00-discovery"
-        data-composition-src="compositions/scene-00-discovery.html"
+        id="scene-01-onboarding-login"
+        data-composition-id="scene-01-onboarding-login"
+        data-composition-src="compositions/scene-01-onboarding-login.html"
         data-start="0"
-        data-duration="5.5"
-        data-track-index="1"
-        data-track-kind="graphics"
-        data-width="1920"
-        data-height="1080"
-      ></div>
-
-      <!-- Scene 1: The Chaos & Java 25 Crash -->
-      <div
-        id="scene-01-chaos"
-        data-composition-id="scene-01-chaos"
-        data-composition-src="compositions/scene-01-chaos.html"
-        data-start="5.5"
-        data-duration="3.5"
-        data-track-index="1"
-        data-track-kind="graphics"
-        data-width="1920"
-        data-height="1080"
-      ></div>
-
-      <!-- Scene 2: Foreground Logo Depth Entrance -->
-      <div
-        id="scene-02-logo-reveal"
-        data-composition-id="scene-02-logo-reveal"
-        data-composition-src="compositions/scene-02-logo-reveal.html"
-        data-start="9.0"
-        data-duration="3.0"
-        data-track-index="1"
-        data-track-kind="graphics"
-        data-width="1920"
-        data-height="1080"
-      ></div>
-
-      <!-- Scene 3: Authentic Singularity Login Screen & Access Granted -->
-      <div
-        id="scene-03-login"
-        data-composition-id="scene-03-login"
-        data-composition-src="compositions/scene-03-login.html"
-        data-start="12.0"
-        data-duration="5.0"
-        data-track-index="1"
-        data-track-kind="graphics"
-        data-width="1920"
-        data-height="1080"
-      ></div>
-
-      <!-- Scene 4: Server Creation & Live Startup -->
-      <div
-        id="scene-04-create-and-start"
-        data-composition-id="scene-04-create-and-start"
-        data-composition-src="compositions/scene-04-create-and-start.html"
-        data-start="17.0"
         data-duration="6.0"
         data-track-index="1"
         data-track-kind="graphics"
@@ -108,12 +56,64 @@
         data-height="1080"
       ></div>
 
-      <!-- Scene 5: File Manager & Complete Modpack Installation -->
+      <!-- Scene 02: 3D Isometric Assembly Swoop & Create Server Wizard -->
       <div
-        id="scene-05-files-and-modpack"
-        data-composition-id="scene-05-files-and-modpack"
-        data-composition-src="compositions/scene-05-files-and-modpack.html"
-        data-start="23.0"
+        id="scene-02-assembly-wizard"
+        data-composition-id="scene-02-assembly-wizard"
+        data-composition-src="compositions/scene-02-assembly-wizard.html"
+        data-start="6.0"
+        data-duration="8.0"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 03: Full Server Detail View & VT100 Live ANSI Boot -->
+      <div
+        id="scene-03-console-live"
+        data-composition-id="scene-03-console-live"
+        data-composition-src="compositions/scene-03-console-live.html"
+        data-start="14.0"
+        data-duration="8.0"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 04: Intensive Prism Catalog (Modpacks, Mods, 1-Click Install) -->
+      <div
+        id="scene-04-prism-catalog"
+        data-composition-id="scene-04-prism-catalog"
+        data-composition-src="compositions/scene-04-prism-catalog.html"
+        data-start="22.0"
+        data-duration="12.0"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 05: File Manager to Live Antigravity IDE / VS Code Replica -->
+      <div
+        id="scene-05-antigravity-ide"
+        data-composition-id="scene-05-antigravity-ide"
+        data-composition-src="compositions/scene-05-antigravity-ide.html"
+        data-start="34.0"
+        data-duration="10.0"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 06: Desktop System Tray Context Menu & Cloud VPS Switcher -->
+      <div
+        id="scene-06-desktop-tray-multihost"
+        data-composition-id="scene-06-desktop-tray-multihost"
+        data-composition-src="compositions/scene-06-desktop-tray-multihost.html"
+        data-start="44.0"
         data-duration="6.0"
         data-track-index="1"
         data-track-kind="graphics"
@@ -121,39 +121,13 @@
         data-height="1080"
       ></div>
 
-      <!-- Scene 6: Antigravity IDE Bridge & Live SFTP Manipulation -->
+      <!-- Scene 07: Clean, Honest & Accessible Community Closing -->
       <div
-        id="scene-06-antigravity-ide"
-        data-composition-id="scene-06-antigravity-ide"
-        data-composition-src="compositions/scene-06-antigravity-ide.html"
-        data-start="29.0"
+        id="scene-07-honest-closing"
+        data-composition-id="scene-07-honest-closing"
+        data-composition-src="compositions/scene-07-honest-closing.html"
+        data-start="50.0"
         data-duration="6.0"
-        data-track-index="1"
-        data-track-kind="graphics"
-        data-width="1920"
-        data-height="1080"
-      ></div>
-
-      <!-- Scene 7: Native Desktop Suite, Connection Switcher & System Tray -->
-      <div
-        id="scene-07-desktop-suite"
-        data-composition-id="scene-07-desktop-suite"
-        data-composition-src="compositions/scene-07-desktop-suite.html"
-        data-start="35.0"
-        data-duration="6.0"
-        data-track-index="1"
-        data-track-kind="graphics"
-        data-width="1920"
-        data-height="1080"
-      ></div>
-
-      <!-- Scene 8: Kinetic Animated End Card with Features & GitHub CTA -->
-      <div
-        id="scene-08-animated-endcard"
-        data-composition-id="scene-08-animated-endcard"
-        data-composition-src="compositions/scene-08-animated-endcard.html"
-        data-start="41.0"
-        data-duration="7.0"
         data-track-index="1"
         data-track-kind="graphics"
         data-width="1920"

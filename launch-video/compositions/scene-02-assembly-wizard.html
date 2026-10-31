@@ -1,0 +1,485 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      background: #060911;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f8fafc;
+      overflow: hidden;
+      perspective: 1400px;
+    }
+
+    /* 3D Transform Stage */
+    .viewport-3d-stage {
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    /* Window Topbar */
+    .window-titlebar {
+      height: 38px;
+      background: #050811;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .window-title-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* App Layout */
+    .app-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Left Sidebar */
+    .app-sidebar {
+      width: 260px;
+      background: #080c16;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 14px;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px 18px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 8px;
+    }
+
+    .sidebar-brand-text {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      background: rgba(6, 182, 212, 0.12);
+      color: #06b6d4;
+      border: 1px solid rgba(6, 182, 212, 0.25);
+    }
+
+    /* Main Content Area */
+    .main-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #090d16;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top Navigation Header */
+    .app-header {
+      height: 64px;
+      background: #080d18;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 10;
+    }
+
+    .header-node-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .dashboard-content {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+    }
+
+    .dashboard-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .btn-create-server {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.35);
+      cursor: pointer;
+    }
+
+    /* Metric Cards Grid */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: #0d1322;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Create Server Wizard Modal */
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .wizard-card {
+      width: 640px;
+      background: #0d1322;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      border-radius: 20px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 35px 70px rgba(0, 0, 0, 0.9), 0 0 50px rgba(6, 182, 212, 0.2);
+    }
+
+    .wizard-type-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .type-pill {
+      background: #080c16;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .type-pill.active {
+      border-color: #06b6d4;
+      background: rgba(6, 182, 212, 0.15);
+      color: #ffffff;
+    }
+
+    .smart-java-badge {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    /* Virtual Mouse Cursor */
+    .virtual-cursor {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      z-index: 300;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+    }
+
+    .cursor-ripple {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #06b6d4;
+      top: -4px;
+      left: -4px;
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-02-assembly-wizard" data-width="1920" data-height="1080" data-hold>
+    <div class="viewport-3d-stage" id="stage-3d">
+      <!-- Titlebar -->
+      <div class="window-titlebar" id="titlebar-el" data-layout-ignore>
+        <div class="window-title-left" data-layout-ignore>
+          <img src="assets/brand/singularity-app-icon.svg" alt="Icon" style="width: 18px; height: 18px;" />
+          <span style="font-weight: 600; color: #ffffff;">Singularity</span>
+          <span style="color: #475569;">—</span>
+          <span>Panel de Servidores</span>
+        </div>
+        <div class="window-controls" data-layout-ignore>
+          <span>─</span>
+          <span>□</span>
+          <span>✕</span>
+        </div>
+      </div>
+
+      <!-- App Body -->
+      <div class="app-body">
+        <!-- Sidebar -->
+        <div class="app-sidebar" id="sidebar-el" data-layout-ignore>
+          <div class="sidebar-brand" data-layout-ignore>
+            <img src="assets/brand/master-symbol-color.svg" alt="Singularity" style="width: 28px; height: 28px;" />
+            <span class="sidebar-brand-text">Singularity</span>
+          </div>
+
+          <div class="nav-item active" data-layout-ignore>
+            <span>📊</span>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" data-layout-ignore>
+            <span>🎮</span>
+            <span>Servidores</span>
+          </div>
+          <div class="nav-item" data-layout-ignore>
+            <span>📦</span>
+            <span>Catálogo Prism</span>
+          </div>
+          <div class="nav-item" data-layout-ignore>
+            <span>☕</span>
+            <span>Gestor Java</span>
+          </div>
+          <div class="nav-item" data-layout-ignore>
+            <span>⚙️</span>
+            <span>Ajustes</span>
+          </div>
+        </div>
+
+        <!-- Main Viewport -->
+        <div class="main-viewport">
+          <div class="app-header" id="header-el" data-layout-ignore>
+            <div style="font-size: 15px; color: #94a3b8;" data-layout-ignore>Instancia Local Activa</div>
+            <div class="header-node-badge" data-layout-ignore>
+              <span>●</span>
+              <span>Local PC (127.0.0.1:3000)</span>
+            </div>
+          </div>
+
+          <div class="dashboard-content" id="dashboard-content">
+            <div class="dashboard-top-row">
+              <div class="page-title">Tus Servidores</div>
+              <button class="btn-create-server" id="btn-create" data-layout-ignore>
+                <span style="font-size: 18px;">+</span>
+                <span>Crear Servidor</span>
+              </button>
+            </div>
+
+            <div class="metrics-row" id="metrics-cards" data-layout-ignore>
+              <div class="stat-card" data-layout-ignore>
+                <div style="font-size: 13px; color: #94a3b8;">Uso Total de RAM</div>
+                <div style="font-size: 24px; font-weight: 800; color: #10b981;">3.2 / 16.0 GB</div>
+              </div>
+              <div class="stat-card" data-layout-ignore>
+                <div style="font-size: 13px; color: #94a3b8;">Uso de CPU Host</div>
+                <div style="font-size: 24px; font-weight: 800; color: #06b6d4;">4.8 %</div>
+              </div>
+              <div class="stat-card" data-layout-ignore>
+                <div style="font-size: 13px; color: #94a3b8;">Runtimes Java Listos</div>
+                <div style="font-size: 24px; font-weight: 800; color: #f59e0b;">Adoptium 8, 17, 21, 25</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Server Wizard Modal -->
+      <div class="modal-backdrop" id="wizard-backdrop">
+        <div class="wizard-card" id="wizard-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;" data-layout-ignore>
+            <div style="font-size: 22px; font-weight: 800; color: #ffffff;">Crear Nuevo Servidor</div>
+            <span style="font-size: 14px; color: #64748b;">Paso 1 de 2</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;" data-layout-ignore>
+            <div style="font-size: 13px; font-weight: 600; color: #cbd5e1;">Software del Servidor</div>
+            <div class="wizard-type-grid" data-layout-ignore>
+              <div class="type-pill active">⚡ Fabric</div>
+              <div class="type-pill">📜 Paper</div>
+              <div class="type-pill">🔥 Forge</div>
+              <div class="type-pill">🧊 Purpur</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;" data-layout-ignore>
+            <div style="font-size: 13px; font-weight: 600; color: #cbd5e1;">Versión de Minecraft</div>
+            <div style="background: #050811; border: 1px solid rgba(255,255,255,0.12); padding: 12px; border-radius: 10px; font-size: 14px; font-family: 'JetBrains Mono', monospace; color: #06b6d4; font-weight: 700;">
+              1.21.4 (Latest Release)
+            </div>
+          </div>
+
+          <!-- Smart Java Auto-Detection -->
+          <div class="smart-java-badge" id="smart-java-pill" data-layout-ignore>
+            <span style="font-size: 20px;">☕</span>
+            <div data-layout-ignore>
+              <div style="font-weight: 700; color: #10b981;">Adoptium JDK 25 auto-detectado</div>
+              <div style="font-size: 12px; color: #94a3b8;">Configurado automáticamente para Fabric 1.21.4</div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;" data-layout-ignore>
+            <div style="font-size: 14px; color: #94a3b8;">Nombre: <b style="color: #ffffff;">Survival Aventura</b></div>
+            <button class="btn-create-server" id="btn-submit-wizard" style="padding: 12px 28px;" data-layout-ignore>
+              <span>Crear e Iniciar</span>
+              <span>➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Virtual Mouse Cursor -->
+      <div class="virtual-cursor" id="virtual-cursor">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L5.85 2.85A.5.5 0 0 0 5.5 3.21z" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+        </svg>
+        <div class="cursor-ripple" id="cursor-ripple"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-02-assembly-wizard"] = tl;
+
+    // 3D Assembly Swoop Entrance
+    tl.set("#stage-3d", {
+      rotationX: 16,
+      rotationY: -14,
+      z: -180,
+      opacity: 1
+    });
+
+    tl.fromTo("#sidebar-el", { x: -80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 0.1);
+    tl.fromTo("#header-el", { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 0.2);
+    tl.fromTo("#metrics-cards", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: "back.out(1.4)" }, 0.4);
+
+    // Camera swoops to level 0deg perspective
+    tl.to("#stage-3d", {
+      rotationX: 0,
+      rotationY: 0,
+      z: 0,
+      duration: 1.4,
+      ease: "power3.inOut"
+    }, 0.5);
+
+    // Cursor swoops to "+ Crear Servidor" button
+    tl.fromTo("#virtual-cursor", { x: 1200, y: 700, opacity: 0 }, { x: 1720, y: 155, opacity: 1, duration: 1.0, ease: "power2.out" }, 1.6);
+
+    // Click on "+ Crear Servidor"
+    tl.fromTo("#cursor-ripple", { opacity: 1, scale: 0.5 }, { opacity: 0, scale: 1.8, duration: 0.35, ease: "power1.out" }, 2.6);
+    tl.to("#btn-create", { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 }, 2.6);
+
+    // Modal Emerges with Spring
+    tl.to("#wizard-backdrop", { opacity: 1, pointerEvents: "auto", duration: 0.3 }, 2.8);
+    tl.fromTo("#wizard-card",
+      { scale: 0.8, y: 40, opacity: 0 },
+      { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.6)" },
+      2.9
+    );
+
+    // Smart Java Badge Glows
+    tl.fromTo("#smart-java-pill",
+      { scale: 0.96, borderColor: "rgba(16, 185, 129, 0.2)" },
+      { scale: 1.03, borderColor: "#10b981", duration: 0.4, yoyo: true, repeat: 1, ease: "power1.inOut" },
+      3.8
+    );
+
+    // Cursor moves to "Crear e Iniciar"
+    tl.to("#virtual-cursor", { x: 1210, y: 690, duration: 0.9, ease: "power2.inOut" }, 4.3);
+
+    // Click on Submit
+    tl.fromTo("#cursor-ripple", { opacity: 1, scale: 0.5 }, { opacity: 0, scale: 1.8, duration: 0.35, ease: "power1.out", immediateRender: false }, 5.2);
+    tl.to("#btn-submit-wizard", { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 }, 5.2);
+
+    // Transition exit into Server Detail
+    tl.to("#wizard-card", { scale: 1.05, opacity: 0, duration: 0.4, ease: "power2.in" }, 6.8);
+    tl.to("#stage-3d", { scale: 1.04, opacity: 0, filter: "blur(6px)", duration: 0.6, ease: "power2.in" }, 7.2);
+
+    tl.seek(0);
+  </script>
+</template>

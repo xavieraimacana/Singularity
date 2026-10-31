@@ -30,7 +30,7 @@
 
 ## 🎬 Trailer Oficial y Demostración
 
-> **Descubre la experiencia completa de Singularity en 48 segundos**: Puesta en marcha instantánea (`git clone` & instalador nativo), arranque automático con **Adoptium Java 25**, instalación en 1 clic de modpacks masivos (184 mods), edición en caliente desde **Antigravity IDE** vía SFTP y control remoto multi-nodo desde la **Bandeja del Sistema (System Tray)**.
+> **Descubre la experiencia completa de Singularity en 56 segundos**: Interfaz real a pantalla completa con ensamblaje en perspectiva 3D, navegación y login, creación guiada de servidor con **Adoptium JDK 25**, consola VT100 en vivo a 20.0 TPS, navegación en el **Catálogo Prism** (Modrinth/CurseForge) con instalación en 1 clic, edición remota en vivo desde **Antigravity IDE / VS Code** vía SFTP, y gestión multi-servidor desde la **Bandeja del Sistema (System Tray)**.
 
 <div align="center">
 
@@ -38,7 +38,13 @@
 
 <br/>
 
-**[▶️ Reproducir Trailer Oficial en Alta Definición 1080p (MP4 - 8.2 MB)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)** &nbsp;|&nbsp; **[📦 Descargar Singularity v0.1.0-alpha (.exe)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)**
+**[▶️ Reproducir Trailer Oficial en Alta Definición 1080p (MP4 - 5.8 MB)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)** &nbsp;|&nbsp; **[📦 Descargar Singularity v0.1.0-alpha (.exe)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)**
+
+<br/>
+
+| Ensamblaje 3D en Pantalla Completa | Catálogo Prism (Modrinth & CurseForge) |
+|:---:|:---:|
+| <img src="docs/assets/singularity-fullscreen-preview.png" alt="Singularity 3D UI" width="460" /> | <img src="docs/assets/singularity-catalog-preview.png" alt="Catálogo Prism" width="460" /> |
 
 </div>
 

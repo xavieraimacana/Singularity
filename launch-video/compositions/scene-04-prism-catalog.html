@@ -1,0 +1,589 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      background: #060911;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f8fafc;
+      overflow: hidden;
+      perspective: 1400px;
+    }
+
+    .catalog-stage {
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+      background: #090d16;
+    }
+
+    .window-titlebar {
+      height: 38px;
+      background: #050811;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .window-title-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Layout */
+    .app-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .app-sidebar {
+      width: 260px;
+      background: #080c16;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 14px;
+      gap: 8px;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px 18px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .nav-item.active {
+      background: rgba(6, 182, 212, 0.12);
+      color: #06b6d4;
+      border: 1px solid rgba(6, 182, 212, 0.25);
+    }
+
+    /* Main Content */
+    .main-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #090d16;
+      overflow: hidden;
+      padding: 28px 36px;
+      gap: 20px;
+    }
+
+    /* Catalog Top Navigation */
+    .catalog-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .catalog-title {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    .provider-badges {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .provider-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .provider-pill.modrinth {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #10b981;
+    }
+
+    .provider-pill.curseforge {
+      background: rgba(249, 115, 22, 0.12);
+      border: 1px solid rgba(249, 115, 22, 0.35);
+      color: #f97316;
+    }
+
+    /* Categories Tabs */
+    .categories-bar {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .cat-pill {
+      background: #0d1322;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .cat-pill.active {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: #06b6d4;
+      color: #ffffff;
+    }
+
+    /* Search Input */
+    .search-input-box {
+      width: 100%;
+      background: #080d1a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Featured Modpack Card */
+    .catalog-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    .mod-card {
+      background: #0d1322;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .mod-info-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .mod-icon-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .mod-text-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mod-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mod-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .mod-tag-pill {
+      font-size: 12px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: rgba(6, 182, 212, 0.15);
+      color: #06b6d4;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .mod-desc {
+      font-size: 14px;
+      color: #94a3b8;
+      max-width: 800px;
+      line-height: 1.4;
+    }
+
+    .btn-install-mod {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.35);
+    }
+
+    /* Dependency & Install Progress Modal */
+    .install-modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .install-modal-box {
+      width: 540px;
+      background: #0d1322;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 18px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+
+    .dep-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #cbd5e1;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      border-radius: 9999px;
+    }
+
+    /* Virtual Mouse Cursor */
+    .virtual-cursor {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      z-index: 300;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+    }
+
+    .cursor-ripple {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #06b6d4;
+      top: -4px;
+      left: -4px;
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-04-prism-catalog" data-width="1920" data-height="1080" data-hold>
+    <div class="catalog-stage" id="catalog-stage">
+      <!-- Titlebar -->
+      <div class="window-titlebar" data-layout-ignore>
+        <div class="window-title-left" data-layout-ignore>
+          <img src="assets/brand/singularity-app-icon.svg" alt="Icon" style="width: 18px; height: 18px;" />
+          <span style="font-weight: 600; color: #ffffff;">Singularity</span>
+          <span style="color: #475569;">—</span>
+          <span>Catálogo de Modpacks y Plugins</span>
+        </div>
+        <div class="window-controls" data-layout-ignore>
+          <span>─</span>
+          <span>□</span>
+          <span>✕</span>
+        </div>
+      </div>
+
+      <!-- App Body -->
+      <div class="app-body">
+        <!-- Sidebar -->
+        <div class="app-sidebar" data-layout-ignore>
+          <div class="sidebar-brand" data-layout-ignore>
+            <img src="assets/brand/master-symbol-color.svg" alt="Singularity" style="width: 28px; height: 28px;" />
+            <span style="font-size: 17px; font-weight: 800; color: #ffffff;">Singularity</span>
+          </div>
+
+          <div class="nav-item" data-layout-ignore>
+            <span>📊</span>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" data-layout-ignore>
+            <span>🎮</span>
+            <span>Servidores</span>
+          </div>
+          <div class="nav-item active" data-layout-ignore>
+            <span>📦</span>
+            <span>Catálogo Prism</span>
+          </div>
+          <div class="nav-item" data-layout-ignore>
+            <span>☕</span>
+            <span>Gestor Java</span>
+          </div>
+          <div class="nav-item" data-layout-ignore>
+            <span>⚙️</span>
+            <span>Ajustes</span>
+          </div>
+        </div>
+
+        <!-- Main Viewport -->
+        <div class="main-viewport">
+          <div class="catalog-header-row">
+            <div class="catalog-title">Explorador de Contenido Prism</div>
+            <div class="provider-badges" data-layout-ignore>
+              <div class="provider-pill modrinth" data-layout-ignore>
+                <span>●</span>
+                <span>MODRINTH v2</span>
+              </div>
+              <div class="provider-pill curseforge" data-layout-ignore>
+                <span>●</span>
+                <span>CURSEFORGE</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Categories Navigation -->
+          <div class="categories-bar" data-layout-ignore>
+            <div class="cat-pill active">📦 Modpacks (.mrpack)</div>
+            <div class="cat-pill">⚡ Mods (Fabric/Forge)</div>
+            <div class="cat-pill">📜 Plugins (Paper/Spigot)</div>
+            <div class="cat-pill">🗺️ Datapacks</div>
+          </div>
+
+          <!-- Live Search Bar -->
+          <div class="search-input-box" data-layout-ignore>
+            <span>🔍</span>
+            <span style="color: #cbd5e1; font-family: 'JetBrains Mono', monospace;" id="search-query">Better MC [FABRIC]</span>
+          </div>
+
+          <!-- Featured Modpack Card with 3D Macro Pop -->
+          <div class="catalog-grid" id="catalog-grid">
+            <div class="mod-card" id="featured-modpack-card">
+              <div class="mod-info-left">
+                <div class="mod-icon-box">🛡️</div>
+                <div class="mod-text-wrap">
+                  <div class="mod-title-row" data-layout-ignore>
+                    <span class="mod-name" data-layout-ignore>Better MC [FABRIC] 1.21.4</span>
+                    <span class="mod-tag-pill" data-layout-ignore>184 MODS</span>
+                    <span style="font-size: 13px; color: #10b981; font-weight: 600;" data-layout-ignore>⭐ 12.8M descargas</span>
+                  </div>
+                  <div class="mod-desc" data-layout-ignore>
+                    Modpack completo de aventura, optimización con Sodium, nuevos biomas, jefes y shaders listos para jugar.
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn-install-mod" id="btn-install-modpack" data-layout-ignore>
+                <span>📥</span>
+                <span>Instalar en 1 Clic</span>
+              </button>
+            </div>
+
+            <!-- Second Card: Voice Chat -->
+            <div class="mod-card" style="opacity: 0.85;" data-layout-ignore>
+              <div class="mod-info-left" data-layout-ignore>
+                <div class="mod-icon-box">🎙️</div>
+                <div class="mod-text-wrap" data-layout-ignore>
+                  <div class="mod-title-row" data-layout-ignore>
+                    <span class="mod-name">Simple Voice Chat</span>
+                    <span class="mod-tag-pill" data-layout-ignore>PROXIMITY AUDIO</span>
+                  </div>
+                  <div class="mod-desc" data-layout-ignore>
+                    Chat de voz posicional en tiempo real para servidores Fabric y Paper.
+                  </div>
+                </div>
+              </div>
+              <button class="btn-install-mod" style="background: #1e293b; color: #94a3b8;" data-layout-ignore>
+                <span>Instalado</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Installation & Dependencies Modal -->
+      <div class="install-modal-overlay" id="install-modal">
+        <div class="install-modal-box" id="install-modal-box">
+          <div style="display: flex; justify-content: space-between; align-items: center;" data-layout-ignore>
+            <div style="font-size: 18px; font-weight: 800; color: #ffffff;">Instalando Better MC [FABRIC]</div>
+            <span style="font-size: 13px; color: #10b981; font-weight: 700;" id="install-pct-label">Descargando...</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;" data-layout-ignore>
+            <div class="dep-row" data-layout-ignore>
+              <span>Resolución de dependencias:</span>
+              <span style="color: #10b981;">✓ Fabric API, Cloth Config, Iris</span>
+            </div>
+            <div class="dep-row" data-layout-ignore>
+              <span>Carpeta de destino:</span>
+              <span style="color: #06b6d4;">data/servers/survival-aventura/mods/</span>
+            </div>
+          </div>
+
+          <div class="progress-bar-wrap" data-layout-ignore>
+            <div class="progress-bar-fill" id="install-progress-bar"></div>
+          </div>
+
+          <div style="font-size: 13px; color: #94a3b8;" id="install-status-msg" data-layout-ignore>
+            Verificando hashes SHA-256 de 184 paquetes JAR...
+          </div>
+        </div>
+      </div>
+
+      <!-- Virtual Mouse Cursor -->
+      <div class="virtual-cursor" id="virtual-cursor">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L5.85 2.85A.5.5 0 0 0 5.5 3.21z" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+        </svg>
+        <div class="cursor-ripple" id="cursor-ripple"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-04-prism-catalog"] = tl;
+
+    // Macro 3D Tilt Entrance: camera slightly pitches down to focus on the cards
+    tl.set("#catalog-stage", {
+      rotationX: 8,
+      rotationY: 0,
+      z: -60,
+      opacity: 1
+    });
+
+    tl.fromTo("#featured-modpack-card",
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
+      0.2
+    );
+
+    // Camera smoothly straightens out
+    tl.to("#catalog-stage", {
+      rotationX: 0,
+      z: 0,
+      duration: 1.2,
+      ease: "power2.inOut"
+    }, 0.8);
+
+    // Cursor moves towards the "Instalar en 1 Clic" button
+    tl.fromTo("#virtual-cursor", { x: 700, y: 700, opacity: 0 }, { x: 1720, y: 310, opacity: 1, duration: 1.0, ease: "power2.inOut" }, 1.4);
+
+    // Click on Install
+    tl.fromTo("#cursor-ripple", { opacity: 1, scale: 0.5 }, { opacity: 0, scale: 1.8, duration: 0.35, ease: "power1.out" }, 2.5);
+    tl.to("#btn-install-modpack", { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 }, 2.5);
+
+    // Modal Emerges
+    tl.to("#install-modal", { opacity: 1, pointerEvents: "auto", duration: 0.3 }, 2.7);
+    tl.fromTo("#install-modal-box",
+      { scale: 0.85, y: 30, opacity: 0 },
+      { scale: 1, y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" },
+      2.8
+    );
+
+    // Animate Progress Bar filling up
+    tl.fromTo("#install-progress-bar",
+      { width: "0%" },
+      { width: "100%", duration: 2.2, ease: "power2.out" },
+      3.4
+    );
+
+    // Status Updates
+    tl.call(() => {
+      const pLabel = document.getElementById("install-pct-label");
+      const pMsg = document.getElementById("install-status-msg");
+      if (pLabel && pMsg) {
+        pLabel.textContent = "100% Completado";
+        pMsg.textContent = "✓ 184 mods instalados y listos en mods/";
+        pMsg.style.color = "#10b981";
+      }
+    }, null, 5.6);
+
+    // Close Modal after success
+    tl.to("#install-modal", { opacity: 0, duration: 0.4 }, 6.8);
+
+    // Featured Card glows with verified installed badge
+    tl.to("#featured-modpack-card", {
+      borderColor: "#10b981",
+      boxShadow: "0 0 50px rgba(16, 185, 129, 0.3)",
+      duration: 0.5
+    }, 7.2);
+
+    // Exit transition
+    tl.to("#catalog-stage", { scale: 1.05, opacity: 0, filter: "blur(8px)", duration: 0.6, ease: "power2.in" }, 11.2);
+
+    tl.seek(0);
+  </script>
+</template>
