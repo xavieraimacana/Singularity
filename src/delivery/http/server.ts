@@ -82,8 +82,9 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   const providers = new Map<string, IContentProvider>();
   providers.set('modrinth', new ModrinthProvider());
   providers.set('papermc', new PaperMcProvider());
-  providers.set('curseforge', new CurseForgeProvider(process.env['CURSEFORGE_API_KEY'], path.dirname(serversDir)));
-  const contentInstaller = new ContentInstallerService(serversDir);
+  const curseforgeProvider = new CurseForgeProvider(process.env['CURSEFORGE_API_KEY'], path.dirname(serversDir));
+  providers.set('curseforge', curseforgeProvider);
+  const contentInstaller = new ContentInstallerService(serversDir, curseforgeProvider);
 
   // Register REST API Routes
   await fastify.register(authRoutes, { prefix: '/api/auth', authService });

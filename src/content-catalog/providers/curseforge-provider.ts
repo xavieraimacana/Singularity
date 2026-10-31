@@ -282,4 +282,48 @@ export class CurseForgeProvider implements IContentProvider {
       };
     });
   }
+
+  async getFilesByIds(fileIds: number[]): Promise<{ id: number; fileName: string; downloadUrl: string }[]> {
+    const apiKey = this.cleanApiKey;
+    if (!apiKey || fileIds.length === 0) return [];
+
+    const chunkSize = 100;
+    const results: { id: number; fileName: string; downloadUrl: string }[] = [];
+
+    for (let i = 0; i < fileIds.length; i += chunkSize) {
+      const chunk = fileIds.slice(i, i + chunkSize);
+      try {
+        const res = await fetch(`${this.baseUrl}/mods/files`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'NebulaX-Singularity/0.1.0 (contact@nebulaxstudio.top)',
+            'x-api-key': apiKey
+          },
+          body: JSON.stringify({ fileIds: chunk })
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as {
+            data: { id: number; fileName: string; downloadUrl: string | null }[];
+          };
+          for (const f of data.data || []) {
+            const downloadUrl =
+              f.downloadUrl ||
+              `https://edge.forgecdn.net/files/${Math.floor(f.id / 1000)}/${f.id % 1000}/${encodeURIComponent(f.fileName)}`;
+            results.push({
+              id: f.id,
+              fileName: f.fileName,
+              downloadUrl
+            });
+          }
+        }
+      } catch {
+        // Continue with other chunks
+      }
+    }
+
+    return results;
+  }
 }

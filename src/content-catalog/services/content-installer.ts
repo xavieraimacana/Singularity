@@ -10,13 +10,57 @@ import type {
   InstanceManifest,
   ProjectType
 } from '../models/catalog-item.js';
+import type { CurseForgeProvider } from '../providers/curseforge-provider.js';
 import { isClientOnlyMod, pruneClientOnlyMods } from './client-mod-filter.js';
 import { extractZip } from './zip-extractor.js';
 
 const PLUGIN_LOADERS = new Set(['paper', 'purpur', 'spigot', 'bukkit']);
 
+async function downloadFile(url: string, destPath: string): Promise<void> {
+  await fs.mkdir(path.dirname(destPath), { recursive: true });
+  const tempPath = `${destPath}.tmp-${Date.now()}`;
+
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'NebulaX-Singularity/0.1.0 (contact@nebulaxstudio.top)'
+    }
+  });
+
+  if (!res.ok || !res.body) {
+    throw new Error(`Error HTTP ${res.status} al descargar archivo desde ${url}`);
+  }
+
+  const fileStream = createWriteStream(tempPath);
+  await pipeline(Readable.fromWeb(res.body as WebReadableStream), fileStream);
+  await fs.rename(tempPath, destPath);
+}
+
+async function downloadInBatches(tasks: (() => Promise<void>)[], concurrency = 5): Promise<void> {
+  let index = 0;
+  async function worker() {
+    while (index < tasks.length) {
+      const taskIndex = index++;
+      const task = tasks[taskIndex];
+      if (task) {
+        try {
+          await task();
+        } catch (err) {
+          console.warn(`[ContentInstaller] Advertencia al descargar archivo de modpack:`, err);
+        }
+      }
+    }
+  }
+
+  const workerCount = Math.max(1, Math.min(concurrency, tasks.length));
+  const workers = Array.from({ length: workerCount }, () => worker());
+  await Promise.all(workers);
+}
+
 export class ContentInstallerService {
-  constructor(private readonly dataDir: string = path.join(process.cwd(), 'data', 'servers')) {}
+  constructor(
+    private readonly dataDir: string = path.join(process.cwd(), 'data', 'servers'),
+    private readonly curseforgeProvider?: CurseForgeProvider
+  ) {}
 
   private getInstanceDir(instanceId: string): string {
     return path.join(this.dataDir, instanceId);
@@ -99,8 +143,12 @@ export class ContentInstallerService {
       }
     }
 
-    // 2. Modpack / ZIP Archive extraction workflow
-    const isModpack = request.projectType === 'modpack' || request.fileName.toLowerCase().endsWith('.zip');
+    // 2. Modpack / ZIP Archive extraction workflow (.zip or .mrpack)
+    const isModpack =
+      request.projectType === 'modpack' ||
+      request.fileName.toLowerCase().endsWith('.zip') ||
+      request.fileName.toLowerCase().endsWith('.mrpack');
+
     if (isModpack) {
       return this.installModpack(instanceDir, request);
     }
@@ -114,7 +162,12 @@ export class ContentInstallerService {
     const tempPath = path.join(destinationDir, `temp-${Date.now()}-${request.fileName}`);
 
     // Download content stream
-    const res = await fetch(request.downloadUrl);
+    const res = await fetch(request.downloadUrl, {
+      headers: {
+        'User-Agent': 'NebulaX-Singularity/0.1.0 (contact@nebulaxstudio.top)'
+      }
+    });
+
     if (!res.ok || !res.body) {
       throw new Error(
         `Error al descargar ${request.fileName} desde ${request.downloadUrl} (HTTP ${res.status})`
@@ -162,12 +215,18 @@ export class ContentInstallerService {
     request: InstallContentRequest
   ): Promise<InstalledItem> {
     await fs.mkdir(instanceDir, { recursive: true });
+    await fs.mkdir(path.join(instanceDir, 'mods'), { recursive: true });
 
     const tempArchive = path.join(instanceDir, `temp-modpack-${Date.now()}.zip`);
     const tempExtractDir = path.join(instanceDir, `temp-unpack-${Date.now()}`);
 
-    // Download archive
-    const res = await fetch(request.downloadUrl);
+    // Download modpack archive
+    const res = await fetch(request.downloadUrl, {
+      headers: {
+        'User-Agent': 'NebulaX-Singularity/0.1.0 (contact@nebulaxstudio.top)'
+      }
+    });
+
     if (!res.ok || !res.body) {
       throw new Error(
         `Error al descargar modpack ${request.fileName} desde ${request.downloadUrl} (HTTP ${res.status})`
@@ -178,31 +237,101 @@ export class ContentInstallerService {
     await pipeline(Readable.fromWeb(res.body as WebReadableStream), fileStream);
 
     try {
-      // Extract ZIP using system extractor
+      // Extract ZIP / mrpack using system extractor
       await extractZip(tempArchive, tempExtractDir);
 
-      // Check for 'overrides' directory (standard CurseForge / Modrinth format)
-      const overridesDir = path.join(tempExtractDir, 'overrides');
-      const hasOverrides = await fs.access(overridesDir).then(() => true).catch(() => false);
+      let downloadedCount = 0;
 
-      if (hasOverrides) {
-        await fs.cp(overridesDir, instanceDir, { recursive: true, force: true });
-      } else {
-        // Direct root extraction (server pack format)
-        const entries = await fs.readdir(tempExtractDir, { withFileTypes: true });
-        for (const entry of entries) {
-          // Do not overwrite singularity metadata
-          if (entry.name === 'singularity-instance.json' || entry.name === 'singularity-manifest.json') {
-            continue;
-          }
-          await fs.cp(path.join(tempExtractDir, entry.name), path.join(instanceDir, entry.name), {
-            recursive: true,
-            force: true
+      // 1. Modrinth Pack (modrinth.index.json)
+      const modrinthIndexPath = path.join(tempExtractDir, 'modrinth.index.json');
+      const hasModrinthIndex = await fs.access(modrinthIndexPath).then(() => true).catch(() => false);
+
+      if (hasModrinthIndex) {
+        const rawIndex = await fs.readFile(modrinthIndexPath, 'utf8');
+        interface ModrinthFileEntry {
+          path: string;
+          hashes?: { sha1?: string; sha512?: string };
+          env?: { client?: string; server?: string };
+          downloads?: string[];
+        }
+        interface ModrinthPackData {
+          files?: ModrinthFileEntry[];
+        }
+
+        const packData = JSON.parse(rawIndex) as ModrinthPackData;
+        const downloadTasks: (() => Promise<void>)[] = [];
+
+        for (const file of packData.files || []) {
+          // Skip client-only mods
+          if (file.env?.server === 'unsupported') continue;
+          if (isClientOnlyMod(file.path)) continue;
+
+          const downloadUrl = file.downloads?.[0];
+          if (!downloadUrl) continue;
+
+          const targetFile = path.join(instanceDir, file.path);
+          downloadTasks.push(async () => {
+            await downloadFile(downloadUrl, targetFile);
+            downloadedCount++;
           });
+        }
+
+        await downloadInBatches(downloadTasks, 5);
+      }
+
+      // 2. CurseForge Pack (manifest.json)
+      const curseforgeManifestPath = path.join(tempExtractDir, 'manifest.json');
+      const hasCurseforgeManifest = await fs.access(curseforgeManifestPath).then(() => true).catch(() => false);
+
+      if (hasCurseforgeManifest) {
+        const rawManifest = await fs.readFile(curseforgeManifestPath, 'utf8');
+        interface CurseForgePackData {
+          files?: { projectID: number; fileID: number; required?: boolean }[];
+        }
+
+        const cfData = JSON.parse(rawManifest) as CurseForgePackData;
+        const fileIds = (cfData.files || []).map((f) => f.fileID);
+
+        if (fileIds.length > 0 && this.curseforgeProvider) {
+          const filesMeta = await this.curseforgeProvider.getFilesByIds(fileIds);
+          const downloadTasks: (() => Promise<void>)[] = [];
+
+          for (const f of filesMeta) {
+            if (isClientOnlyMod(f.fileName)) continue;
+
+            const targetFile = path.join(instanceDir, 'mods', f.fileName);
+            downloadTasks.push(async () => {
+              await downloadFile(f.downloadUrl, targetFile);
+              downloadedCount++;
+            });
+          }
+
+          await downloadInBatches(downloadTasks, 5);
         }
       }
 
-      // Prune client-only mods from mods/ folder
+      // 3. Copy overrides directory (configs, scripts, defaultconfigs)
+      const overridesDir = path.join(tempExtractDir, 'overrides');
+      const hasOverrides = await fs.access(overridesDir).then(() => true).catch(() => false);
+      if (hasOverrides) {
+        await fs.cp(overridesDir, instanceDir, { recursive: true, force: true });
+      }
+
+      // 4. Copy server-overrides directory (Modrinth format)
+      const serverOverridesDir = path.join(tempExtractDir, 'server-overrides');
+      const hasServerOverrides = await fs.access(serverOverridesDir).then(() => true).catch(() => false);
+      if (hasServerOverrides) {
+        await fs.cp(serverOverridesDir, instanceDir, { recursive: true, force: true });
+      }
+
+      // 5. If pre-bundled mods exist in tempExtractDir/mods, copy them directly
+      const extractedModsDir = path.join(tempExtractDir, 'mods');
+      const hasExtractedMods = await fs.access(extractedModsDir).then(() => true).catch(() => false);
+      if (hasExtractedMods) {
+        await fs.cp(extractedModsDir, path.join(instanceDir, 'mods'), { recursive: true, force: true });
+      }
+
+      // 6. Prune any remaining client-only mods from mods/ folder
       const modsDir = path.join(instanceDir, 'mods');
       const prunedMods = await pruneClientOnlyMods(modsDir);
 
