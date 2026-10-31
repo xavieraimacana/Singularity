@@ -6,7 +6,9 @@
 ### *The Next-Generation Minecraft Server Orchestrator & Mission Control*
 **Un producto oficial de NebulaX Studio**
 
-[![Version](https://img.shields.io/badge/version-0.1.0--alpha-blueviolet.svg?style=for-the-badge)](https://github.com/nebulax-studio/singularity)
+[![Version](https://img.shields.io/badge/version-0.1.0--alpha-blueviolet.svg?style=for-the-badge)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)
+[![Release](https://img.shields.io/github/v/release/xavieraimacana/Singularity?include_prereleases&style=for-the-badge&color=8b5cf6&label=Release)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)
+[![Tests Passing](https://img.shields.io/badge/tests-134%20passing-10b981.svg?style=for-the-badge)](https://github.com/xavieraimacana/Singularity)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-24+-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Fastify](https://img.shields.io/badge/Fastify-5.x-000000.svg?style=for-the-badge&logo=fastify&logoColor=white)](https://fastify.dev/)
@@ -180,14 +182,16 @@ Al arrancar por primera vez, Singularity inicializa una cuenta de administrador 
 
 Singularity incluye ejecutables de escritorio nativos para Windows 10 y 11 x64 generados con `electron-builder`:
 
-### Descargas Oficiales (`dist/installers/`)
-* 💿 **Instalador Completo NSIS**: `Singularity-Setup-0.1.0-alpha.exe` *(169 MB)*
+### Descargas Oficiales
+* 💿 **[Instalador Completo NSIS (Setup)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/Singularity-Setup-0.1.0-alpha.exe)**: `Singularity-Setup-0.1.0-alpha.exe` *(~90 MB)*
   * Asistente paso a paso para seleccionar ruta de instalación.
   * Accesos directos en el Escritorio y Menú Inicio.
   * Desinstalador limpio registrado en el Panel de Control de Windows.
-* 🚀 **Ejecutable Portable**: `Singularity-Portable-0.1.0-alpha.exe` *(149 MB)*
+* 🚀 **[Ejecutable Portable](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/Singularity-Portable-0.1.0-alpha.exe)**: `Singularity-Portable-0.1.0-alpha.exe` *(~82 MB)*
   * Ejecución directa sin instalación ni privilegios de administrador.
   * Ideal para llevar en pendrive o ejecutar en entornos aislados.
+
+> 📦 Consulta todas las notas de lanzamiento y archivos checksum en [GitHub Releases](https://github.com/xavieraimacana/Singularity/releases).
 
 ### Capacidades Nativas de Windows
 * 🔔 **Notificaciones en el Centro de Actividades de Windows**: Alertas del sistema cuando un servidor se inicia, se detiene o sufre un crash inesperado (`appUserModelId: studio.nebulax.singularity`).
@@ -290,7 +294,7 @@ docker compose up -d --build
 
 ## 🧪 Pruebas y Control de Calidad
 
-Singularity aplica **Test-Driven Development (TDD)** con aislamiento riguroso de I/O y mocks de red. Actualmente cuenta con **130 pruebas unitarias y de integración pasando al 100%** a través de 28 suites en Vitest:
+Singularity aplica **Test-Driven Development (TDD)** con aislamiento riguroso de I/O y mocks de red. Actualmente cuenta con **134 pruebas unitarias y de integración pasando al 100%** a través de 28 suites en Vitest:
 
 ```bash
 # Ejecutar todas las pruebas unitarias
@@ -316,7 +320,7 @@ npm run build
 * 📝 [Registro de Decisiones Arquitectónicas (ADRs)](docs/decisions/)
   * [ADR-001: Screaming Architecture y Monolito Modular](docs/decisions/0001-screaming-architecture-modular-monolith.md)
   * [ADR-002: Abstracción de Proveedores para el Catálogo](docs/decisions/0002-content-catalog-provider-abstraction.md)
-* 📊 [Auditoría Crítica de la Documentación](C:/Users/GAMING/.gemini/antigravity-cli/brain/05757d6a-6754-4e8e-b92c-d4e80f26b193/analisis-critico-documentacion.md)
+* 🛡️ [Auditoría de Seguridad y Hardening](docs/SECURITY_AUDIT.md)
 
 ---
 
