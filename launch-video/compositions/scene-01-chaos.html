@@ -1,0 +1,184 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      background: #090d16;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', 'Space Mono', monospace;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+
+    .chaos-header {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .chaos-badge {
+      display: inline-block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      font-size: 20px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .chaos-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 44px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .terminal-container {
+      width: 1280px;
+      background: #030712;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .terminal-topbar {
+      height: 42px;
+      background: #111827;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .window-title {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 14px;
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    .terminal-content {
+      padding: 28px;
+      font-size: 21px;
+      line-height: 1.6;
+    }
+
+    .prompt-line {
+      color: #10b981;
+    }
+
+    .cmd-text {
+      color: #f3f4f6;
+    }
+
+    .error-block {
+      margin-top: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 4px solid #ef4444;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .error-title {
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    .error-detail {
+      color: #fca5a5;
+      font-size: 18px;
+      margin-top: 8px;
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-01-chaos" data-width="1920" data-height="1080">
+    <div id="chaos-wrap" class="clip" data-start="0" data-duration="3.5" data-track-index="1">
+      <div class="chaos-header" id="chaos-title-box">
+        <div class="chaos-badge" data-layout-ignore>El Caos Tradicional</div>
+        <div class="chaos-title">¿Cuántas horas perdiste configurando Java?</div>
+      </div>
+
+      <div class="terminal-container" id="terminal-box" data-hold data-layout-ignore>
+        <div class="terminal-topbar">
+          <div class="window-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="window-title" data-layout-ignore>Command Prompt - C:\Minecraft\Server</div>
+        </div>
+        <div class="terminal-content">
+          <div><span class="prompt-line">C:\Minecraft\Server&gt;</span> <span class="cmd-text">java -Xmx4G -jar fabric-server.jar nogui</span></div>
+          <div style="color: #6b7280; margin-top: 8px;">Starting net.minecraft.server.Main...</div>
+          
+          <div class="error-block" id="error-alert" data-layout-ignore>
+            <div class="error-title">Error: A JNI error has occurred, please check your installation.</div>
+            <div class="error-detail" data-layout-ignore>Exception in thread "main" java.lang.UnsupportedClassVersionError: net/minecraft/server/Main has been compiled by a more recent version of the Java Runtime (class file version 69.0), this version of the Java Runtime only recognizes class file versions up to 61.0 (Java 17).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // Initial appearance - already visible at frame 0 for social player thumbnail
+    tl.set("#chaos-wrap", { opacity: 1, scale: 1 });
+
+    // Glitch effect on the error box
+    tl.fromTo("#error-alert",
+      { opacity: 0, x: -10 },
+      { opacity: 1, x: 0, duration: 0.3, ease: "rough({strength: 2, points: 10})" },
+      0.4
+    );
+
+    // Zoom-in tension
+    tl.to("#terminal-box", {
+      scale: 1.04,
+      duration: 1.8,
+      ease: "power1.inOut"
+    }, 1.2);
+
+    // Fade out exit
+    tl.to("#chaos-wrap", {
+      opacity: 0,
+      scale: 1.08,
+      filter: "blur(12px)",
+      duration: 0.4,
+      ease: "power2.in"
+    }, 3.1);
+
+    window.__timelines["scene-01-chaos"] = tl;
+    tl.seek(0);
+  </script>
+</template>

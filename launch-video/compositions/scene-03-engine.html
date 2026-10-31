@@ -1,0 +1,285 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      background: #090d16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+
+    .modal-box {
+      width: 1080px;
+      background: #0d1322;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      border-radius: 20px;
+      box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.9), 0 0 50px rgba(6, 182, 212, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 28px 36px;
+      background: #080c18;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .badge-step {
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #06b6d4;
+      background: rgba(6, 182, 212, 0.12);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .field-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .custom-input {
+      background: #080d1a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-size: 17px;
+      color: #ffffff;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .custom-input.selected {
+      border-color: #06b6d4;
+      background: rgba(6, 182, 212, 0.06);
+    }
+
+    .java-auto-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%);
+      border: 1px solid #10b981;
+      border-radius: 14px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .java-icon-wrap {
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #10b981;
+    }
+
+    .java-info h4 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .java-info p {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .modal-footer {
+      padding: 24px 36px;
+      background: #080c18;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+    }
+
+    .btn-submit {
+      background: #06b6d4;
+      color: #05131a;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 14px 32px;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .cursor-pointer {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      pointer-events: none;
+      z-index: 100;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-03-engine" data-width="1920" data-height="1080">
+    <div id="modal-wrap" class="clip" data-start="0" data-duration="5.5" data-track-index="1">
+      <div class="modal-box" id="engine-modal" data-layout-allow-overflow>
+        <!-- Header -->
+        <div class="modal-header">
+          <div class="modal-title">Nueva Instancia de Servidor</div>
+          <div class="badge-step" data-layout-ignore>Paso 1 de 2: Motor y Java</div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body" data-layout-ignore>
+          <div class="form-grid" data-layout-ignore>
+            <div class="field-group" data-layout-ignore>
+              <div class="field-label" data-layout-ignore>Versión de Minecraft</div>
+              <div class="custom-input selected" id="version-chip" data-layout-ignore>
+                <span>Minecraft 1.21.4</span>
+                <span style="font-size: 12px; color: #10b981; background: rgba(16,185,129,0.15); padding: 2px 8px; border-radius: 4px;" data-layout-ignore>Release Oficial</span>
+              </div>
+            </div>
+
+            <div class="field-group" data-layout-ignore>
+              <div class="field-label" data-layout-ignore>Motor / Loader</div>
+              <div class="custom-input selected" id="loader-chip" data-layout-ignore>
+                <span>Fabric Loader 0.16.10</span>
+                <span style="font-size: 12px; color: #06b6d4; background: rgba(6,182,212,0.15); padding: 2px 8px; border-radius: 4px;" data-layout-ignore>Alto Rendimiento</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Adoptium Java 25 Auto Detection -->
+          <div class="java-auto-card" id="java-card" data-layout-ignore>
+            <div class="java-icon-wrap" data-layout-ignore>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="java-info" data-layout-ignore>
+              <h4>
+                Adoptium Eclipse Temurin JDK 25
+                <span style="font-size: 12px; background: #10b981; color: #051a11; padding: 2px 8px; border-radius: 9999px; font-weight: 800;" data-layout-ignore>AUTO-CONFIGURADO</span>
+              </h4>
+              <p data-layout-ignore>Singularity detecta y descarga automáticamente el entorno Java exacto requerido para tu versión. Cero instalaciones manuales.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer" data-layout-ignore>
+          <button class="btn-submit" id="btn-crear-instancia" data-layout-ignore>
+            <span data-layout-ignore>Continuar a Mods &amp; Configuración</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Animated SVG Cursor -->
+        <svg class="cursor-pointer" id="mouse-cursor-3" viewBox="0 0 24 24" fill="#ffffff" stroke="#000000" stroke-width="1.5">
+          <path d="M3 3l7 18 3-7 7-3L3 3z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // Modal popup animation
+    tl.fromTo("#engine-modal",
+      { opacity: 0, scale: 0.92, y: 30 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" },
+      0
+    );
+
+    // Java card pulse animation (highlighting auto-detection)
+    tl.fromTo("#java-card",
+      { boxShadow: "0 0 0 rgba(16, 185, 129, 0)" },
+      { boxShadow: "0 0 35px rgba(16, 185, 129, 0.4)", duration: 0.6, ease: "power2.out", yoyo: true, repeat: 2 },
+      1.2
+    );
+
+    // Cursor moves to submit button
+    tl.fromTo("#mouse-cursor-3",
+      { x: 500, y: 300, opacity: 0 },
+      { x: 920, y: 460, opacity: 1, duration: 1.2, ease: "power2.inOut" },
+      2.0
+    );
+
+    // Click on button
+    tl.to("#btn-crear-instancia", {
+      scale: 0.94,
+      duration: 0.12,
+      ease: "power1.in",
+      yoyo: true,
+      repeat: 1
+    }, 3.4);
+
+    // Zoom and exit
+    tl.to("#engine-modal", {
+      scale: 1.08,
+      duration: 1.2,
+      ease: "power2.inOut"
+    }, 3.8);
+
+    tl.to("#modal-wrap", {
+      opacity: 0,
+      filter: "blur(10px)",
+      duration: 0.4,
+      ease: "power2.in"
+    }, 5.1);
+
+    window.__timelines["scene-03-engine"] = tl;
+    tl.seek(0);
+  </script>
+</template>
