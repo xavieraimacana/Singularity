@@ -1,0 +1,273 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      background: #090d16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+
+    .flow-window {
+      width: 1540px;
+      height: 880px;
+      background: #0d1322;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 16px;
+      box-shadow: 0 35px 70px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .flow-header {
+      padding: 24px 36px;
+      background: #080c18;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .flow-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .flow-body {
+      flex: 1;
+      padding: 32px 36px;
+      display: flex;
+      gap: 32px;
+    }
+
+    .config-panel {
+      width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .field-card {
+      background: #080d1a;
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 12px;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+    }
+
+    .java-auto-badge {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+      border: 1px solid #10b981;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .btn-create-start {
+      background: #06b6d4;
+      color: #04131c;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 16px 24px;
+      border-radius: 10px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4);
+    }
+
+    .console-panel {
+      flex: 1;
+      background: #050811;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .console-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 12px;
+    }
+
+    .status-tag {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-tag.starting {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-tag.online {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .log-stream {
+      font-size: 15px;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+
+    .cursor-pointer {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      pointer-events: none;
+      z-index: 100;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-04-create-and-start" data-width="1920" data-height="1080">
+    <div id="flow-wrap" class="clip" data-start="0" data-duration="6.0" data-track-index="1">
+      <div class="flow-window" id="flow-main-win" data-hold>
+        <div class="flow-header">
+          <div class="flow-title">Creación &amp; Arranque de Instancia</div>
+          <div style="font-size: 13px; color: #06b6d4; font-family: 'JetBrains Mono', monospace;" data-layout-ignore>FABRIC RUNTIME • JAVA 25</div>
+        </div>
+
+        <div class="flow-body">
+          <div class="config-panel" data-layout-ignore>
+            <div class="field-card" data-layout-ignore>
+              <span style="color: #94a3b8;">Versión:</span>
+              <span style="font-weight: 700;">Minecraft 1.21.4</span>
+            </div>
+            <div class="field-card" data-layout-ignore>
+              <span style="color: #94a3b8;">Motor:</span>
+              <span style="font-weight: 700; color: #06b6d4;">Fabric Loader 0.16.10</span>
+            </div>
+
+            <div class="java-auto-badge" data-layout-ignore>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <div>
+                <div style="font-weight: 700; font-size: 15px; color: #ffffff;">Adoptium OpenJDK 25</div>
+                <div style="font-size: 13px; color: #10b981; font-weight: 600;">Descarga automática lista</div>
+              </div>
+            </div>
+
+            <button class="btn-create-start" id="btn-crear-arrancar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Crear e Iniciar Servidor</span>
+            </button>
+          </div>
+
+          <div class="console-panel" data-layout-ignore>
+            <div class="console-topbar" data-layout-ignore>
+              <span style="font-size: 14px; color: #cbd5e1; font-weight: 600;">Consola Interactiva VT100</span>
+              <div class="status-tag starting" id="status-chip" data-layout-ignore>
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor;"></span>
+                <span id="status-label">INICIANDO...</span>
+              </div>
+            </div>
+
+            <div class="log-stream" data-layout-ignore>
+              <div id="log-1">[Singularity]: Provisioning Fabric Loader 0.16.10 with Java 25...</div>
+              <div id="log-2" style="opacity: 0;">[Server thread/INFO]: Loading Minecraft 1.21.4 with Fabric Engine</div>
+              <div id="log-3" style="opacity: 0;">[Server thread/INFO]: Preparing spawn area for dimension minecraft:overworld</div>
+              <div id="log-4" style="opacity: 0; color: #10b981; font-weight: 700;">[Server thread/INFO]: Done (1.84s)! Servidor Online en puerto 25565</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animated SVG Cursor -->
+      <svg class="cursor-pointer" id="mouse-cursor-create" viewBox="0 0 24 24" fill="#ffffff" stroke="#000000" stroke-width="1.5">
+        <path d="M3 3l7 18 3-7 7-3L3 3z"/>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // Entrance
+    tl.fromTo("#flow-main-win",
+      { opacity: 0, scale: 0.95, y: 20 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "power2.out" },
+      0
+    );
+
+    // Cursor approaches start button
+    tl.fromTo("#mouse-cursor-create",
+      { x: 300, y: 250, opacity: 0 },
+      { x: 440, y: 460, opacity: 1, duration: 0.9, ease: "power2.inOut" },
+      0.4
+    );
+
+    // Click on button
+    tl.to("#btn-crear-arrancar", {
+      scale: 0.93,
+      duration: 0.12,
+      ease: "power1.in",
+      yoyo: true,
+      repeat: 1
+    }, 1.4);
+
+    // Console logs stream in
+    tl.to("#log-2", { opacity: 1, duration: 0.2 }, 1.7);
+    tl.to("#log-3", { opacity: 1, duration: 0.2 }, 2.2);
+    tl.to("#log-4", { opacity: 1, duration: 0.2 }, 2.8);
+
+    // Status chip morphs to ONLINE
+    tl.call(() => {
+      const chip = document.getElementById("status-chip");
+      const lbl = document.getElementById("status-label");
+      if (chip && lbl) {
+        chip.className = "status-tag online";
+        lbl.innerText = "ONLINE · 20.0 TPS";
+      }
+    }, null, 3.0);
+
+    // Push into console
+    tl.to(".console-panel", {
+      scale: 1.04,
+      duration: 1.8,
+      ease: "power2.inOut"
+    }, 3.4);
+
+    // Exit
+    tl.to("#flow-wrap", {
+      opacity: 0,
+      scale: 1.1,
+      filter: "blur(10px)",
+      duration: 0.4,
+      ease: "power2.in"
+    }, 5.6);
+
+    window.__timelines["scene-04-create-and-start"] = tl;
+    tl.seek(0);
+  </script>
+</template>

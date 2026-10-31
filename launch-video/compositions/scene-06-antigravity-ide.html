@@ -1,0 +1,270 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      background: #090d16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+
+    .editor-win {
+      width: 1540px;
+      height: 880px;
+      background: #080c16;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      border-radius: 16px;
+      box-shadow: 0 35px 70px rgba(0, 0, 0, 0.9), 0 0 50px rgba(6, 182, 212, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .editor-header {
+      height: 48px;
+      background: #040810;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .ide-identity {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #06b6d4;
+    }
+
+    .tab-strip {
+      display: flex;
+      gap: 4px;
+    }
+
+    .editor-tab {
+      background: #080c16;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: none;
+      padding: 8px 18px;
+      border-radius: 8px 8px 0 0;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .editor-tab.active {
+      color: #ffffff;
+      background: #0d1424;
+      border-top: 2px solid #06b6d4;
+    }
+
+    .workspace-split {
+      flex: 1;
+      display: flex;
+    }
+
+    .tree-nav {
+      width: 280px;
+      background: #060a12;
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 20px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tree-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: #94a3b8;
+    }
+
+    .tree-line.active {
+      background: rgba(6, 182, 212, 0.12);
+      color: #06b6d4;
+      font-weight: 600;
+    }
+
+    .code-view {
+      flex: 1;
+      background: #090e1c;
+      padding: 28px 36px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      line-height: 1.8;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prop-line {
+      display: flex;
+      gap: 24px;
+    }
+
+    .prop-num {
+      color: #475569;
+      width: 30px;
+      text-align: right;
+    }
+
+    .prop-key {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .prop-val-green { color: #10b981; }
+    .prop-val-yellow { color: #f59e0b; }
+    .prop-val-cyan { color: #06b6d4; }
+
+    .bottom-integrated-terminal {
+      height: 180px;
+      background: #040710;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sftp-toast-badge {
+      position: absolute;
+      top: 60px;
+      right: 28px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #10b981;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-06-antigravity-ide" data-width="1920" data-height="1080">
+    <div id="ide-wrap" class="clip" data-start="0" data-duration="6.0" data-track-index="1">
+      <div class="editor-win" id="ide-frame" data-hold>
+        <!-- Topbar -->
+        <div class="editor-header">
+          <div class="ide-identity" data-layout-ignore>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            <span>Antigravity IDE • Singularity SFTP Bridge (Puerto 2222)</span>
+          </div>
+          <div class="tab-strip" data-layout-ignore>
+            <div class="editor-tab active">
+              <span>server.properties</span>
+              <span style="font-size: 10px; color: #10b981;">●</span>
+            </div>
+            <div class="editor-tab">better-mc.json</div>
+          </div>
+        </div>
+
+        <div class="workspace-split">
+          <!-- Remote Tree -->
+          <div class="tree-nav" data-layout-ignore>
+            <div style="font-size: 11px; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Conexión SFTP Remota</div>
+            <div class="tree-line active">📄 server.properties</div>
+            <div class="tree-line">📁 mods (184 items)</div>
+            <div class="tree-line">📁 config</div>
+            <div class="tree-line">📁 world</div>
+            <div class="tree-line">📄 eula.txt</div>
+          </div>
+
+          <!-- Code View -->
+          <div class="code-view" data-layout-ignore>
+            <div class="prop-line"><span class="prop-num">1</span><span><span class="prop-key">server-port</span>=25565</span></div>
+            <div class="prop-line"><span class="prop-num">2</span><span><span class="prop-key">gamemode</span>=<span class="prop-val-green">survival</span></span></div>
+            <div class="prop-line"><span class="prop-num">3</span><span><span class="prop-key">difficulty</span>=<span class="prop-val-yellow">hard</span></span></div>
+            <div class="prop-line"><span class="prop-num">4</span><span><span class="prop-key">motd</span>=<span class="prop-val-cyan">\u00A7bSingularity Server \u00A77- Powered by NebulaX Studio</span></span></div>
+            <div class="prop-line"><span class="prop-num">5</span><span><span class="prop-key">view-distance</span>=16</span></div>
+            <div class="prop-line"><span class="prop-num">6</span><span><span class="prop-key">allow-flight</span>=<span class="prop-val-green">true</span></span></div>
+
+            <!-- Integrated Terminal -->
+            <div class="bottom-integrated-terminal" style="margin-top: auto;" data-layout-ignore>
+              <div style="color: #64748b; font-size: 12px;">Terminal Integrada Antigravity: RCON Broadcast</div>
+              <div style="color: #10b981;">&gt; broadcast Configuración actualizada en caliente desde Antigravity IDE</div>
+              <div style="color: #94a3b8;">[Server thread/INFO]: [Server] Configuración actualizada en caliente desde Antigravity IDE (20.0 TPS)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SFTP Live Sync Toast -->
+        <div class="sftp-toast-badge" id="toast-sftp" data-layout-ignore>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Sincronizado vía micro-servidor SFTP en tiempo real</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // Entrance
+    tl.fromTo("#ide-frame",
+      { opacity: 0, scale: 0.95 },
+      { opacity: 1, scale: 1, duration: 0.45, ease: "power2.out" },
+      0
+    );
+
+    // Toast pops in
+    tl.fromTo("#toast-sftp",
+      { y: -20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.5)" },
+      0.6
+    );
+
+    // Camera zooms into code & broadcast
+    tl.to(".code-view", {
+      scale: 1.05,
+      transformOrigin: "center left",
+      duration: 2.2,
+      ease: "power2.inOut"
+    }, 1.6);
+
+    // Toast pulse
+    tl.to("#toast-sftp", {
+      scale: 1.06,
+      duration: 0.3,
+      yoyo: true,
+      repeat: 1,
+      ease: "power1.inOut"
+    }, 3.8);
+
+    // Exit
+    tl.to("#ide-wrap", {
+      opacity: 0,
+      scale: 1.1,
+      filter: "blur(10px)",
+      duration: 0.4,
+      ease: "power2.in"
+    }, 5.6);
+
+    window.__timelines["scene-06-antigravity-ide"] = tl;
+    tl.seek(0);
+  </script>
+</template>

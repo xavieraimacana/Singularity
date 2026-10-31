@@ -1,0 +1,287 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      background: #090d16;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: #f8fafc;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .desktop-scene-title {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .scene-badge {
+      display: inline-block;
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #06b6d4;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .scene-heading {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .desktop-display-grid {
+      display: flex;
+      gap: 36px;
+      width: 1440px;
+      align-items: center;
+    }
+
+    /* Modal Conexiones */
+    .connection-modal-card {
+      flex: 1;
+      background: #0d1322;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      border-radius: 18px;
+      padding: 32px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+    }
+
+    .profile-item {
+      background: #080d1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .profile-item.active {
+      border-color: #06b6d4;
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    /* System Tray & Windows UI */
+    .system-tray-showcase {
+      width: 480px;
+      background: #080c16;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85);
+    }
+
+    .tray-preview-bar {
+      background: #040810;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tray-icons {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .singularity-tray-icon {
+      width: 24px;
+      height: 24px;
+      filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.6));
+    }
+
+    /* Windows Toast Notification */
+    .win-toast {
+      position: absolute;
+      bottom: 40px;
+      right: 60px;
+      width: 380px;
+      background: rgba(13, 19, 34, 0.95);
+      border: 1px solid #10b981;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.2);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .cursor-pointer {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      pointer-events: none;
+      z-index: 100;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-07-desktop-suite" data-width="1920" data-height="1080">
+    <div id="desktop-wrap" class="clip" data-start="0" data-duration="6.0" data-track-index="1">
+      <div class="desktop-scene-title">
+        <div class="scene-badge" data-layout-ignore>Arquitectura de Escritorio Nativa</div>
+        <div class="scene-heading">Conexión Flexible: Local o en la Nube</div>
+      </div>
+
+      <div class="desktop-display-grid" data-hold>
+        <!-- Conmutador de Conexiones -->
+        <div class="connection-modal-card" id="conn-card" data-layout-ignore>
+          <div class="modal-head" data-layout-ignore>
+            <div style="font-weight: 700; font-size: 18px;">Perfiles de Conexión de Servidor</div>
+            <span style="font-size: 12px; color: #10b981; font-weight: 700;" data-layout-ignore>MULTI-HOST</span>
+          </div>
+
+          <div class="profile-item active" id="prof-local" data-layout-ignore>
+            <div style="display: flex; align-items: center; gap: 14px;" data-layout-ignore>
+              <span style="font-size: 24px;">🖥️</span>
+              <div data-layout-ignore>
+                <div style="font-weight: 700; color: #ffffff;">Local PC (127.0.0.1:3000)</div>
+                <div style="font-size: 13px; color: #94a3b8;">Instancia interna autogestionada</div>
+              </div>
+            </div>
+            <span style="color: #06b6d4; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;" data-layout-ignore>ACTIVO</span>
+          </div>
+
+          <div class="profile-item" id="prof-cloud" data-layout-ignore>
+            <div style="display: flex; align-items: center; gap: 14px;" data-layout-ignore>
+              <span style="font-size: 24px;">☁️</span>
+              <div data-layout-ignore>
+                <div style="font-weight: 700; color: #ffffff;">NebulaX Cloud VPS</div>
+                <div style="font-size: 13px; color: #94a3b8;">minecraft.nebulax.cloud:3000</div>
+              </div>
+            </div>
+            <span style="color: #10b981; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;" data-layout-ignore>24ms • CONECTAR</span>
+          </div>
+        </div>
+
+        <!-- System Tray Showcase -->
+        <div class="system-tray-showcase" id="tray-card" data-layout-ignore>
+          <div style="font-weight: 700; font-size: 18px;" data-layout-ignore>Integración en Barra de Tareas</div>
+          <p style="font-size: 14px; color: #94a3b8; line-height: 1.5;" data-layout-ignore>
+            Minimizado silencioso al System Tray de Windows. El servidor continúa operando 24/7 sin consumir recursos de renderizado.
+          </p>
+
+          <div class="tray-preview-bar" data-layout-ignore>
+            <span style="font-size: 13px; color: #64748b; font-family: 'JetBrains Mono', monospace;" data-layout-ignore>Área de Notificación</span>
+            <div class="tray-icons" data-layout-ignore>
+              <img src="assets/brand/master-symbol-color.svg" alt="Tray" class="singularity-tray-icon" />
+              <span style="font-size: 14px;">🔊</span>
+              <span style="font-size: 14px;">📶</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Windows Native Toast Notification -->
+      <div class="win-toast" id="native-toast" data-layout-ignore>
+        <img src="assets/brand/singularity-app-icon.svg" alt="App Icon" style="width: 36px; height: 36px;" />
+        <div data-layout-ignore>
+          <div style="font-weight: 700; font-size: 14px; color: #ffffff;" data-layout-ignore>Singularity Desktop</div>
+          <div style="font-size: 13px; color: #10b981; font-weight: 600;" data-layout-ignore>Servidor SMP Online • 20.0 TPS</div>
+        </div>
+      </div>
+
+      <!-- Animated SVG Cursor -->
+      <svg class="cursor-pointer" id="mouse-cursor-desk" viewBox="0 0 24 24" fill="#ffffff" stroke="#000000" stroke-width="1.5">
+        <path d="M3 3l7 18 3-7 7-3L3 3z"/>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // Entrance
+    tl.fromTo(".desktop-display-grid",
+      { opacity: 0, scale: 0.95, y: 20 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      0
+    );
+
+    // Mouse cursor moves to switch profile
+    tl.fromTo("#mouse-cursor-desk",
+      { x: 300, y: 350, opacity: 0 },
+      { x: 740, y: 560, opacity: 1, duration: 1.0, ease: "power2.inOut" },
+      0.6
+    );
+
+    // Click profile
+    tl.to("#prof-cloud", {
+      scale: 0.96,
+      duration: 0.12,
+      ease: "power1.in",
+      yoyo: true,
+      repeat: 1
+    }, 1.7);
+
+    // Profile activates
+    tl.call(() => {
+      const pLocal = document.getElementById("prof-local");
+      const pCloud = document.getElementById("prof-cloud");
+      if (pLocal && pCloud) {
+        pLocal.classList.remove("active");
+        pCloud.classList.add("active");
+      }
+    }, null, 1.9);
+
+    // Native Windows Toast slides in from bottom right
+    tl.fromTo("#native-toast",
+      { x: 100, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.5, ease: "back.out(1.4)" },
+      2.6
+    );
+
+    // Toast pulse
+    tl.to("#native-toast", {
+      scale: 1.04,
+      boxShadow: "0 0 40px rgba(16, 185, 129, 0.4)",
+      duration: 0.4,
+      yoyo: true,
+      repeat: 1,
+      ease: "power1.inOut"
+    }, 3.8);
+
+    // Exit
+    tl.to("#desktop-wrap", {
+      opacity: 0,
+      scale: 1.1,
+      filter: "blur(10px)",
+      duration: 0.4,
+      ease: "power2.in"
+    }, 5.6);
+
+    window.__timelines["scene-07-desktop-suite"] = tl;
+    tl.seek(0);
+  </script>
+</template>
