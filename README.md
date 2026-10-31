@@ -16,16 +16,33 @@
 [![Electron](https://img.shields.io/badge/Electron-34+-47848F.svg?style=for-the-badge&logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003b57.svg?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![License](https://img.shields.io/badge/License-MIT-emerald.svg?style=for-the-badge)](LICENSE)
+[![Trailer](https://img.shields.io/badge/🎬%20Watch-Launch%20Trailer-06b6d4.svg?style=for-the-badge)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)
 
 <br/>
 
 **Singularity** unifica en una sola plataforma la potencia operativa 24/7 y monitoreo en tiempo real de **Crafty Controller**, la facilidad de instalación de modpacks y plugins de **Prism Launcher**, la agilidad de una **Aplicación de Escritorio con System Tray** y la comodidad de editar archivos directamente desde **Antigravity IDE / VS Code** mediante un micro-servidor SFTP embebido.
 
-[Características](#-características-principales) • [Arquitectura](#-arquitectura-screaming-architecture) • [Stack Tecnológico](#-stack-tecnológico) • [Inicio Rápido](#-inicio-rápido) • [Integración con Antigravity IDE](#-integración-con-antigravity-ide--vs-code) • [Despliegue en la Nube (OCI)](#-despliegue-en-vps-y-oracle-cloud-oci) • [Documentación](#-documentación-técnica)
+[🎬 Trailer en Video](#-trailer-oficial-y-demostración) • [Características](#-características-principales) • [Arquitectura](#-arquitectura-screaming-architecture) • [Stack Tecnológico](#-stack-tecnológico) • [Inicio Rápido](#-inicio-rápido) • [Integración con Antigravity IDE](#-integración-con-antigravity-ide--vs-code) • [Despliegue en la Nube (OCI)](#-despliegue-en-vps-y-oracle-cloud-oci) • [Documentación](#-documentación-técnica)
 
 ---
 
 </div>
+
+## 🎬 Trailer Oficial y Demostración
+
+> **Descubre la experiencia completa de Singularity en 48 segundos**: Puesta en marcha instantánea (`git clone` & instalador nativo), arranque automático con **Adoptium Java 25**, instalación en 1 clic de modpacks masivos (184 mods), edición en caliente desde **Antigravity IDE** vía SFTP y control remoto multi-nodo desde la **Bandeja del Sistema (System Tray)**.
+
+<div align="center">
+
+[![Ver Trailer Oficial de Singularity](docs/assets/singularity-demo-preview.gif)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)
+
+<br/>
+
+**[▶️ Reproducir Trailer Oficial en Alta Definición 1080p (MP4 - 8.2 MB)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)** &nbsp;|&nbsp; **[📦 Descargar Singularity v0.1.0-alpha (.exe)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)**
+
+</div>
+
+---
 
 ## 🌟 ¿Por qué Singularity?
 

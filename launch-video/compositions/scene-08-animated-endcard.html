@@ -5,15 +5,27 @@
       inset: 0;
       width: 1920px;
       height: 1080px;
-      background: #090d16;
+      background: radial-gradient(circle at 50% 30%, #0d1527 0%, #050811 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #f8fafc;
       overflow: hidden;
       position: relative;
+    }
+
+    .ambient-aurora {
+      position: absolute;
+      width: 1200px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.18) 0%, rgba(139, 92, 246, 0.12) 40%, transparent 75%);
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(90px);
+      pointer-events: none;
     }
 
     .end-container {
@@ -21,14 +33,16 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 24px;
+      gap: 20px;
       z-index: 10;
+      width: 1500px;
     }
 
     .end-logo-wrap {
-      width: 130px;
-      height: 130px;
-      filter: drop-shadow(0 0 40px rgba(6, 182, 212, 0.6));
+      width: 120px;
+      height: 120px;
+      filter: drop-shadow(0 0 45px rgba(6, 182, 212, 0.7));
+      transform-origin: center;
     }
 
     .brand-title-wrap {
@@ -38,11 +52,12 @@
     }
 
     .brand-title-text {
-      font-size: 64px;
+      font-size: 58px;
       font-weight: 900;
       letter-spacing: -0.04em;
       color: #ffffff;
       line-height: 1;
+      text-shadow: 0 4px 25px rgba(0, 0, 0, 0.8);
     }
 
     .alpha-chip {
@@ -54,33 +69,55 @@
       padding: 6px 16px;
       border-radius: 9999px;
       font-weight: 700;
+      letter-spacing: 0.05em;
     }
 
-    /* Kinetic Capabilities Grid */
+    .hero-tagline {
+      font-size: 20px;
+      color: #94a3b8;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    /* Kinetic Capabilities Showcase Grid */
     .capabilities-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      width: 1100px;
-      margin-top: 8px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      width: 1360px;
+      margin-top: 10px;
     }
 
     .cap-card {
-      background: rgba(13, 19, 34, 0.9);
-      border: 1px solid rgba(6, 182, 212, 0.25);
-      border-radius: 12px;
-      padding: 16px 24px;
+      background: rgba(13, 20, 36, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cap-card.highlight {
+      border-color: rgba(6, 182, 212, 0.45);
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(13, 20, 36, 0.95) 100%);
+    }
+
+    .cap-top {
       display: flex;
       align-items: center;
-      gap: 16px;
-      text-align: left;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      gap: 12px;
     }
 
     .cap-icon {
-      font-size: 24px;
-      width: 44px;
-      height: 44px;
+      font-size: 22px;
+      width: 42px;
+      height: 42px;
       border-radius: 10px;
       background: rgba(6, 182, 212, 0.12);
       border: 1px solid rgba(6, 182, 212, 0.3);
@@ -91,27 +128,29 @@
     }
 
     .cap-text-title {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 700;
       color: #ffffff;
+      letter-spacing: -0.01em;
     }
 
     .cap-text-sub {
       font-size: 13px;
       color: #94a3b8;
+      line-height: 1.5;
     }
 
     /* GitHub CTA Pill */
     .end-cta-pill {
       background: #0d1527;
-      border: 1px solid rgba(6, 182, 212, 0.45);
-      padding: 16px 40px;
+      border: 1px solid rgba(6, 182, 212, 0.5);
+      padding: 14px 38px;
       border-radius: 9999px;
       display: flex;
       align-items: center;
       gap: 18px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.2);
-      margin-top: 10px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.25);
+      margin-top: 8px;
     }
 
     .end-cta-label {
@@ -131,132 +170,183 @@
 
     .nebula-footnote {
       position: absolute;
-      bottom: 30px;
-      font-size: 13px;
+      bottom: 24px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.15em;
-      color: #475569;
+      color: #64748b;
       font-weight: 700;
     }
   </style>
 
-  <div id="root" data-composition-id="scene-08-animated-endcard" data-width="1920" data-height="1080">
-    <div id="endcard-wrap" class="clip" data-start="0" data-duration="6.5" data-track-index="1">
-      <div class="end-container" id="end-box">
-        <div class="end-logo-wrap" id="end-logo">
-          <img src="assets/brand/master-symbol-color.svg" alt="Singularity" style="width: 100%; height: 100%;" />
-        </div>
+  <div id="root" data-composition-id="scene-08-animated-endcard" data-width="1920" data-height="1080" data-hold>
+    <div class="ambient-aurora"></div>
 
-        <div class="brand-title-wrap">
-          <div class="brand-title-text">SINGULARITY</div>
-          <div class="alpha-chip" data-layout-ignore>v0.1.0-alpha</div>
-        </div>
+    <div class="end-container" id="end-box">
+      <div class="end-logo-wrap" id="end-logo">
+        <img src="assets/brand/master-symbol-color.svg" alt="Singularity" style="width: 100%; height: 100%;" />
+      </div>
 
-        <!-- Kinetic Feature Badges -->
-        <div class="capabilities-grid" id="caps-grid" data-layout-ignore>
-          <div class="cap-card" id="cap-1" data-layout-ignore>
-            <div class="cap-icon">⚡</div>
-            <div data-layout-ignore>
-              <div class="cap-text-title" data-layout-ignore>Adoptium Java 25 &amp; Modpacks</div>
-              <div class="cap-text-sub" data-layout-ignore>Descarga automática y catálogos en 1 clic</div>
-            </div>
+      <div class="brand-title-wrap" id="brand-header">
+        <div class="brand-title-text">SINGULARITY</div>
+        <div class="alpha-chip" data-layout-ignore>v0.1.0-alpha</div>
+      </div>
+
+      <div class="hero-tagline" id="hero-tagline" data-layout-ignore>
+        El Orquestador y Panel de Control de Minecraft de Nueva Generación
+      </div>
+
+      <!-- 6 Key Kinetic Capabilities -->
+      <div class="capabilities-grid" id="caps-grid" data-layout-ignore>
+        <!-- Cap 1: Java Manager -->
+        <div class="cap-card highlight" id="cap-1" data-layout-ignore>
+          <div class="cap-top" data-layout-ignore>
+            <div class="cap-icon">☕</div>
+            <div class="cap-text-title" data-layout-ignore>Adoptium Java Manager</div>
           </div>
+          <div class="cap-text-sub" data-layout-ignore>Detección y descarga automática de runtimes Java (8, 11, 17, 21, 25). Cero conflictos.</div>
+        </div>
 
-          <div class="cap-card" id="cap-2" data-layout-ignore>
+        <!-- Cap 2: Prism Modpack Store -->
+        <div class="cap-card highlight" id="cap-2" data-layout-ignore>
+          <div class="cap-top" data-layout-ignore>
+            <div class="cap-icon">📦</div>
+            <div class="cap-text-title" data-layout-ignore>Catálogo Prism Integrado</div>
+          </div>
+          <div class="cap-text-sub" data-layout-ignore>Modpacks (.mrpack), mods y plugins de Modrinth y CurseForge en 1 clic con dependencias.</div>
+        </div>
+
+        <!-- Cap 3: Antigravity IDE Bridge -->
+        <div class="cap-card highlight" id="cap-3" data-layout-ignore>
+          <div class="cap-top" data-layout-ignore>
             <div class="cap-icon">💻</div>
-            <div data-layout-ignore>
-              <div class="cap-text-title" data-layout-ignore>Puente Antigravity IDE</div>
-              <div class="cap-text-sub" data-layout-ignore>Edición en caliente vía SFTP en tiempo real</div>
-            </div>
+            <div class="cap-text-title" data-layout-ignore>Antigravity IDE Bridge</div>
           </div>
+          <div class="cap-text-sub" data-layout-ignore>Edición en caliente de configs y scripts vía micro-servidor SFTP interno en tiempo real.</div>
+        </div>
 
-          <div class="cap-card" id="cap-3" data-layout-ignore>
+        <!-- Cap 4: Desktop & System Tray -->
+        <div class="cap-card highlight" id="cap-4" data-layout-ignore>
+          <div class="cap-top" data-layout-ignore>
             <div class="cap-icon">🖥️</div>
-            <div data-layout-ignore>
-              <div class="cap-text-title" data-layout-ignore>Suite Nativa de Escritorio</div>
-              <div class="cap-text-sub" data-layout-ignore>Conexión Local/Cloud, System Tray &amp; Alertas</div>
-            </div>
+            <div class="cap-text-title" data-layout-ignore>Desktop Multi-Host &amp; Tray</div>
           </div>
-
-          <div class="cap-card" id="cap-4" data-layout-ignore>
-            <div class="cap-icon">🛡️</div>
-            <div data-layout-ignore>
-              <div class="cap-text-title" data-layout-ignore>Estabilidad Total 20.0 TPS</div>
-              <div class="cap-text-sub" data-layout-ignore>Supervisión de procesos y auto-recuperación</div>
-            </div>
-          </div>
+          <div class="cap-text-sub" data-layout-ignore>Conexión instantánea a servidores Locales o VPS en la nube, con System Tray y alertas nativas.</div>
         </div>
 
-        <!-- Prominent GitHub CTA -->
-        <div class="end-cta-pill" id="end-cta" data-layout-ignore>
-          <div class="end-cta-label" data-layout-ignore>Descárgalo Gratis en GitHub</div>
-          <div style="width: 1px; height: 22px; background: rgba(255,255,255,0.15);" data-layout-ignore></div>
-          <div class="end-cta-url" data-layout-ignore>github.com/xavieraimacana/Singularity</div>
+        <!-- Cap 5: Real-time Diagnostics -->
+        <div class="cap-card highlight" id="cap-5" data-layout-ignore>
+          <div class="cap-top" data-layout-ignore>
+            <div class="cap-icon">🩺</div>
+            <div class="cap-text-title" data-layout-ignore>Heurística Anti-Crash</div>
+          </div>
+          <div class="cap-text-sub" data-layout-ignore>Análisis inteligente de logs que detecta causas de caídas y repara servidores automáticamente.</div>
+        </div>
+
+        <!-- Cap 6: Total Stability & Speed -->
+        <div class="cap-card highlight" id="cap-6" data-layout-ignore>
+          <div class="cap-top" data-layout-ignore>
+            <div class="cap-icon">⚡</div>
+            <div class="cap-text-title" data-layout-ignore>Rendimiento 20.0 TPS</div>
+          </div>
+          <div class="cap-text-sub" data-layout-ignore>Supervisión con Fastify 5 y Vite. 134 pruebas automatizadas con Screaming Architecture.</div>
         </div>
       </div>
 
-      <div class="nebula-footnote" data-layout-ignore>
-        NEBULAX STUDIO • INGENIERÍA DE SOFTWARE DE ALTO RENDIMIENTO
+      <!-- Prominent GitHub CTA -->
+      <div class="end-cta-pill" id="end-cta" data-layout-ignore>
+        <div class="end-cta-label" data-layout-ignore>Código Abierto &amp; Descarga Gratuita</div>
+        <div style="width: 1px; height: 22px; background: rgba(255,255,255,0.15);" data-layout-ignore></div>
+        <div class="end-cta-url" data-layout-ignore>github.com/xavieraimacana/Singularity</div>
       </div>
+    </div>
+
+    <div class="nebula-footnote" data-layout-ignore>
+      NEBULAX STUDIO • INGENIERÍA DE SOFTWARE DE ALTO RENDIMIENTO
     </div>
   </div>
 
   <script>
+    window.__timelines = window.__timelines || {};
     const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-08-animated-endcard"] = tl;
 
-    // Logo & Title punch
+    // Logo & Header punch with energetic spring
     tl.fromTo("#end-logo",
-      { scale: 0.4, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.6)" },
+      { scale: 0.3, opacity: 0, rotate: -15 },
+      { scale: 1, opacity: 1, rotate: 0, duration: 0.7, ease: "back.out(1.8)" },
       0
     );
 
-    tl.fromTo(".brand-title-wrap",
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" },
-      0.2
+    tl.fromTo("#brand-header",
+      { opacity: 0, y: 25 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      0.25
     );
 
-    // Staggered entrance for the 4 capability cards
+    tl.fromTo("#hero-tagline",
+      { opacity: 0, y: 15 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      0.45
+    );
+
+    // Staggered rhythmic entrance for the 6 capability cards
     tl.fromTo("#cap-1",
-      { x: -30, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
-      0.5
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
+      0.6
     );
     tl.fromTo("#cap-2",
-      { x: 30, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
-      0.7
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
+      0.75
     );
     tl.fromTo("#cap-3",
-      { x: -30, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
       0.9
     );
     tl.fromTo("#cap-4",
-      { x: 30, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
-      1.1
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
+      1.05
+    );
+    tl.fromTo("#cap-5",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
+      1.2
+    );
+    tl.fromTo("#cap-6",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
+      1.35
     );
 
     // CTA Pill zooms in with confident settle
     tl.fromTo("#end-cta",
-      { scale: 0.85, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.4)" },
-      1.4
+      { scale: 0.85, opacity: 0, y: 20 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" },
+      1.6
     );
+
+    // Dynamic wave highlight across capability cards
+    tl.to("#cap-1", { borderColor: "#06b6d4", scale: 1.02, duration: 0.4, yoyo: true, repeat: 1 }, 2.4);
+    tl.to("#cap-2", { borderColor: "#06b6d4", scale: 1.02, duration: 0.4, yoyo: true, repeat: 1 }, 2.8);
+    tl.to("#cap-3", { borderColor: "#06b6d4", scale: 1.02, duration: 0.4, yoyo: true, repeat: 1 }, 3.2);
+    tl.to("#cap-4", { borderColor: "#06b6d4", scale: 1.02, duration: 0.4, yoyo: true, repeat: 1 }, 3.6);
+    tl.to("#cap-5", { borderColor: "#06b6d4", scale: 1.02, duration: 0.4, yoyo: true, repeat: 1 }, 4.0);
+    tl.to("#cap-6", { borderColor: "#06b6d4", scale: 1.02, duration: 0.4, yoyo: true, repeat: 1 }, 4.4);
 
     // Ambient energetic glow pulse till end
     tl.to("#end-logo", {
-      scale: 1.05,
-      filter: "drop-shadow(0 0 55px rgba(6, 182, 212, 0.75))",
+      scale: 1.06,
+      filter: "drop-shadow(0 0 60px rgba(6, 182, 212, 0.85))",
       duration: 1.8,
       yoyo: true,
       repeat: 2,
       ease: "sine.inOut"
-    }, 1.8);
+    }, 2.0);
 
-    window.__timelines["scene-08-animated-endcard"] = tl;
     tl.seek(0);
   </script>
 </template>
