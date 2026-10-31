@@ -97,7 +97,11 @@ export function verifyJwt(token: string, secret: string): AuthTokenPayload {
     .digest();
   const expectedEncoded = base64UrlEncode(expectedSignature);
 
-  if (encodedSignature !== expectedEncoded) {
+  const sigBuf = Buffer.from(encodedSignature);
+  const expectedBuf = Buffer.from(expectedEncoded);
+
+  // Constant-time comparison to protect against HMAC timing attacks
+  if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
     throw new Error('Firma de token inválida');
   }
 

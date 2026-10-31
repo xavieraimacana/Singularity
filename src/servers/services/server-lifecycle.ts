@@ -10,7 +10,11 @@ export class ServerLifecycleService {
   constructor(private readonly dataDir: string = path.join(process.cwd(), 'data', 'servers')) {}
 
   getInstanceDir(id: string): string {
-    return path.join(this.dataDir, id);
+    const safeId = path.basename(id).replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!safeId) {
+      throw new Error(`ID de servidor inválido: ${id}`);
+    }
+    return path.join(this.dataDir, safeId);
   }
 
   private getMetadataPath(id: string): string {

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import Fastify, { type FastifyInstance } from 'fastify';
 
@@ -72,7 +73,12 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
   const userRepo = new SqliteUserRepository(db);
   userRepo.initSchema();
 
-  const jwtSecret = options.jwtSecret || process.env['SINGULARITY_JWT_SECRET'] || 'singularity-secret-key-change-me';
+  const jwtSecret =
+    options.jwtSecret ||
+    process.env['SINGULARITY_JWT_SECRET'] ||
+    (process.env['NODE_ENV'] === 'test'
+      ? 'singularity-secret-key-change-me'
+      : randomBytes(32).toString('hex'));
   const authService = new AuthService(userRepo, jwtSecret);
 
   if (!options.skipDefaultAdmin) {

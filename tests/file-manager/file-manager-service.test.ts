@@ -67,6 +67,8 @@ describe('FileManager Domain > FileManagerService', () => {
   it('should throw security error on path traversal attempts', () => {
     expect(() => service.resolveSafePath(instanceId, '../../secret.txt')).toThrow('Acceso denegado');
     expect(() => service.resolveSafePath(instanceId, '../another-server')).toThrow('Acceso denegado');
+    expect(() => service.resolveSafePath(instanceId, `../${instanceId}-fake/file.txt`)).toThrow('Acceso denegado');
+    expect(() => service.resolveSafePath(instanceId, 'config.yml\0.exe')).toThrow('Acceso denegado');
   });
 
   it('should read and write text file contents', async () => {

@@ -19,12 +19,30 @@ export class IdeBridge {
 
   /**
    * Resolves the target directory for a given server instance ID or relative path.
+   * Confines resolution strictly within the servers directory to prevent arbitrary directory opening.
    */
   resolveInstancePath(serverIdOrPath: string): string {
-    if (path.isAbsolute(serverIdOrPath) && fs.existsSync(serverIdOrPath)) {
-      return serverIdOrPath;
+    if (!serverIdOrPath || typeof serverIdOrPath !== 'string') {
+      return this.defaultServersDir;
     }
-    return path.join(this.defaultServersDir, serverIdOrPath);
+
+    if (serverIdOrPath.includes('\0')) {
+      throw new Error('Acceso denegado: Carácter nulo detectado.');
+    }
+
+    const cleanRelative = serverIdOrPath.trim().replace(/^(\/|\\)+/, '');
+    const resolved = path.isAbsolute(serverIdOrPath)
+      ? path.resolve(serverIdOrPath)
+      : path.resolve(this.defaultServersDir, cleanRelative);
+
+    const isExact = resolved === this.defaultServersDir;
+    const isInside = resolved.startsWith(this.defaultServersDir + path.sep);
+
+    if (!isExact && !isInside) {
+      throw new Error('Acceso denegado: Intento de escape del directorio de servidores.');
+    }
+
+    return resolved;
   }
 
   /**

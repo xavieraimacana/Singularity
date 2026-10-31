@@ -128,7 +128,35 @@ function createMainWindow(startHidden: boolean = false): BrowserWindow {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      webSecurity: true,
+      allowRunningInsecureContent: false
+    }
+  });
+
+  // Sandbox external navigation & links to prevent remote code execution in webview
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:')) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
+  });
+
+  win.webContents.on('will-navigate', (event, navigationUrl) => {
+    try {
+      const parsed = new URL(navigationUrl);
+      const activeUrl = new URL(activeProfile.url);
+      const isAllowedOrigin =
+        parsed.origin === activeUrl.origin ||
+        parsed.hostname === 'localhost' ||
+        parsed.hostname === '127.0.0.1';
+
+      if (!isAllowedOrigin) {
+        event.preventDefault();
+        shell.openExternal(navigationUrl);
+      }
+    } catch {
+      event.preventDefault();
     }
   });
 
@@ -190,9 +218,13 @@ function registerIpcHandlers(): void {
   });
 
   ipcMain.handle('singularity:open-folder', async (_event, args: { targetPath?: string }) => {
-    const p = ideBridge.resolveInstancePath(args.targetPath || '');
-    const err = await shell.openPath(p);
-    return !err;
+    try {
+      const p = ideBridge.resolveInstancePath(args.targetPath || '');
+      const err = await shell.openPath(p);
+      return !err;
+    } catch {
+      return false;
+    }
   });
 
   ipcMain.handle('singularity:get-ides', async () => {

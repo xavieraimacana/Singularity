@@ -11,6 +11,14 @@ describe('Electron Desktop Delivery > IdeBridge', () => {
     expect(resolved).toBe(path.join(customDir, 'server-alpha'));
   });
 
+  it('should prevent path traversal or opening arbitrary system folders', () => {
+    const customDir = path.resolve('data/test-ide-servers');
+    const bridge = new IdeBridge(customDir);
+
+    expect(() => bridge.resolveInstancePath('../../windows/system32')).toThrow('Acceso denegado');
+    expect(() => bridge.resolveInstancePath('server-alpha\0malicious')).toThrow('Acceso denegado');
+  });
+
   it('should list available IDEs with Antigravity, VS Code, Cursor, and native File Explorer', async () => {
     const bridge = new IdeBridge();
     const ides = await bridge.getAvailableIdes();

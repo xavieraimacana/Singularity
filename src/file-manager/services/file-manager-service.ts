@@ -12,13 +12,20 @@ export class FileManagerService {
    * Throws an error if path traversal outside the server directory is attempted.
    */
   resolveSafePath(serverId: string, relativePath: string = ''): string {
+    if (relativePath.includes('\0')) {
+      throw new Error('Acceso denegado: Carácter nulo no permitido en la ruta.');
+    }
+
     const instanceDir = path.resolve(this.serverLifecycle.getInstanceDir(serverId));
     // Normalize and remove leading slashes
     const cleanRelative = relativePath.trim().replace(/^(\/|\\)+/, '');
     const resolved = path.resolve(instanceDir, cleanRelative);
 
-    // Enforce jail boundary
-    if (!resolved.startsWith(instanceDir)) {
+    // Enforce jail boundary strictly (prevent prefix collision e.g. /server1 vs /server10)
+    const isExact = resolved === instanceDir;
+    const isInside = resolved.startsWith(instanceDir + path.sep);
+
+    if (!isExact && !isInside) {
       throw new Error('Acceso denegado: Intento de escape del directorio del servidor.');
     }
 

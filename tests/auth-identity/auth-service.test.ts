@@ -63,6 +63,32 @@ describe('Auth & Identity Domain', () => {
       expect(decoded.allowedServers).toEqual(['*']);
       expect(decoded.exp).toBeGreaterThan(Date.now() / 1000);
     });
+
+    it('should reject tampered or invalid JWT signatures using constant-time comparison', () => {
+      const payload = {
+        userId: 'usr_02',
+        username: 'guest',
+        role: 'VIEWER' as const,
+        mustChangePassword: false,
+        allowedServers: []
+      };
+
+      const token = signJwt(payload, JWT_SECRET, 3600);
+      const parts = token.split('.');
+      const header = parts[0]!;
+      const body = parts[1]!;
+      const signature = parts[2]!;
+
+      // Corrupted signature
+      const tamperedSig = signature.slice(0, -2) + 'aa';
+      expect(() => verifyJwt(`${header}.${body}.${tamperedSig}`, JWT_SECRET)).toThrow('Firma de token inválida');
+
+      // Signature with altered length
+      expect(() => verifyJwt(`${header}.${body}.${signature}extra`, JWT_SECRET)).toThrow('Firma de token inválida');
+
+      // Different secret
+      expect(() => verifyJwt(token, 'attacker-secret')).toThrow('Firma de token inválida');
+    });
   });
 
   describe('AuthService', () => {

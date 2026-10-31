@@ -98,4 +98,15 @@ describe('ServerLifecycleService', () => {
     const found = await lifecycleService.getInstance(inst.id);
     expect(found).toBeNull();
   });
+
+  it('should sanitize instance IDs and prevent directory traversal', () => {
+    const safePath = lifecycleService.getInstanceDir('srv_alpha123');
+    expect(safePath).toBe(path.join(testDataDir, 'srv_alpha123'));
+
+    const traversalPath = lifecycleService.getInstanceDir('../../etc/passwd');
+    expect(traversalPath).toBe(path.join(testDataDir, 'passwd'));
+
+    expect(() => lifecycleService.getInstanceDir('')).toThrow('ID de servidor inválido');
+    expect(() => lifecycleService.getInstanceDir('..')).toThrow('ID de servidor inválido');
+  });
 });
