@@ -1,17 +1,17 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { DatabaseSync } from 'node:sqlite';
+
+export interface DatabaseHandle {
+  filePath: string;
+  close: () => void;
+}
 
 export class DbClient {
-  private static instance: DatabaseSync | null = null;
+  private static instance: DatabaseHandle | null = null;
 
-  static getDatabase(dbPath?: string): DatabaseSync {
+  static getDatabase(dbPath?: string): DatabaseHandle {
     if (dbPath === ':memory:') {
-      const db = new DatabaseSync(':memory:');
-      db.exec(`
-        PRAGMA foreign_keys = ON;
-      `);
-      return db;
+      return { filePath: ':memory:', close: () => {} };
     }
 
     if (this.instance) {
@@ -24,16 +24,13 @@ export class DbClient {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    const db = new DatabaseSync(targetPath);
-    // Performance & safety pragmas
-    db.exec(`
-      PRAGMA journal_mode = WAL;
-      PRAGMA synchronous = NORMAL;
-      PRAGMA foreign_keys = ON;
-    `);
+    const handle: DatabaseHandle = {
+      filePath: targetPath,
+      close: () => {}
+    };
 
-    this.instance = db;
-    return db;
+    this.instance = handle;
+    return handle;
   }
 
   static close(): void {

@@ -17,6 +17,7 @@ COPY tsconfig.json tsconfig.server.json ./
 COPY src/delivery/web-dashboard/package.json ./src/delivery/web-dashboard/
 
 # Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
 RUN npm ci || npm install
 RUN cd src/delivery/web-dashboard && (npm ci || npm install)
 

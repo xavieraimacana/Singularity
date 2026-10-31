@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DatabaseSync } from 'node:sqlite';
+
 import { SqliteTaskRepository } from '../../src/task-scheduler/repositories/sqlite-task-repository.js';
 import { TaskSchedulerService } from '../../src/task-scheduler/services/task-scheduler-service.js';
 
 describe('Task Scheduler Domain > TaskSchedulerService', () => {
-  let db: DatabaseSync;
+
   let repo: SqliteTaskRepository;
   let mockBackupService: { createBackup: ReturnType<typeof vi.fn> };
   let mockProcessRunner: {
@@ -16,8 +16,8 @@ describe('Task Scheduler Domain > TaskSchedulerService', () => {
   let scheduler: TaskSchedulerService;
 
   beforeEach(() => {
-    db = new DatabaseSync(':memory:');
-    repo = new SqliteTaskRepository(db);
+
+    repo = new SqliteTaskRepository(':memory:');
     repo.initSchema();
 
     mockBackupService = {

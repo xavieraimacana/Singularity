@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { DatabaseSync } from 'node:sqlite';
+
 import { SqliteUserRepository } from '../../src/auth-identity/repositories/sqlite-user-repository.js';
 import {
   AuthService,
@@ -15,21 +15,21 @@ import {
 
 describe('Auth & Identity Domain', () => {
   const JWT_SECRET = 'super-secret-test-key-singularity-12345';
-  let db: DatabaseSync;
+
   let userRepo: SqliteUserRepository;
   let authService: AuthService;
 
   beforeEach(async () => {
     // In-memory sqlite database for fast isolated unit tests
-    db = new DatabaseSync(':memory:');
-    userRepo = new SqliteUserRepository(db);
+
+    userRepo = new SqliteUserRepository(':memory:');
     userRepo.initSchema();
 
     authService = new AuthService(userRepo, JWT_SECRET);
   });
 
   afterEach(() => {
-    db.close();
+
   });
 
   describe('crypto-utils', () => {
