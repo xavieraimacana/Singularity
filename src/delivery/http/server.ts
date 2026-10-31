@@ -120,6 +120,8 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
 
   fastify.decorate('authService', authService);
   fastify.decorate('serversDir', serversDir);
+  fastify.decorate('serverLifecycle', serverLifecycle);
+  fastify.decorate('processRunner', processRunner);
 
   return fastify;
 }

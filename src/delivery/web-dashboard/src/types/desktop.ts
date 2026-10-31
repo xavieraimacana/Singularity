@@ -16,6 +16,7 @@ export interface SingularityDesktopApi {
   getAvailableIdes: () => Promise<Array<{ id: string; name: string; isAvailable: boolean }>>;
   getSftpConnectionInfo: () => Promise<{ host: string; port: number }>;
   minimizeToTray: () => void;
+  showNotification: (title: string, body: string, type?: 'info' | 'warning' | 'error') => Promise<boolean>;
   getConnections: () => Promise<ServerConnectionProfile[]>;
   getActiveConnection: () => Promise<ServerConnectionProfile>;
   switchConnection: (id: string) => Promise<{ success: boolean; profile: ServerConnectionProfile; error?: string }>;

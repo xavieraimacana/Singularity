@@ -1,8 +1,17 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { Tray, Menu, nativeImage, type NativeImage, type BrowserWindow, shell } from 'electron';
+import {
+  Tray,
+  Menu,
+  nativeImage,
+  type NativeImage,
+  type BrowserWindow,
+  type MenuItemConstructorOptions,
+  shell
+} from 'electron';
 import type { IdeBridge } from './ide-bridge.js';
 import type { ConnectionManager } from './connection-manager.js';
+import type { DesktopServerService, TrayServerItem } from './desktop-server-service.js';
 
 export interface TrayManagerOptions {
   mainWindow: BrowserWindow;
@@ -11,6 +20,7 @@ export interface TrayManagerOptions {
   onQuit: () => void;
   connectionManager?: ConnectionManager;
   onSwitchConnection?: (id: string) => Promise<void>;
+  desktopServerService?: DesktopServerService;
 }
 
 export class TrayManager {
@@ -21,6 +31,10 @@ export class TrayManager {
   private readonly onQuit: () => void;
   private readonly connectionManager?: ConnectionManager;
   private readonly onSwitchConnection?: (id: string) => Promise<void>;
+  private readonly desktopServerService?: DesktopServerService;
+
+  private cachedServers: TrayServerItem[] = [];
+  private refreshTimer: NodeJS.Timeout | null = null;
 
   constructor(options: TrayManagerOptions) {
     this.mainWindow = options.mainWindow;
@@ -29,6 +43,7 @@ export class TrayManager {
     this.onQuit = options.onQuit;
     this.connectionManager = options.connectionManager;
     this.onSwitchConnection = options.onSwitchConnection;
+    this.desktopServerService = options.desktopServerService;
   }
 
   private createTrayIcon(): NativeImage {
@@ -46,7 +61,7 @@ export class TrayManager {
       }
     }
 
-    // 16x16 RGBA buffer representing a cyan/emerald glowing Singularity cube
+    // 16x16 RGBA buffer fallback (Cyan/Emerald cube)
     const size = 16;
     const buffer = Buffer.alloc(size * size * 4);
     for (let y = 0; y < size; y++) {
@@ -56,19 +71,16 @@ export class TrayManager {
         const isCenter = x >= 4 && x <= 11 && y >= 4 && y <= 11;
 
         if (isCenter) {
-          // Emerald accent (#10b981)
-          buffer[offset] = 16;     // R
-          buffer[offset + 1] = 185; // G
-          buffer[offset + 2] = 129; // B
-          buffer[offset + 3] = 255; // A
+          buffer[offset] = 16;
+          buffer[offset + 1] = 185;
+          buffer[offset + 2] = 129;
+          buffer[offset + 3] = 255;
         } else if (!isBorder) {
-          // Cyber blue (#06b6d4)
-          buffer[offset] = 6;       // R
-          buffer[offset + 1] = 182; // G
-          buffer[offset + 2] = 212; // B
-          buffer[offset + 3] = 200; // A
+          buffer[offset] = 6;
+          buffer[offset + 1] = 182;
+          buffer[offset + 2] = 212;
+          buffer[offset + 3] = 200;
         } else {
-          // Transparent border
           buffer[offset + 3] = 0;
         }
       }
@@ -77,11 +89,23 @@ export class TrayManager {
     return nativeImage.createFromBuffer(buffer, { width: size, height: size });
   }
 
+  async refreshServers(): Promise<void> {
+    if (this.desktopServerService) {
+      try {
+        this.cachedServers = await this.desktopServerService.getServers();
+      } catch {
+        // Keep previous state if query fails temporarily
+      }
+    }
+    this.updateMenu();
+  }
+
   buildContextMenu(): Menu {
     const profiles = this.connectionManager?.getProfiles() || [];
     const activeProfile = this.connectionManager?.getActiveProfile();
 
-    const connectionSubmenu = profiles.map((p) => ({
+    // 1. Connection Submenu
+    const connectionSubmenu: MenuItemConstructorOptions[] = profiles.map((p) => ({
       label: `${p.name} (${p.type === 'remote' ? '☁️ Remoto' : '💻 Local'})`,
       type: 'radio' as const,
       checked: p.id === activeProfile?.id,
@@ -93,11 +117,149 @@ export class TrayManager {
       }
     }));
 
+    // 2. Server List & Actions Submenu
+    const serverMenuItems: MenuItemConstructorOptions[] = [];
+    if (this.cachedServers.length === 0) {
+      serverMenuItems.push({
+        label: 'Sin servidores creados (Usa el Panel)',
+        enabled: false
+      });
+    } else {
+      for (const srv of this.cachedServers) {
+        const isOnline = srv.status === 'online';
+        const isTransitioning = srv.status === 'starting' || srv.status === 'stopping';
+        const statusEmoji = isOnline
+          ? '🟢'
+          : srv.status === 'crashed'
+          ? '🔴'
+          : isTransitioning
+          ? '🟡'
+          : '⚫';
+
+        const srvSubmenu: MenuItemConstructorOptions[] = [
+          {
+            label: `${srv.name} (v${srv.gameVersion} • Port ${srv.port})`,
+            enabled: false
+          },
+          {
+            label: `Estado: ${srv.status.toUpperCase()}`,
+            enabled: false
+          },
+          { type: 'separator' }
+        ];
+
+        if (isOnline) {
+          srvSubmenu.push({
+            label: '⏹ Detener Servidor (/stop)',
+            click: async () => {
+              if (this.desktopServerService) {
+                try {
+                  await this.desktopServerService.stopServer(srv.id);
+                  this.showBalloon('Deteniendo Servidor', `Deteniendo servidor "${srv.name}"...`);
+                  await this.refreshServers();
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : 'Error al detener';
+                  this.showBalloon('Error', msg, 'error');
+                }
+              }
+            }
+          });
+          srvSubmenu.push({
+            label: '🔄 Reiniciar Servidor',
+            click: async () => {
+              if (this.desktopServerService) {
+                try {
+                  this.showBalloon('Reiniciando', `Reiniciando servidor "${srv.name}"...`);
+                  await this.desktopServerService.restartServer(srv.id);
+                  await this.refreshServers();
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : 'Error al reiniciar';
+                  this.showBalloon('Error', msg, 'error');
+                }
+              }
+            }
+          });
+        } else {
+          srvSubmenu.push({
+            label: '▶️ Iniciar Servidor',
+            enabled: !isTransitioning,
+            click: async () => {
+              if (this.desktopServerService) {
+                try {
+                  this.showBalloon('Iniciando Servidor', `Iniciando servidor "${srv.name}" en puerto ${srv.port}...`);
+                  await this.desktopServerService.startServer(srv.id);
+                  await this.refreshServers();
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : 'Error al iniciar';
+                  this.showBalloon('Error al Iniciar', msg, 'error');
+                }
+              }
+            }
+          });
+        }
+
+        srvSubmenu.push({ type: 'separator' });
+        srvSubmenu.push({
+          label: '💻 Abrir en Antigravity IDE',
+          click: async () => {
+            const instPath = path.join(this.serversDir, srv.id);
+            await this.ideBridge.openInIde(instPath, 'antigravity');
+          }
+        });
+        srvSubmenu.push({
+          label: '📁 Abrir Carpeta de Archivos',
+          click: () => {
+            const instPath = path.join(this.serversDir, srv.id);
+            shell.openPath(instPath);
+          }
+        });
+
+        serverMenuItems.push({
+          label: `${statusEmoji} ${srv.name} (:${srv.port})`,
+          submenu: srvSubmenu
+        });
+      }
+
+      // Quick batch actions for multiple servers
+      if (this.cachedServers.length > 1) {
+        const anyOffline = this.cachedServers.some((s) => s.status !== 'online');
+        const anyOnline = this.cachedServers.some((s) => s.status === 'online');
+
+        serverMenuItems.push({ type: 'separator' });
+        if (anyOffline) {
+          serverMenuItems.push({
+            label: '▶️ Iniciar Todos los Servidores',
+            click: async () => {
+              for (const s of this.cachedServers) {
+                if (s.status === 'offline' && this.desktopServerService) {
+                  this.desktopServerService.startServer(s.id).catch(() => {});
+                }
+              }
+              await this.refreshServers();
+            }
+          });
+        }
+        if (anyOnline) {
+          serverMenuItems.push({
+            label: '⏹ Detener Todos los Servidores',
+            click: async () => {
+              for (const s of this.cachedServers) {
+                if (s.status === 'online' && this.desktopServerService) {
+                  this.desktopServerService.stopServer(s.id).catch(() => {});
+                }
+              }
+              await this.refreshServers();
+            }
+          });
+        }
+      }
+    }
+
     const activeLabel = activeProfile ? `📡 ${activeProfile.name}` : '🌌 Singularity';
 
     return Menu.buildFromTemplate([
       {
-        label: 'Singularity Mission Control',
+        label: '🌌 Singularity Mission Control',
         enabled: false
       },
       {
@@ -106,39 +268,43 @@ export class TrayManager {
       },
       { type: 'separator' },
       {
-        label: 'Cambiar Entorno / Servidor',
+        label: `🎮 Servidores Minecraft (${this.cachedServers.length})`,
+        submenu: serverMenuItems
+      },
+      {
+        label: '🌐 Cambiar Entorno / Servidor',
         submenu: connectionSubmenu.length > 0 ? connectionSubmenu : undefined
       },
       { type: 'separator' },
       {
-        label: 'Mostrar Panel Principal',
+        label: '🖥️ Mostrar Panel Principal',
         click: () => {
           this.mainWindow.show();
           this.mainWindow.focus();
         }
       },
       {
-        label: 'Ocultar a la Bandeja',
+        label: '📥 Ocultar a la Bandeja',
         click: () => {
           this.mainWindow.hide();
         }
       },
       { type: 'separator' },
       {
-        label: 'Abrir Carpeta de Servidores',
+        label: '📂 Abrir Carpeta de Servidores',
         click: () => {
           shell.openPath(this.serversDir);
         }
       },
       {
-        label: 'Abrir en Antigravity IDE',
+        label: '💻 Abrir en Antigravity IDE',
         click: async () => {
           await this.ideBridge.openInIde(this.serversDir, 'antigravity');
         }
       },
       { type: 'separator' },
       {
-        label: 'Salir de Singularity',
+        label: '❌ Salir de Singularity',
         click: () => {
           this.onQuit();
         }
@@ -158,6 +324,29 @@ export class TrayManager {
     this.tray.setToolTip('🌌 Singularity - Minecraft Server Mission Control');
     this.updateMenu();
 
+    // Setup event listeners on desktop server service
+    if (this.desktopServerService) {
+      this.desktopServerService.onStatusChange(({ name, status }) => {
+        if (status === 'online') {
+          this.showBalloon('🟢 Servidor en Línea', `El servidor "${name}" inició correctamente y está listo.`);
+        } else if (status === 'crashed') {
+          this.showBalloon('🔴 Alerta de Crash', `El servidor "${name}" se detuvo de forma inesperada.`, 'error');
+        }
+        this.refreshServers().catch(() => {});
+      });
+
+      this.desktopServerService.onCrashDetected(({ name, message, resolution }) => {
+        const detail = resolution ? `${message}\nSolución sugerida: ${resolution}` : message;
+        this.showBalloon(`⚠️ Crash Detectado en "${name}"`, detail, 'warning');
+      });
+
+      // Initial servers fetch and 5-second polling loop
+      this.refreshServers().catch(() => {});
+      this.refreshTimer = setInterval(() => {
+        this.refreshServers().catch(() => {});
+      }, 5000);
+    }
+
     this.tray.on('click', () => {
       if (this.mainWindow.isVisible()) {
         if (this.mainWindow.isFocused()) {
@@ -172,17 +361,21 @@ export class TrayManager {
     });
   }
 
-  showBalloon(title: string, content: string): void {
+  showBalloon(title: string, content: string, iconType: 'info' | 'warning' | 'error' = 'info'): void {
     if (this.tray && process.platform === 'win32') {
       this.tray.displayBalloon({
         title,
         content,
-        iconType: 'info'
+        iconType
       });
     }
   }
 
   destroy(): void {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
     if (this.tray) {
       this.tray.destroy();
       this.tray = null;

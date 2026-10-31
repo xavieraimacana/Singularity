@@ -8,6 +8,7 @@ export interface SingularityDesktopApi {
   getAvailableIdes: () => Promise<Array<{ id: string; name: string; isAvailable: boolean }>>;
   getSftpConnectionInfo: () => Promise<{ host: string; port: number }>;
   minimizeToTray: () => void;
+  showNotification: (title: string, body: string, type?: 'info' | 'warning' | 'error') => Promise<boolean>;
   // Multi-Host Remote Connection Manager
   getConnections: () => Promise<ServerConnectionProfile[]>;
   getActiveConnection: () => Promise<ServerConnectionProfile>;
@@ -24,6 +25,8 @@ const desktopApi: SingularityDesktopApi = {
   getAvailableIdes: () => ipcRenderer.invoke('singularity:get-ides'),
   getSftpConnectionInfo: () => ipcRenderer.invoke('singularity:get-sftp-info'),
   minimizeToTray: () => ipcRenderer.send('singularity:minimize-to-tray'),
+  showNotification: (title: string, body: string, type?: 'info' | 'warning' | 'error') =>
+    ipcRenderer.invoke('singularity:show-notification', { title, body, type }),
   // Multi-Host Remote Connection Manager
   getConnections: () => ipcRenderer.invoke('singularity:get-connections'),
   getActiveConnection: () => ipcRenderer.invoke('singularity:get-active-connection'),

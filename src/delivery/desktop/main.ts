@@ -7,6 +7,7 @@ import { SftpServer } from '../sftp/index.js';
 import { IdeBridge } from './ide-bridge.js';
 import { TrayManager } from './tray.js';
 import { ConnectionManager, type ServerConnectionProfile } from './connection-manager.js';
+import { DesktopServerService } from './desktop-server-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,7 @@ let mainWindow: BrowserWindow | null = null;
 let trayManager: TrayManager | null = null;
 let sftpServer: SftpServer | null = null;
 let fastifyApp: any = null;
+let desktopServerService: DesktopServerService | null = null;
 let isQuitting = false;
 let isEmbeddedRunning = false;
 
@@ -74,6 +76,13 @@ async function startEmbeddedServices(): Promise<void> {
       }
     }
 
+    // Initialize Desktop Server Service for real-time tray & notifications
+    const serverLifecycle = fastifyApp.serverLifecycle;
+    const processRunner = fastifyApp.processRunner;
+    if (serverLifecycle && processRunner) {
+      desktopServerService = new DesktopServerService(serverLifecycle, processRunner);
+    }
+
     isEmbeddedRunning = true;
   } catch (err) {
     console.error('[Desktop Main] Error iniciando servicios embebidos:', err);
@@ -113,7 +122,7 @@ function createMainWindow(): BrowserWindow {
     if (errorCode === -3) return;
 
     console.warn(`[Desktop Main] Error al cargar URL (${errorCode}: ${errorDescription}): ${validatedURL}`);
-    
+
     // If remote connection failed, offer to switch to local or retry
     if (activeProfile.type === 'remote') {
       const response = dialog.showMessageBoxSync(win, {
@@ -181,6 +190,14 @@ function registerIpcHandlers(): void {
     mainWindow?.hide();
   });
 
+  ipcMain.handle(
+    'singularity:show-notification',
+    async (_event, args: { title: string; body: string; type?: 'info' | 'warning' | 'error' }) => {
+      trayManager?.showBalloon(args.title, args.body, args.type || 'info');
+      return true;
+    }
+  );
+
   // Connection Manager IPC Handlers
   ipcMain.handle('singularity:get-connections', async () => {
     return connectionManager.getProfiles();
@@ -243,6 +260,7 @@ app.whenReady().then(async () => {
     ideBridge,
     serversDir: SERVERS_DIR,
     connectionManager,
+    desktopServerService: desktopServerService || undefined,
     onSwitchConnection: async (id) => {
       const profile = await connectionManager.setActiveProfile(id);
       if (profile.type === 'local') {
