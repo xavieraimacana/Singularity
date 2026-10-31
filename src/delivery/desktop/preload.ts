@@ -1,5 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { ServerConnectionProfile } from './connection-manager.js';
+import type { DesktopNotificationConfig, NotificationOptions } from './native-notifier.js';
+import type { AutoStartSettings } from './autostart-manager.js';
 
 export interface SingularityDesktopApi {
   isElectron: boolean;
@@ -8,7 +10,13 @@ export interface SingularityDesktopApi {
   getAvailableIdes: () => Promise<Array<{ id: string; name: string; isAvailable: boolean }>>;
   getSftpConnectionInfo: () => Promise<{ host: string; port: number }>;
   minimizeToTray: () => void;
-  showNotification: (title: string, body: string, type?: 'info' | 'warning' | 'error') => Promise<boolean>;
+  showNotification: (options: NotificationOptions | { title: string; body: string; type?: 'info' | 'warning' | 'error' }) => Promise<boolean>;
+  // Windows Native Notifications Configuration
+  getNotificationConfig: () => Promise<DesktopNotificationConfig>;
+  setNotificationConfig: (config: Partial<DesktopNotificationConfig>) => Promise<DesktopNotificationConfig>;
+  // Windows Auto-Start Configuration
+  getAutoStartSettings: () => Promise<AutoStartSettings>;
+  setAutoStartSettings: (settings: { enabled: boolean; startHidden?: boolean }) => Promise<AutoStartSettings>;
   // Multi-Host Remote Connection Manager
   getConnections: () => Promise<ServerConnectionProfile[]>;
   getActiveConnection: () => Promise<ServerConnectionProfile>;
@@ -25,8 +33,13 @@ const desktopApi: SingularityDesktopApi = {
   getAvailableIdes: () => ipcRenderer.invoke('singularity:get-ides'),
   getSftpConnectionInfo: () => ipcRenderer.invoke('singularity:get-sftp-info'),
   minimizeToTray: () => ipcRenderer.send('singularity:minimize-to-tray'),
-  showNotification: (title: string, body: string, type?: 'info' | 'warning' | 'error') =>
-    ipcRenderer.invoke('singularity:show-notification', { title, body, type }),
+  showNotification: (options) => ipcRenderer.invoke('singularity:show-notification', options),
+  // Windows Native Notifications Configuration
+  getNotificationConfig: () => ipcRenderer.invoke('singularity:get-notification-config'),
+  setNotificationConfig: (config) => ipcRenderer.invoke('singularity:set-notification-config', config),
+  // Windows Auto-Start Configuration
+  getAutoStartSettings: () => ipcRenderer.invoke('singularity:get-autostart'),
+  setAutoStartSettings: (settings) => ipcRenderer.invoke('singularity:set-autostart', settings),
   // Multi-Host Remote Connection Manager
   getConnections: () => ipcRenderer.invoke('singularity:get-connections'),
   getActiveConnection: () => ipcRenderer.invoke('singularity:get-active-connection'),

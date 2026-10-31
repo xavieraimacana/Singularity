@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import { ServerLifecycleService } from '../../src/servers/services/server-lifecycle.js';
 import { ProcessRunner } from '../../src/process-supervisor/services/process-runner.js';
 import { DesktopServerService } from '../../src/delivery/desktop/desktop-server-service.js';
@@ -104,6 +103,36 @@ describe('Desktop Delivery > DesktopServerService & Tray Integration', () => {
       name: 'Crash Test Server',
       message: 'Error de memoria insuficiente (OutOfMemoryError)',
       resolution: 'Aumenta la memoria RAM asignada en la configuración'
+    });
+  });
+
+  it('should trigger onPlayerEvent listener when process runner emits player-event', async () => {
+    const inst = await lifecycle.createInstance({
+      name: 'SMP World',
+      loader: 'paper',
+      gameVersion: '1.20.4'
+    });
+
+    const playerSpy = vi.fn();
+    service.onPlayerEvent(playerSpy);
+
+    runner.emit('player-event', {
+      instanceId: inst.id,
+      event: {
+        type: 'join',
+        username: 'Steve'
+      }
+    });
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(playerSpy).toHaveBeenCalledWith({
+      instanceId: inst.id,
+      name: 'SMP World',
+      event: {
+        type: 'join',
+        username: 'Steve'
+      }
     });
   });
 });

@@ -12,6 +12,8 @@ import {
 import type { IdeBridge } from './ide-bridge.js';
 import type { ConnectionManager } from './connection-manager.js';
 import type { DesktopServerService, TrayServerItem } from './desktop-server-service.js';
+import type { NativeNotifier } from './native-notifier.js';
+import type { AutoStartManager } from './autostart-manager.js';
 
 export interface TrayManagerOptions {
   mainWindow: BrowserWindow;
@@ -21,6 +23,8 @@ export interface TrayManagerOptions {
   connectionManager?: ConnectionManager;
   onSwitchConnection?: (id: string) => Promise<void>;
   desktopServerService?: DesktopServerService;
+  nativeNotifier?: NativeNotifier;
+  autoStartManager?: AutoStartManager;
 }
 
 export class TrayManager {
@@ -32,6 +36,8 @@ export class TrayManager {
   private readonly connectionManager?: ConnectionManager;
   private readonly onSwitchConnection?: (id: string) => Promise<void>;
   private readonly desktopServerService?: DesktopServerService;
+  private readonly nativeNotifier?: NativeNotifier;
+  private readonly autoStartManager?: AutoStartManager;
 
   private cachedServers: TrayServerItem[] = [];
   private refreshTimer: NodeJS.Timeout | null = null;
@@ -44,6 +50,12 @@ export class TrayManager {
     this.connectionManager = options.connectionManager;
     this.onSwitchConnection = options.onSwitchConnection;
     this.desktopServerService = options.desktopServerService;
+    this.nativeNotifier = options.nativeNotifier;
+    this.autoStartManager = options.autoStartManager;
+  }
+
+  getTray(): Tray | null {
+    return this.tray;
   }
 
   private createTrayIcon(): NativeImage {
@@ -79,9 +91,7 @@ export class TrayManager {
           buffer[offset] = 6;
           buffer[offset + 1] = 182;
           buffer[offset + 2] = 212;
-          buffer[offset + 3] = 200;
-        } else {
-          buffer[offset + 3] = 0;
+          buffer[offset + 3] = 255;
         }
       }
     }
@@ -89,143 +99,166 @@ export class TrayManager {
     return nativeImage.createFromBuffer(buffer, { width: size, height: size });
   }
 
-  async refreshServers(): Promise<void> {
-    if (this.desktopServerService) {
-      try {
-        this.cachedServers = await this.desktopServerService.getServers();
-      } catch {
-        // Keep previous state if query fails temporarily
-      }
+  private getStatusEmoji(status: string): string {
+    switch (status) {
+      case 'online':
+        return '🟢';
+      case 'starting':
+      case 'stopping':
+        return '🟡';
+      case 'crashed':
+        return '🔴';
+      default:
+        return '⚫';
     }
-    this.updateMenu();
   }
 
-  buildContextMenu(): Menu {
-    const profiles = this.connectionManager?.getProfiles() || [];
+  private async refreshServers(): Promise<void> {
+    if (!this.desktopServerService) return;
+    try {
+      this.cachedServers = await this.desktopServerService.getServers();
+      this.updateMenu();
+    } catch {
+      // Ignore refresh error
+    }
+  }
+
+  private buildContextMenu(): Menu {
     const activeProfile = this.connectionManager?.getActiveProfile();
+    const profiles = this.connectionManager?.getProfiles() || [];
 
-    // 1. Connection Submenu
-    const connectionSubmenu: MenuItemConstructorOptions[] = profiles.map((p) => ({
-      label: `${p.name} (${p.type === 'remote' ? '☁️ Remoto' : '💻 Local'})`,
-      type: 'radio' as const,
-      checked: p.id === activeProfile?.id,
-      click: async () => {
-        if (this.onSwitchConnection && p.id !== activeProfile?.id) {
-          await this.onSwitchConnection(p.id);
-          this.updateMenu();
+    // 1. Connection switcher submenu
+    const connectionSubmenu: MenuItemConstructorOptions[] = profiles.map((p) => {
+      const isCurrent = p.id === activeProfile?.id;
+      return {
+        label: `${isCurrent ? '✓ ' : '   '}${p.name} (${p.type === 'local' ? 'Local PC' : 'Nube VPS'})`,
+        type: 'normal' as const,
+        enabled: !isCurrent,
+        click: async () => {
+          if (this.onSwitchConnection) {
+            await this.onSwitchConnection(p.id);
+            this.updateMenu();
+          }
         }
-      }
-    }));
+      };
+    });
 
-    // 2. Server List & Actions Submenu
+    if (connectionSubmenu.length > 0) {
+      connectionSubmenu.push({ type: 'separator' });
+      connectionSubmenu.push({
+        label: '⚙️ Gestionar Conexiones...',
+        click: () => {
+          this.mainWindow.show();
+          this.mainWindow.focus();
+        }
+      });
+    }
+
+    // 2. Servers interactive submenu
     const serverMenuItems: MenuItemConstructorOptions[] = [];
     if (this.cachedServers.length === 0) {
       serverMenuItems.push({
-        label: 'Sin servidores creados (Usa el Panel)',
+        label: 'Sin servidores instalados',
         enabled: false
       });
+      serverMenuItems.push({
+        label: '➕ Crear Servidor en Dashboard',
+        click: () => {
+          this.mainWindow.show();
+          this.mainWindow.focus();
+        }
+      });
     } else {
-      for (const srv of this.cachedServers) {
-        const isOnline = srv.status === 'online';
-        const isTransitioning = srv.status === 'starting' || srv.status === 'stopping';
-        const statusEmoji = isOnline
-          ? '🟢'
-          : srv.status === 'crashed'
-          ? '🔴'
-          : isTransitioning
-          ? '🟡'
-          : '⚫';
-
-        const srvSubmenu: MenuItemConstructorOptions[] = [
+      for (const server of this.cachedServers) {
+        const emoji = this.getStatusEmoji(server.status);
+        const serverSubmenu: MenuItemConstructorOptions[] = [
           {
-            label: `${srv.name} (v${srv.gameVersion} • Port ${srv.port})`,
+            label: `Estado: ${server.status.toUpperCase()} (${server.loader} ${server.gameVersion})`,
             enabled: false
           },
           {
-            label: `Estado: ${srv.status.toUpperCase()}`,
+            label: `Puerto: :${server.port}`,
             enabled: false
           },
           { type: 'separator' }
         ];
 
-        if (isOnline) {
-          srvSubmenu.push({
-            label: '⏹ Detener Servidor (/stop)',
-            click: async () => {
-              if (this.desktopServerService) {
-                try {
-                  await this.desktopServerService.stopServer(srv.id);
-                  this.showBalloon('Deteniendo Servidor', `Deteniendo servidor "${srv.name}"...`);
-                  await this.refreshServers();
-                } catch (err: unknown) {
-                  const msg = err instanceof Error ? err.message : 'Error al detener';
-                  this.showBalloon('Error', msg, 'error');
-                }
-              }
-            }
-          });
-          srvSubmenu.push({
-            label: '🔄 Reiniciar Servidor',
-            click: async () => {
-              if (this.desktopServerService) {
-                try {
-                  this.showBalloon('Reiniciando', `Reiniciando servidor "${srv.name}"...`);
-                  await this.desktopServerService.restartServer(srv.id);
-                  await this.refreshServers();
-                } catch (err: unknown) {
-                  const msg = err instanceof Error ? err.message : 'Error al reiniciar';
-                  this.showBalloon('Error', msg, 'error');
-                }
-              }
-            }
-          });
-        } else {
-          srvSubmenu.push({
+        if (server.status === 'offline' || server.status === 'crashed') {
+          serverSubmenu.push({
             label: '▶️ Iniciar Servidor',
-            enabled: !isTransitioning,
             click: async () => {
               if (this.desktopServerService) {
                 try {
-                  this.showBalloon('Iniciando Servidor', `Iniciando servidor "${srv.name}" en puerto ${srv.port}...`);
-                  await this.desktopServerService.startServer(srv.id);
+                  await this.desktopServerService.startServer(server.id);
                   await this.refreshServers();
                 } catch (err: unknown) {
-                  const msg = err instanceof Error ? err.message : 'Error al iniciar';
-                  this.showBalloon('Error al Iniciar', msg, 'error');
+                  const msg = err instanceof Error ? err.message : 'Error desconocido';
+                  this.showNotification('Error al iniciar', msg, 'error');
                 }
               }
             }
           });
         }
 
-        srvSubmenu.push({ type: 'separator' });
-        srvSubmenu.push({
-          label: '💻 Abrir en Antigravity IDE',
-          click: async () => {
-            const instPath = path.join(this.serversDir, srv.id);
-            await this.ideBridge.openInIde(instPath, 'antigravity');
+        if (server.status === 'online') {
+          serverSubmenu.push({
+            label: '⏹ Detener Servidor (/stop)',
+            click: async () => {
+              if (this.desktopServerService) {
+                try {
+                  await this.desktopServerService.stopServer(server.id);
+                  await this.refreshServers();
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : 'Error desconocido';
+                  this.showNotification('Error al detener', msg, 'error');
+                }
+              }
+            }
+          });
+          serverSubmenu.push({
+            label: '🔄 Reiniciar Servidor',
+            click: async () => {
+              if (this.desktopServerService) {
+                try {
+                  await this.desktopServerService.restartServer(server.id);
+                  await this.refreshServers();
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : 'Error desconocido';
+                  this.showNotification('Error al reiniciar', msg, 'error');
+                }
+              }
+            }
+          });
+        }
+
+        serverSubmenu.push({ type: 'separator' });
+        serverSubmenu.push({
+          label: '📂 Abrir Carpeta de Instancia',
+          click: () => {
+            const p = path.join(this.serversDir, server.id);
+            shell.openPath(p);
           }
         });
-        srvSubmenu.push({
-          label: '📁 Abrir Carpeta de Archivos',
-          click: () => {
-            const instPath = path.join(this.serversDir, srv.id);
-            shell.openPath(instPath);
+        serverSubmenu.push({
+          label: '💻 Abrir en Antigravity IDE',
+          click: async () => {
+            const p = path.join(this.serversDir, server.id);
+            await this.ideBridge.openInIde(p, 'antigravity');
           }
         });
 
         serverMenuItems.push({
-          label: `${statusEmoji} ${srv.name} (:${srv.port})`,
-          submenu: srvSubmenu
+          label: `${emoji} ${server.name} (:${server.port})`,
+          submenu: serverSubmenu
         });
       }
 
-      // Quick batch actions for multiple servers
+      // Batch actions
       if (this.cachedServers.length > 1) {
-        const anyOffline = this.cachedServers.some((s) => s.status !== 'online');
+        serverMenuItems.push({ type: 'separator' });
+        const anyOffline = this.cachedServers.some((s) => s.status === 'offline' || s.status === 'crashed');
         const anyOnline = this.cachedServers.some((s) => s.status === 'online');
 
-        serverMenuItems.push({ type: 'separator' });
         if (anyOffline) {
           serverMenuItems.push({
             label: '▶️ Iniciar Todos los Servidores',
@@ -256,6 +289,8 @@ export class TrayManager {
     }
 
     const activeLabel = activeProfile ? `📡 ${activeProfile.name}` : '🌌 Singularity';
+    const autoStartSettings = this.autoStartManager?.getSettings();
+    const notifConfig = this.nativeNotifier?.getConfig();
 
     return Menu.buildFromTemplate([
       {
@@ -288,6 +323,43 @@ export class TrayManager {
         click: () => {
           this.mainWindow.hide();
         }
+      },
+      { type: 'separator' },
+      {
+        label: '⚙️ Configuración del Sistema',
+        submenu: [
+          {
+            label: '🚀 Iniciar con Windows',
+            type: 'checkbox',
+            checked: autoStartSettings?.enabled ?? false,
+            click: (menuItem) => {
+              const current = this.autoStartManager?.getSettings();
+              this.autoStartManager?.setSettings(menuItem.checked, current?.startHidden ?? false);
+              this.updateMenu();
+            }
+          },
+          {
+            label: '📥 Iniciar Oculto en Bandeja',
+            type: 'checkbox',
+            checked: autoStartSettings?.startHidden ?? false,
+            enabled: autoStartSettings?.enabled ?? false,
+            click: (menuItem) => {
+              const current = this.autoStartManager?.getSettings();
+              this.autoStartManager?.setSettings(current?.enabled ?? true, menuItem.checked);
+              this.updateMenu();
+            }
+          },
+          { type: 'separator' },
+          {
+            label: '🔔 Notificaciones Nativas',
+            type: 'checkbox',
+            checked: notifConfig?.enabled ?? true,
+            click: async (menuItem) => {
+              await this.nativeNotifier?.updateConfig({ enabled: menuItem.checked });
+              this.updateMenu();
+            }
+          }
+        ]
       },
       { type: 'separator' },
       {
@@ -328,16 +400,23 @@ export class TrayManager {
     if (this.desktopServerService) {
       this.desktopServerService.onStatusChange(({ name, status }) => {
         if (status === 'online') {
-          this.showBalloon('🟢 Servidor en Línea', `El servidor "${name}" inició correctamente y está listo.`);
+          this.showNotification('🟢 Servidor en Línea', `El servidor "${name}" inició correctamente y está listo.`, 'info', 'serverStatus');
         } else if (status === 'crashed') {
-          this.showBalloon('🔴 Alerta de Crash', `El servidor "${name}" se detuvo de forma inesperada.`, 'error');
+          this.showNotification('🔴 Alerta de Crash', `El servidor "${name}" se detuvo de forma inesperada.`, 'error', 'serverCrash');
         }
         this.refreshServers().catch(() => {});
       });
 
       this.desktopServerService.onCrashDetected(({ name, message, resolution }) => {
-        const detail = resolution ? `${message}\nSolución sugerida: ${resolution}` : message;
-        this.showBalloon(`⚠️ Crash Detectado en "${name}"`, detail, 'warning');
+        const detail = resolution ? `${message}\nSolución: ${resolution}` : message;
+        this.showNotification(`⚠️ Crash Detectado en "${name}"`, detail, 'warning', 'serverCrash');
+      });
+
+      this.desktopServerService.onPlayerEvent(({ name, event }) => {
+        const isJoin = event.type === 'join';
+        const title = isJoin ? `👤 Jugador Conectado` : `👋 Jugador Desconectado`;
+        const body = `${event.username} ${isJoin ? 'se unió a' : 'abandonó'} "${name}"`;
+        this.showNotification(title, body, 'info', 'playerEvents');
       });
 
       // Initial servers fetch and 5-second polling loop
@@ -361,14 +440,30 @@ export class TrayManager {
     });
   }
 
-  showBalloon(title: string, content: string, iconType: 'info' | 'warning' | 'error' = 'info'): void {
-    if (this.tray && process.platform === 'win32') {
+  showNotification(
+    title: string,
+    content: string,
+    iconType: 'info' | 'warning' | 'error' = 'info',
+    category: 'serverStatus' | 'serverCrash' | 'playerEvents' | 'general' = 'general'
+  ): void {
+    if (this.nativeNotifier) {
+      this.nativeNotifier.notify({
+        title,
+        body: content,
+        iconType,
+        category
+      });
+    } else if (this.tray && process.platform === 'win32') {
       this.tray.displayBalloon({
         title,
         content,
         iconType
       });
     }
+  }
+
+  showBalloon(title: string, content: string, iconType: 'info' | 'warning' | 'error' = 'info'): void {
+    this.showNotification(title, content, iconType, 'general');
   }
 
   destroy(): void {

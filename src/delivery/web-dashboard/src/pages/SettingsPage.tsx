@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Settings,
   Terminal,
@@ -10,9 +10,13 @@ import {
   Monitor,
   Code2,
   LogOut,
-  Save
+  Save,
+  Bell,
+  Power,
+  Volume2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
+import type { DesktopNotificationConfig, AutoStartSettings } from '../types/desktop.js';
 
 interface SettingsPageProps {
   onOpenProfileModal: () => void;
@@ -42,8 +46,72 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenProfileModal }
 
   const [savedFeedback, setSavedFeedback] = useState(false);
   const [copiedSftp, setCopiedSftp] = useState(false);
+  const [testNotifFeedback, setTestNotifFeedback] = useState(false);
 
   const isDesktop = typeof window !== 'undefined' && Boolean((window as any).singularityDesktop?.isElectron);
+
+  // Desktop Native Integration States
+  const [autoStart, setAutoStart] = useState<AutoStartSettings>({
+    enabled: false,
+    startHidden: false
+  });
+  const [notifConfig, setNotifConfig] = useState<DesktopNotificationConfig>({
+    enabled: true,
+    serverStatus: true,
+    serverCrash: true,
+    playerEvents: true,
+    sound: true
+  });
+
+  useEffect(() => {
+    if (isDesktop && window.singularityDesktop) {
+      if (window.singularityDesktop.getAutoStartSettings) {
+        window.singularityDesktop.getAutoStartSettings().then((s) => setAutoStart(s)).catch(() => {});
+      }
+      if (window.singularityDesktop.getNotificationConfig) {
+        window.singularityDesktop.getNotificationConfig().then((c) => setNotifConfig(c)).catch(() => {});
+      }
+    }
+  }, [isDesktop]);
+
+  const handleToggleAutoStart = async (enabled: boolean) => {
+    const next = { ...autoStart, enabled };
+    setAutoStart(next);
+    if (isDesktop && window.singularityDesktop?.setAutoStartSettings) {
+      const res = await window.singularityDesktop.setAutoStartSettings(next);
+      setAutoStart(res);
+    }
+  };
+
+  const handleToggleStartHidden = async (startHidden: boolean) => {
+    const next = { ...autoStart, startHidden };
+    setAutoStart(next);
+    if (isDesktop && window.singularityDesktop?.setAutoStartSettings) {
+      const res = await window.singularityDesktop.setAutoStartSettings(next);
+      setAutoStart(res);
+    }
+  };
+
+  const handleUpdateNotificationConfig = async (updates: Partial<DesktopNotificationConfig>) => {
+    const next = { ...notifConfig, ...updates };
+    setNotifConfig(next);
+    if (isDesktop && window.singularityDesktop?.setNotificationConfig) {
+      const res = await window.singularityDesktop.setNotificationConfig(updates);
+      setNotifConfig(res);
+    }
+  };
+
+  const handleTestNotification = async () => {
+    if (isDesktop && window.singularityDesktop?.showNotification) {
+      await window.singularityDesktop.showNotification({
+        title: '🌌 Singularity Mission Control',
+        body: '¡Notificaciones nativas de Windows configuradas y funcionando con éxito!',
+        type: 'info'
+      });
+      setTestNotifFeedback(true);
+      setTimeout(() => setTestNotifFeedback(false), 3000);
+    }
+  };
 
   const handleSavePreferences = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,14 +126,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenProfileModal }
   };
 
   const copySftpCommand = () => {
-    const cmd = `sftp -P 2022 ${user?.username || 'admin'}@127.0.0.1`;
-    navigator.clipboard.writeText(cmd);
+    navigator.clipboard.writeText(`sftp -P 2022 ${user?.username || 'admin'}@127.0.0.1`);
     setCopiedSftp(true);
-    setTimeout(() => setCopiedSftp(false), 2500);
+    setTimeout(() => setCopiedSftp(false), 2000);
   };
 
   return (
-    <div className="space-y-6 animate-fade-in select-none max-w-5xl mx-auto">
+    <div className="space-y-6">
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -74,7 +141,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenProfileModal }
             <span>Configuración & Preferencias del Sistema</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Parámetros de telemetría, puente de IDE, consola interactiva y entorno operativo de NebulaX Studio.
+            Parámetros de arranque en Windows, notificaciones nativas, puente de IDE, consola interactiva y entorno operativo.
           </p>
         </div>
 
@@ -89,6 +156,144 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onOpenProfileModal }
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Column (2 Cols): Settings & Preferences Form */}
         <div className="md:col-span-2 space-y-6">
+          {/* Windows Native OS Integration (Desktop Only) */}
+          {isDesktop && (
+            <div className="bg-nebula-900 border border-nebula-800 rounded-2xl p-5 shadow-md space-y-4">
+              <div className="flex items-center justify-between border-b border-nebula-800/80 pb-3">
+                <div className="flex items-center gap-2">
+                  <Power className="w-4 h-4 text-nebula-accent" />
+                  <h2 className="text-sm font-bold text-white">Integración con Windows & Notificaciones Nativas</h2>
+                </div>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-nebula-800 text-nebula-accent border border-nebula-accent/30 font-bold">
+                  DESKTOP
+                </span>
+              </div>
+
+              {/* Auto-Start on Boot */}
+              <div className="space-y-3">
+                <label className="text-xs font-semibold text-slate-300 block">
+                  Arranque del Sistema Operativo
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="flex items-start gap-2.5 p-3 rounded-xl bg-nebula-950 border border-nebula-850 cursor-pointer hover:border-nebula-700 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={autoStart.enabled}
+                      onChange={(e) => handleToggleAutoStart(e.target.checked)}
+                      className="mt-0.5 rounded bg-nebula-900 border-nebula-700 text-nebula-accent focus:ring-0"
+                    />
+                    <div>
+                      <span className="block text-xs font-bold text-slate-200">Iniciar con Windows</span>
+                      <span className="block text-[11px] text-slate-400 mt-0.5">
+                        Arrancar Singularity automáticamente al iniciar sesión en el PC.
+                      </span>
+                    </div>
+                  </label>
+
+                  <label className={`flex items-start gap-2.5 p-3 rounded-xl border transition-colors ${
+                    autoStart.enabled
+                      ? 'bg-nebula-950 border-nebula-850 cursor-pointer hover:border-nebula-700'
+                      : 'bg-nebula-950/40 border-nebula-900 opacity-50 cursor-not-allowed'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      disabled={!autoStart.enabled}
+                      checked={autoStart.startHidden}
+                      onChange={(e) => handleToggleStartHidden(e.target.checked)}
+                      className="mt-0.5 rounded bg-nebula-900 border-nebula-700 text-nebula-accent focus:ring-0"
+                    />
+                    <div>
+                      <span className="block text-xs font-bold text-slate-200">Silencioso en Bandeja</span>
+                      <span className="block text-[11px] text-slate-400 mt-0.5">
+                        Iniciar minimizado en el tray sin abrir la ventana principal.
+                      </span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Native Toast Notifications Configuration */}
+              <div className="pt-3 border-t border-nebula-800/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Bell className="w-4 h-4 text-nebula-cyber" />
+                    Notificaciones en el Centro de Acciones de Windows
+                  </label>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={notifConfig.enabled}
+                      onChange={(e) => handleUpdateNotificationConfig({ enabled: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-8 h-4 bg-nebula-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-nebula-accent"></div>
+                  </label>
+                </div>
+
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2.5 ${!notifConfig.enabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <label className="flex items-center gap-2 p-2.5 rounded-lg bg-nebula-950 border border-nebula-850 cursor-pointer hover:border-nebula-700 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={notifConfig.serverStatus}
+                      onChange={(e) => handleUpdateNotificationConfig({ serverStatus: e.target.checked })}
+                      className="rounded bg-nebula-900 border-nebula-700 text-nebula-accent focus:ring-0"
+                    />
+                    <span className="text-xs text-slate-300">🟢 Estado de Servidores (En línea / Detenido)</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 p-2.5 rounded-lg bg-nebula-950 border border-nebula-850 cursor-pointer hover:border-nebula-700 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={notifConfig.serverCrash}
+                      onChange={(e) => handleUpdateNotificationConfig({ serverCrash: e.target.checked })}
+                      className="rounded bg-nebula-900 border-nebula-700 text-nebula-accent focus:ring-0"
+                    />
+                    <span className="text-xs text-slate-300">🔴 Alertas de Crash y Diagnósticos</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 p-2.5 rounded-lg bg-nebula-950 border border-nebula-850 cursor-pointer hover:border-nebula-700 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={notifConfig.playerEvents}
+                      onChange={(e) => handleUpdateNotificationConfig({ playerEvents: e.target.checked })}
+                      className="rounded bg-nebula-900 border-nebula-700 text-nebula-accent focus:ring-0"
+                    />
+                    <span className="text-xs text-slate-300">👤 Jugadores (Entradas / Salidas)</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 p-2.5 rounded-lg bg-nebula-950 border border-nebula-850 cursor-pointer hover:border-nebula-700 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={notifConfig.sound}
+                      onChange={(e) => handleUpdateNotificationConfig({ sound: e.target.checked })}
+                      className="rounded bg-nebula-900 border-nebula-700 text-nebula-accent focus:ring-0"
+                    />
+                    <span className="text-xs text-slate-300 flex items-center gap-1.5">
+                      <Volume2 className="w-3.5 h-3.5 text-slate-400" />
+                      Sonido del Sistema
+                    </span>
+                  </label>
+                </div>
+
+                <div className="pt-2 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleTestNotification}
+                    className="px-3.5 py-2 bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-nebula-700 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <Bell className="w-3.5 h-3.5" />
+                    <span>Probar Notificación de Windows</span>
+                  </button>
+                  {testNotifFeedback && (
+                    <span className="text-xs font-mono text-emerald-400 animate-in fade-in">
+                      ¡Notificación enviada al sistema!
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Terminal & Console Preferences */}
           <form onSubmit={handleSavePreferences} className="bg-nebula-900 border border-nebula-800 rounded-2xl p-5 shadow-md space-y-4">
             <div className="flex items-center gap-2 border-b border-nebula-800/80 pb-3">

@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import type { ServerLifecycleService } from '../../servers/services/server-lifecycle.js';
 import type { ProcessRunner } from '../../process-supervisor/services/process-runner.js';
-import type { ProcessState } from '../../process-supervisor/models/process-state.js';
+import type { ProcessState, PlayerEvent } from '../../process-supervisor/models/process-state.js';
 import type { ServerInstance, ServerStatus } from '../../servers/models/server-instance.js';
 import { resolveCompatibleJavaExecutable } from '../../java-manager/index.js';
 
@@ -107,6 +107,18 @@ export class DesktopServerService {
         callback({ instanceId, name, message, resolution });
       } catch {
         callback({ instanceId, name: instanceId, message: 'Crash inesperado' });
+      }
+    });
+  }
+
+  onPlayerEvent(callback: (info: { instanceId: string; name: string; event: PlayerEvent }) => void): void {
+    this.processRunner.on('player-event', async ({ instanceId, event }) => {
+      try {
+        const inst = await this.serverLifecycle.getInstance(instanceId);
+        const name = inst?.name || instanceId;
+        callback({ instanceId, name, event });
+      } catch {
+        callback({ instanceId, name: instanceId, event });
       }
     });
   }

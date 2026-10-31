@@ -9,6 +9,19 @@ export interface ServerConnectionProfile {
   lastConnectedAt?: string;
 }
 
+export interface DesktopNotificationConfig {
+  enabled: boolean;
+  serverStatus: boolean;
+  serverCrash: boolean;
+  playerEvents: boolean;
+  sound: boolean;
+}
+
+export interface AutoStartSettings {
+  enabled: boolean;
+  startHidden: boolean;
+}
+
 export interface SingularityDesktopApi {
   isElectron: boolean;
   openInIde: (serverId: string, ide?: string) => Promise<{ success: boolean; ideUsed: string; error?: string }>;
@@ -16,7 +29,14 @@ export interface SingularityDesktopApi {
   getAvailableIdes: () => Promise<Array<{ id: string; name: string; isAvailable: boolean }>>;
   getSftpConnectionInfo: () => Promise<{ host: string; port: number }>;
   minimizeToTray: () => void;
-  showNotification: (title: string, body: string, type?: 'info' | 'warning' | 'error') => Promise<boolean>;
+  showNotification: (options: { title: string; body: string; type?: 'info' | 'warning' | 'error'; category?: string; silent?: boolean } | string, body?: string, type?: 'info' | 'warning' | 'error') => Promise<boolean>;
+  // Windows Native Notifications Configuration
+  getNotificationConfig?: () => Promise<DesktopNotificationConfig>;
+  setNotificationConfig?: (config: Partial<DesktopNotificationConfig>) => Promise<DesktopNotificationConfig>;
+  // Windows Auto-Start Configuration
+  getAutoStartSettings?: () => Promise<AutoStartSettings>;
+  setAutoStartSettings?: (settings: { enabled: boolean; startHidden?: boolean }) => Promise<AutoStartSettings>;
+  // Multi-Host Remote Connection Manager
   getConnections: () => Promise<ServerConnectionProfile[]>;
   getActiveConnection: () => Promise<ServerConnectionProfile>;
   switchConnection: (id: string) => Promise<{ success: boolean; profile: ServerConnectionProfile; error?: string }>;

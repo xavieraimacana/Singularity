@@ -8,9 +8,16 @@ import { IdeBridge } from './ide-bridge.js';
 import { TrayManager } from './tray.js';
 import { ConnectionManager, type ServerConnectionProfile } from './connection-manager.js';
 import { DesktopServerService } from './desktop-server-service.js';
+import { AutoStartManager } from './autostart-manager.js';
+import { NativeNotifier, type NotificationOptions, type DesktopNotificationConfig } from './native-notifier.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Windows 10/11 Application User Model ID for native Action Center notifications & grouping
+if (process.platform === 'win32') {
+  app.setAppUserModelId('studio.nebulax.singularity');
+}
 
 let mainWindow: BrowserWindow | null = null;
 let trayManager: TrayManager | null = null;
@@ -27,6 +34,8 @@ const SERVERS_DIR = path.resolve(process.env['SINGULARITY_SERVERS_DIR'] || 'data
 
 const ideBridge = new IdeBridge(SERVERS_DIR);
 const connectionManager = new ConnectionManager();
+const autoStartManager = new AutoStartManager();
+const nativeNotifier = new NativeNotifier();
 
 // Single instance lock to prevent duplicate servers
 const gotLock = app.requestSingleInstanceLock();
@@ -40,6 +49,21 @@ if (!gotLock) {
       mainWindow.focus();
     }
   });
+}
+
+function resolveAppIcon(): string | undefined {
+  const iconCandidates = [
+    ...(process.platform === 'win32'
+      ? [
+          path.join(__dirname, 'assets', 'icon.ico'),
+          path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.ico')
+        ]
+      : []),
+    path.join(__dirname, 'assets', 'icon.png'),
+    path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.png'),
+    path.join(process.cwd(), 'resources', 'icon.png')
+  ];
+  return iconCandidates.find((p) => fs.existsSync(p));
 }
 
 async function startEmbeddedServices(): Promise<void> {
@@ -89,19 +113,8 @@ async function startEmbeddedServices(): Promise<void> {
   }
 }
 
-function createMainWindow(): BrowserWindow {
-  const iconCandidates = [
-    ...(process.platform === 'win32'
-      ? [
-          path.join(__dirname, 'assets', 'icon.ico'),
-          path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.ico')
-        ]
-      : []),
-    path.join(__dirname, 'assets', 'icon.png'),
-    path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.png'),
-    path.join(process.cwd(), 'resources', 'icon.png')
-  ];
-  const appIcon = iconCandidates.find(p => fs.existsSync(p));
+function createMainWindow(startHidden: boolean = false): BrowserWindow {
+  const appIcon = resolveAppIcon();
 
   const win = new BrowserWindow({
     icon: appIcon,
@@ -109,6 +122,7 @@ function createMainWindow(): BrowserWindow {
     height: 860,
     minWidth: 1024,
     minHeight: 720,
+    show: !startHidden,
     backgroundColor: '#090d16',
     title: 'Singularity - Minecraft Server Mission Control',
     webPreferences: {
@@ -158,10 +172,11 @@ function createMainWindow(): BrowserWindow {
     if (!isQuitting) {
       event.preventDefault();
       win.hide();
-      trayManager?.showBalloon(
-        'Singularity en Segundo Plano',
-        'Singularity sigue activo en la bandeja del sistema para mantener tus servidores Minecraft en línea 24/7.'
-      );
+      nativeNotifier.notify({
+        title: '🌌 Singularity en Segundo Plano',
+        body: 'Singularity sigue activo en la bandeja del sistema para mantener tus servidores Minecraft en línea 24/7.',
+        category: 'general'
+      });
     }
   });
 
@@ -170,7 +185,7 @@ function createMainWindow(): BrowserWindow {
 
 function registerIpcHandlers(): void {
   ipcMain.handle('singularity:open-ide', async (_event, args: { serverId: string; ide?: string }) => {
-    const pref = (args.ide || 'antigravity') as 'antigravity' | 'vscode' | 'explorer';
+    const pref = (args.ide || 'antigravity') as 'antigravity' | 'vscode' | 'cursor' | 'explorer';
     return ideBridge.openInIde(args.serverId, pref);
   });
 
@@ -196,11 +211,32 @@ function registerIpcHandlers(): void {
     mainWindow?.hide();
   });
 
+  // Native Notifications IPC Handlers
+  ipcMain.handle('singularity:show-notification', async (_event, args: NotificationOptions) => {
+    return nativeNotifier.notify(args);
+  });
+
+  ipcMain.handle('singularity:get-notification-config', async () => {
+    return nativeNotifier.getConfig();
+  });
+
+  ipcMain.handle('singularity:set-notification-config', async (_event, args: Partial<DesktopNotificationConfig>) => {
+    const updated = await nativeNotifier.updateConfig(args);
+    trayManager?.updateMenu();
+    return updated;
+  });
+
+  // Windows Auto-Start on Boot IPC Handlers
+  ipcMain.handle('singularity:get-autostart', async () => {
+    return autoStartManager.getSettings();
+  });
+
   ipcMain.handle(
-    'singularity:show-notification',
-    async (_event, args: { title: string; body: string; type?: 'info' | 'warning' | 'error' }) => {
-      trayManager?.showBalloon(args.title, args.body, args.type || 'info');
-      return true;
+    'singularity:set-autostart',
+    async (_event, args: { enabled: boolean; startHidden?: boolean }) => {
+      const updated = autoStartManager.setSettings(args.enabled, args.startHidden ?? false);
+      trayManager?.updateMenu();
+      return updated;
     }
   );
 
@@ -259,7 +295,12 @@ app.whenReady().then(async () => {
   // Always prepare embedded services in background so switching is instant
   await startEmbeddedServices();
 
-  mainWindow = createMainWindow();
+  const appIcon = resolveAppIcon();
+  await nativeNotifier.init({ iconPath: appIcon });
+
+  const shouldStartHidden = autoStartManager.shouldStartHidden();
+  mainWindow = createMainWindow(shouldStartHidden);
+  nativeNotifier.setWindow(mainWindow);
 
   trayManager = new TrayManager({
     mainWindow,
@@ -267,6 +308,8 @@ app.whenReady().then(async () => {
     serversDir: SERVERS_DIR,
     connectionManager,
     desktopServerService: desktopServerService || undefined,
+    nativeNotifier,
+    autoStartManager,
     onSwitchConnection: async (id) => {
       const profile = await connectionManager.setActiveProfile(id);
       if (profile.type === 'local') {
@@ -283,12 +326,17 @@ app.whenReady().then(async () => {
   });
   trayManager.init();
 
+  if (trayManager.getTray()) {
+    nativeNotifier.setTray(trayManager.getTray()!);
+  }
+
   registerIpcHandlers();
 });
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    mainWindow = createMainWindow();
+    mainWindow = createMainWindow(false);
+    nativeNotifier.setWindow(mainWindow);
   } else {
     mainWindow?.show();
     mainWindow?.focus();
