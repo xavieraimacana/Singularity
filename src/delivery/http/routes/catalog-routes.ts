@@ -84,6 +84,36 @@ export const catalogRoutes: FastifyPluginAsync<CatalogRoutesOptions> = async (fa
     }
   });
 
+  // Get available versions for a specific project
+  fastify.get<{
+    Params: { providerId: string; projectId: string };
+    Querystring: { gameVersion?: string; loader?: string };
+  }>('/versions/:providerId/:projectId', async (request, reply) => {
+    const { providerId, projectId } = request.params;
+    const { gameVersion, loader } = request.query;
+
+    const provider = providers.get(providerId);
+    if (!provider) {
+      return reply.status(400).send({
+        error: `Proveedor '${providerId}' no registrado. Disponibles: ${Array.from(providers.keys()).join(', ')}`
+      });
+    }
+
+    if (!provider.isEnabled) {
+      return reply.status(400).send({
+        error: `El proveedor '${providerId}' no está configurado (falta API Key)`
+      });
+    }
+
+    try {
+      const versions = await provider.getVersions(projectId, gameVersion, loader);
+      return reply.status(200).send(versions);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al obtener versiones de contenido';
+      return reply.status(500).send({ error: message });
+    }
+  });
+
   // Get installed manifest for an instance
   fastify.get<{
     Params: { instanceId: string };

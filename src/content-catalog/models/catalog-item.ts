@@ -62,6 +62,7 @@ export interface InstallContentRequest {
   readonly versionNumber: string;
   readonly fileName: string;
   readonly downloadUrl: string;
+  readonly force?: boolean;
   readonly hashes?: {
     readonly sha1?: string;
     readonly sha512?: string;
@@ -78,6 +79,8 @@ export interface InstalledItem {
   readonly versionNumber: string;
   readonly fileName: string;
   readonly installedAt: string;
+  readonly destinationFolder?: string;
+  readonly prunedClientMods?: string[];
 }
 
 export interface InstanceManifest {

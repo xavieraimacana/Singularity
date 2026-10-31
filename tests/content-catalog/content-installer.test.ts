@@ -36,7 +36,7 @@ describe('ContentInstallerService', () => {
     }
   });
 
-  it('should install a mod into mods/ folder and record it in singularity-manifest.json', async () => {
+  it('should install a server mod into mods/ folder and record it in singularity-manifest.json', async () => {
     const mockFileContent = Buffer.from('mock-jar-content');
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -47,12 +47,12 @@ describe('ContentInstallerService', () => {
     const request: InstallContentRequest = {
       instanceId,
       providerId: 'modrinth',
-      projectId: 'AANobbMI',
+      projectId: 'fabric-api',
       projectType: 'mod',
       versionId: 'ver_01',
-      versionNumber: '0.6.0',
-      fileName: 'sodium-fabric-0.6.0.jar',
-      downloadUrl: 'https://example.com/sodium-fabric-0.6.0.jar',
+      versionNumber: '0.92.0',
+      fileName: 'fabric-api-0.92.0.jar',
+      downloadUrl: 'https://example.com/fabric-api-0.92.0.jar',
       hashes: {
         sha1: 'test-sha1'
       }
@@ -60,11 +60,11 @@ describe('ContentInstallerService', () => {
 
     const installed = await installer.install(request);
 
-    expect(installed.fileName).toBe('sodium-fabric-0.6.0.jar');
+    expect(installed.fileName).toBe('fabric-api-0.92.0.jar');
     expect(installed.projectType).toBe('mod');
 
     // Check file on disk
-    const targetFile = path.join(instanceDir, 'mods', 'sodium-fabric-0.6.0.jar');
+    const targetFile = path.join(instanceDir, 'mods', 'fabric-api-0.92.0.jar');
     const exists = await fs
       .access(targetFile)
       .then(() => true)
@@ -74,7 +74,64 @@ describe('ContentInstallerService', () => {
     // Check manifest
     const manifest = await installer.getManifest(instanceId);
     expect(manifest.installedItems.length).toBe(1);
-    expect(manifest.installedItems[0]?.fileName).toBe('sodium-fabric-0.6.0.jar');
+    expect(manifest.installedItems[0]?.fileName).toBe('fabric-api-0.92.0.jar');
+  });
+
+  it('should reject a client-only mod on dedicated server with an informative error', async () => {
+    const request: InstallContentRequest = {
+      instanceId,
+      providerId: 'modrinth',
+      projectId: 'sodium',
+      projectType: 'mod',
+      versionId: 'ver_sodium',
+      versionNumber: '0.5.8',
+      fileName: 'sodium-fabric-0.5.8.jar',
+      downloadUrl: 'https://example.com/sodium-fabric-0.5.8.jar'
+    };
+
+    await expect(installer.install(request)).rejects.toThrow(
+      /es exclusivo de cliente/
+    );
+  });
+
+  it('should automatically route mods and plugins to plugins/ folder on a Paper server instance', async () => {
+    // Write Paper server metadata
+    await fs.writeFile(
+      path.join(instanceDir, 'singularity-instance.json'),
+      JSON.stringify({ loader: 'paper', gameVersion: '1.21.4' })
+    );
+
+    const mockFileContent = Buffer.from('mock-auraskills-content');
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      body: createMockStream(mockFileContent)
+    } as unknown as Response);
+
+    // Request comes with projectType: 'mod' (like Modrinth categorizes AuraSkills)
+    const request: InstallContentRequest = {
+      instanceId,
+      providerId: 'modrinth',
+      projectId: 'uDdZAVls',
+      projectType: 'mod',
+      versionId: '9rSJ3THD',
+      versionNumber: '2.4.0',
+      fileName: 'AuraSkills-2.4.0.jar',
+      downloadUrl: 'https://cdn.modrinth.com/data/uDdZAVls/versions/9rSJ3THD/AuraSkills-2.4.0.jar'
+    };
+
+    const installed = await installer.install(request);
+
+    // Check that it was placed in plugins/ and not mods/
+    const pluginPath = path.join(instanceDir, 'plugins', 'AuraSkills-2.4.0.jar');
+    const modPath = path.join(instanceDir, 'mods', 'AuraSkills-2.4.0.jar');
+
+    const inPlugins = await fs.access(pluginPath).then(() => true).catch(() => false);
+    const inMods = await fs.access(modPath).then(() => true).catch(() => false);
+
+    expect(inPlugins).toBe(true);
+    expect(inMods).toBe(false);
+    expect(installed.projectType).toBe('plugin');
   });
 
   it('should uninstall an item, delete its file and remove from manifest', async () => {

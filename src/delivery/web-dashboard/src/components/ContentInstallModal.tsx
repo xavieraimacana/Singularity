@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, AlertTriangle, Orbit, HardDrive } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, Orbit, HardDrive, ShieldAlert, FolderCheck } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import type { CatalogItemData } from './ContentCard.js';
 import type { ServerInstanceData } from './ServerCard.js';
@@ -20,6 +20,67 @@ interface ContentVersionData {
   loaders: string[];
 }
 
+const CLIENT_ONLY_PATTERNS = [
+  /^sodium/i,
+  /^rubidium/i,
+  /^embeddium/i,
+  /^iris/i,
+  /^oculus/i,
+  /^indium/i,
+  /^optifine/i,
+  /^optifabric/i,
+  /^entityculling/i,
+  /^entity-culling/i,
+  /^ambientsounds/i,
+  /^soundphysics/i,
+  /^sound-physics/i,
+  /^presencefootsteps/i,
+  /^presence-footsteps/i,
+  /^dynamicsurroundings/i,
+  /^lambdynamiclights/i,
+  /^continuity/i,
+  /^betterf3/i,
+  /^modmenu/i,
+  /^controlify/i,
+  /^controllable/i,
+  /^notenoughanimations/i,
+  /^not-enough-animations/i,
+  /^blur/i,
+  /^customsplashscreen/i,
+  /^reeses/i,
+  /^sodiumextra/i,
+  /^sodium-extra/i,
+  /^immediatelyfast/i,
+  /^waveycapes/i,
+  /^3dskinlayers/i,
+  /^skinlayers/i,
+  /^bobby/i,
+  /^distanthorizons/i,
+  /^distant-horizons/i,
+  /^zoomify/i,
+  /^ok-zoomer/i,
+  /^logical-zoom/i,
+  /^fallingleaves/i,
+  /^visuality/i,
+  /^clearskies/i,
+  /^chat-heads/i,
+  /^chatheads/i,
+  /^shulkerboxtooltip/i,
+  /^controlling/i,
+  /^citresewn/i,
+  /^cit-resewn/i,
+  /^enhancedblockentities/i,
+  /^cullleaves/i,
+  /^fabricskyboxes/i,
+  /^mousetweaks/i
+];
+
+function isClientOnly(raw: string): boolean {
+  if (!raw) return false;
+  const name = raw.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[_+.]+/g, '-');
+  return CLIENT_ONLY_PATTERNS.some((p) => p.test(name));
+}
+
 export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
   item,
   defaultServerId,
@@ -35,59 +96,82 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  // Load servers
   useEffect(() => {
-    if (!defaultServerId) {
-      api.get<ServerInstanceData[]>('/servers')
-        .then((data) => {
-          setServers(data);
-          if (data.length > 0 && !selectedServerId && data[0]) {
-            setSelectedServerId(data[0].id);
-          }
-        })
-        .catch(() => {});
-    }
+    api.get<ServerInstanceData[]>('/servers')
+      .then((data) => {
+        setServers(data || []);
+        if (defaultServerId) {
+          setSelectedServerId(defaultServerId);
+        } else if (data && data.length > 0 && !selectedServerId && data[0]) {
+          setSelectedServerId(data[0].id);
+        }
+      })
+      .catch(() => {});
   }, [defaultServerId, selectedServerId]);
 
   const targetServer = servers.find((s) => s.id === selectedServerId);
+  const isPluginServer = Boolean(
+    targetServer && ['paper', 'purpur', 'spigot', 'bukkit'].includes(targetServer.loader.toLowerCase())
+  );
 
-  // Fetch available versions
+  // Fetch real available versions from backend
   useEffect(() => {
-    if (!item || !selectedServerId) return;
+    if (!item) return;
 
     setIsLoadingVersions(true);
     setErrorMsg(null);
 
-    // Call catalog search or versions
     const queryParams = new URLSearchParams();
     if (targetServer) {
       queryParams.set('gameVersion', targetServer.gameVersion);
       queryParams.set('loader', targetServer.loader);
     }
-    queryParams.set('provider', item.providerId);
 
-    // Mock/Fetch compatible version from provider
-    // Default fallback version object
-    const fallbackVersion: ContentVersionData = {
-      id: `ver_${Date.now()}`,
-      versionNumber: 'Latest Compatible',
-      fileName: `${item.slug}-${targetServer?.gameVersion || '1.21.4'}.jar`,
-      downloadUrl: `https://cdn.modrinth.com/data/${item.id}/versions/${item.slug}.jar`,
-      gameVersions: [targetServer?.gameVersion || '1.21.4'],
-      loaders: [targetServer?.loader || 'paper']
-    };
-
-    setVersions([fallbackVersion]);
-    setSelectedVersionId(fallbackVersion.id);
-    setIsLoadingVersions(false);
-  }, [item, selectedServerId, targetServer]);
+    api.get<ContentVersionData[]>(
+      `/catalog/versions/${item.providerId}/${encodeURIComponent(item.id)}?${queryParams.toString()}`
+    )
+      .then((data) => {
+        if (data && data.length > 0) {
+          setVersions(data);
+          setSelectedVersionId(data[0].id);
+        } else {
+          setVersions([]);
+          setSelectedVersionId('');
+          setErrorMsg('No se encontraron versiones disponibles para este contenido y servidor.');
+        }
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : 'Error al obtener versiones de contenido';
+        setErrorMsg(msg);
+        setVersions([]);
+      })
+      .finally(() => {
+        setIsLoadingVersions(false);
+      });
+  }, [item, selectedServerId, targetServer?.gameVersion, targetServer?.loader]);
 
   if (!item) return null;
 
-  const handleInstall = async () => {
-    if (!selectedServerId || !selectedVersionId) return;
+  const selectedVersion = versions.find((v) => v.id === selectedVersionId) || versions[0];
 
-    const version = versions.find((v) => v.id === selectedVersionId) || versions[0];
-    if (!version) return;
+  // Client-only mod check
+  const isClientMod =
+    !isPluginServer &&
+    (item.projectType === 'mod' || !item.projectType) &&
+    (isClientOnly(item.slug) || isClientOnly(item.title) || (selectedVersion ? isClientOnly(selectedVersion.fileName) : false));
+
+  // Determine smart target subfolder
+  const targetSubfolder = isPluginServer || item.projectType === 'plugin'
+    ? 'plugins'
+    : item.projectType === 'datapack'
+    ? 'datapacks'
+    : item.projectType === 'modpack'
+    ? ''
+    : 'mods';
+
+  const handleInstall = async () => {
+    if (!selectedServerId || !selectedVersion) return;
 
     setIsInstalling(true);
     setErrorMsg(null);
@@ -97,14 +181,14 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
         instanceId: selectedServerId,
         providerId: item.providerId,
         projectId: item.id,
-        projectType: item.projectType,
-        versionId: version.id,
-        versionNumber: version.versionNumber,
-        fileName: version.fileName,
-        downloadUrl: version.downloadUrl
+        projectType: isPluginServer ? 'plugin' : item.projectType,
+        versionId: selectedVersion.id,
+        versionNumber: selectedVersion.versionNumber,
+        fileName: selectedVersion.fileName,
+        downloadUrl: selectedVersion.downloadUrl
       });
 
-      setSuccessMsg(`¡${item.title} instalado exitosamente!`);
+      setSuccessMsg(`¡${item.title} instalado exitosamente en ${targetSubfolder || 'directorio raíz'}!`);
       setTimeout(() => {
         onSuccess();
         onClose();
@@ -126,7 +210,8 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
               <span>Instalar {item.title}</span>
             </h3>
             <span className="text-[11px] font-mono text-slate-400">
-              Proveedor: {item.providerId.toUpperCase()} &bull; Tipo: {item.projectType}
+              Proveedor: {item.providerId.toUpperCase()} &bull; Tipo:{' '}
+              {isPluginServer ? 'PLUGIN' : item.projectType.toUpperCase()}
             </span>
           </div>
           <button
@@ -148,6 +233,17 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
           <div className="mb-4 p-3 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
+          </div>
+        )}
+
+        {/* Client-Only Mod Warning */}
+        {isClientMod && (
+          <div className="mb-4 p-3 rounded-lg bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs flex items-start gap-2.5">
+            <ShieldAlert className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+            <div className="leading-relaxed">
+              <span className="font-bold text-amber-300">Mod exclusivo de cliente:</span>{' '}
+              Este mod (gráficos, interfaz o shaders) solo funciona en tu launcher de cliente. Instalarlo en un servidor dedicado provocará un fallo (crash) crítico al iniciar.
+            </div>
           </div>
         )}
 
@@ -182,12 +278,16 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
           {/* Version Selector */}
           <div>
             <label className="block text-xs font-semibold text-slate-200 mb-1.5">
-              Versión Compatible
+              Versión Disponible ({versions.length})
             </label>
             {isLoadingVersions ? (
               <div className="flex items-center gap-2 p-2 text-xs text-slate-400 font-mono">
                 <Orbit className="w-4 h-4 animate-spin text-nebula-accent" />
-                <span>Buscando versiones compatibles...</span>
+                <span>Consultando versiones en {item.providerId.toUpperCase()}...</span>
+              </div>
+            ) : versions.length === 0 ? (
+              <div className="p-2.5 rounded-lg bg-nebula-950 border border-nebula-800 text-xs text-slate-500 font-mono">
+                Sin archivos compatibles con la versión actual del servidor.
               </div>
             ) : (
               <select
@@ -197,7 +297,7 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
               >
                 {versions.map((v) => (
                   <option key={v.id} value={v.id}>
-                    {v.versionNumber} ({v.fileName})
+                    v{v.versionNumber} &mdash; {v.fileName}
                   </option>
                 ))}
               </select>
@@ -205,8 +305,22 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
           </div>
 
           {/* Folder Target Hint */}
-          <div className="p-2.5 rounded-lg bg-nebula-950/80 border border-nebula-800 text-[11px] font-mono text-slate-400">
-            Destino: <span className="text-nebula-cyber">/data/servers/{selectedServerId}/{item.projectType === 'plugin' ? 'plugins/' : 'mods/'}</span>
+          <div className="p-2.5 rounded-lg bg-nebula-950/80 border border-nebula-800 text-[11px] font-mono text-slate-400 space-y-1">
+            <div className="flex items-center gap-1.5">
+              <FolderCheck className="w-3.5 h-3.5 text-nebula-cyber shrink-0" />
+              <span>
+                Destino:{' '}
+                <span className="text-nebula-cyber">
+                  /data/servers/{selectedServerId || '...'}
+                  {targetSubfolder ? `/${targetSubfolder}/` : '/'}
+                </span>
+              </span>
+            </div>
+            {isPluginServer && (
+              <p className="text-[10px] text-amber-400/90 font-sans leading-tight">
+                ℹ️ Servidor {targetServer?.loader.toUpperCase()}: se instalará automáticamente en <code>plugins/</code>.
+              </p>
+            )}
           </div>
         </div>
 
@@ -221,7 +335,13 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
           </button>
           <button
             type="button"
-            disabled={isInstalling || !selectedServerId || servers.length === 0}
+            disabled={
+              isInstalling ||
+              !selectedServerId ||
+              servers.length === 0 ||
+              versions.length === 0 ||
+              isClientMod
+            }
             onClick={handleInstall}
             className="px-4 py-2 bg-nebula-purple hover:bg-purple-600 text-white font-bold text-xs rounded-lg shadow-lg shadow-purple-950/30 transition-all flex items-center gap-2 disabled:opacity-40"
           >
@@ -230,6 +350,8 @@ export const ContentInstallModal: React.FC<ContentInstallModalProps> = ({
                 <Orbit className="w-4 h-4 animate-spin" />
                 <span>Descargando e Instalando...</span>
               </>
+            ) : isClientMod ? (
+              <span>Mod de Cliente Incompatible</span>
             ) : (
               <span>Confirmar e Instalar</span>
             )}

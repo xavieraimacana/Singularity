@@ -92,18 +92,30 @@ export class ModrinthProvider implements IContentProvider {
 
     const data = (await res.json()) as { hits: ModrinthSearchHit[]; total_hits: number };
 
-    const items: CatalogItem[] = data.hits.map((hit) => ({
-      id: hit.project_id,
-      slug: hit.slug,
-      title: hit.title,
-      description: hit.description,
-      projectType: (hit.project_type ?? 'mod') as ProjectType,
-      categories: hit.categories ?? [],
-      downloads: hit.downloads ?? 0,
-      iconUrl: hit.icon_url ?? undefined,
-      author: hit.author,
-      providerId: this.id
-    }));
+    const items: CatalogItem[] = data.hits.map((hit) => {
+      // Modrinth classifies plugins under 'mod' with categories like 'spigot', 'paper', 'bukkit'
+      const isPluginCategory = hit.categories?.some((c) =>
+        ['spigot', 'paper', 'purpur', 'bukkit', 'bungeecord', 'velocity'].includes(c.toLowerCase())
+      );
+
+      let effectiveProjectType = (hit.project_type ?? 'mod') as ProjectType;
+      if (effectiveProjectType === 'mod' && isPluginCategory && !hit.categories?.some((c) => ['fabric', 'forge', 'neoforge', 'quilt'].includes(c.toLowerCase()))) {
+        effectiveProjectType = 'plugin';
+      }
+
+      return {
+        id: hit.project_id,
+        slug: hit.slug,
+        title: hit.title,
+        description: hit.description,
+        projectType: effectiveProjectType,
+        categories: hit.categories ?? [],
+        downloads: hit.downloads ?? 0,
+        iconUrl: hit.icon_url ?? undefined,
+        author: hit.author,
+        providerId: this.id
+      };
+    });
 
     return {
       items,
@@ -137,7 +149,20 @@ export class ModrinthProvider implements IContentProvider {
       throw new Error(`Error al obtener versiones de Modrinth para ${projectId} (HTTP ${res.status})`);
     }
 
-    const versions = (await res.json()) as ModrinthVersionResponse[];
+    let versions = (await res.json()) as ModrinthVersionResponse[];
+
+    // Fallback: if filtered query returned no versions, fetch all project versions
+    if (versions.length === 0 && (gameVersion || loader)) {
+      const fallbackUrl = `${this.baseUrl}/project/${encodeURIComponent(projectId)}/version`;
+      const fallbackRes = await fetch(fallbackUrl, {
+        headers: {
+          'User-Agent': 'NebulaX-Singularity/0.1.0 (contact@nebulax.dev)'
+        }
+      });
+      if (fallbackRes.ok) {
+        versions = (await fallbackRes.json()) as ModrinthVersionResponse[];
+      }
+    }
 
     return versions.map((v) => {
       const primaryFile = v.files.find((f) => f.primary) ?? v.files[0];

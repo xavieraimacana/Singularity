@@ -7,12 +7,20 @@ import type {
   ProjectType
 } from '../models/catalog-item.js';
 
+interface CurseForgeCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface CurseForgeModHit {
   id: number;
   name: string;
   slug: string;
   summary: string;
   downloadCount: number;
+  classId?: number;
+  categories?: CurseForgeCategory[];
   logo?: {
     url: string;
   };
@@ -47,6 +55,21 @@ export class CurseForgeProvider implements IContentProvider {
     params.set('pageSize', String(query.limit ?? 20));
     params.set('index', String(query.offset ?? 0));
 
+    // CurseForge classIds: 6 = Mods, 4471 = Modpacks, 5 = Bukkit Plugins, 6945 = Datapacks
+    if (query.projectType === 'modpack') {
+      params.set('classId', '4471');
+    } else if (query.projectType === 'plugin') {
+      params.set('classId', '5');
+    } else if (query.projectType === 'datapack') {
+      params.set('classId', '6945');
+    } else if (query.projectType === 'mod') {
+      params.set('classId', '6');
+    }
+
+    if (query.gameVersion) {
+      params.set('gameVersion', query.gameVersion);
+    }
+
     const res = await fetch(`${this.baseUrl}/mods/search?${params.toString()}`, {
       headers: {
         'Accept': 'application/json',
@@ -63,13 +86,21 @@ export class CurseForgeProvider implements IContentProvider {
       pagination: { totalCount: number };
     };
 
+    const resolveProjectType = (hit: CurseForgeModHit): ProjectType => {
+      if (hit.classId === 4471) return 'modpack';
+      if (hit.classId === 5) return 'plugin';
+      if (hit.classId === 6945) return 'datapack';
+      if (hit.classId === 6) return 'mod';
+      return (query.projectType ?? 'mod') as ProjectType;
+    };
+
     const items: CatalogItem[] = data.data.map((mod) => ({
       id: String(mod.id),
       slug: mod.slug,
       title: mod.name,
       description: mod.summary,
-      projectType: (query.projectType ?? 'mod') as ProjectType,
-      categories: [],
+      projectType: resolveProjectType(mod),
+      categories: mod.categories?.map((c) => c.name) ?? [],
       downloads: mod.downloadCount,
       iconUrl: mod.logo?.url,
       author: mod.authors?.[0]?.name ?? 'CurseForge Author',
@@ -87,7 +118,7 @@ export class CurseForgeProvider implements IContentProvider {
   async getVersions(
     projectId: string,
     gameVersion?: string,
-    loader?: string
+    _loader?: string
   ): Promise<ContentVersion[]> {
     if (!this.isEnabled) {
       return [];
@@ -117,21 +148,40 @@ export class CurseForgeProvider implements IContentProvider {
     }
 
     const data = (await res.json()) as { data: CurseForgeFile[] };
+    let files = data.data ?? [];
 
-    return data.data.map((f) => ({
-      id: String(f.id),
-      projectId,
-      name: f.displayName,
-      versionNumber: String(f.id),
-      gameVersions: f.gameVersions,
-      loaders: [],
-      fileName: f.fileName,
-      downloadUrl: f.downloadUrl ?? '',
-      size: f.fileLength,
-      hashes: {
-        sha1: f.hashes.find((h) => h.algo === 1)?.value
-      },
-      dependencies: []
-    }));
+    // Sort descending by file id (latest uploads first)
+    files.sort((a, b) => b.id - a.id);
+
+    // Optional gameVersion filter with graceful fallback
+    if (gameVersion) {
+      const matching = files.filter((f) => f.gameVersions?.includes(gameVersion));
+      if (matching.length > 0) {
+        files = matching;
+      }
+    }
+
+    return files.map((f) => {
+      // CurseForge Edge CDN fallback if direct downloadUrl is null
+      const downloadUrl =
+        f.downloadUrl ||
+        `https://edge.forgecdn.net/files/${Math.floor(f.id / 1000)}/${f.id % 1000}/${encodeURIComponent(f.fileName)}`;
+
+      return {
+        id: String(f.id),
+        projectId,
+        name: f.displayName,
+        versionNumber: String(f.id),
+        gameVersions: f.gameVersions ?? [],
+        loaders: [],
+        fileName: f.fileName,
+        downloadUrl,
+        size: f.fileLength,
+        hashes: {
+          sha1: f.hashes?.find((h) => h.algo === 1)?.value
+        },
+        dependencies: []
+      };
+    });
   }
 }
