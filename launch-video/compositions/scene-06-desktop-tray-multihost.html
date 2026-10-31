@@ -5,175 +5,173 @@
       inset: 0;
       width: 1920px;
       height: 1080px;
-      background: radial-gradient(circle at 50% 30%, #0d1527 0%, #050811 100%);
+      background: #060911;
       display: flex;
       flex-direction: column;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #f8fafc;
       overflow: hidden;
-      position: relative;
+      perspective: 1600px;
     }
 
-    .desktop-scene-title {
-      text-align: center;
-      margin-top: 40px;
-      margin-bottom: 24px;
+    .desktop-wallpaper {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, #0d1527 0%, #060911 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ambient-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.04) 40%, transparent 70%);
+      pointer-events: none;
       z-index: 2;
     }
 
-    .scene-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-family: 'JetBrains Mono', monospace;
-      color: #06b6d4;
-      background: rgba(6, 182, 212, 0.12);
-      border: 1px solid rgba(6, 182, 212, 0.35);
-      padding: 6px 18px;
-      border-radius: 9999px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 12px;
-    }
-
-    .scene-heading {
-      font-size: 44px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #ffffff;
-    }
-
-    .scene-heading span {
-      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .desktop-display-grid {
-      display: flex;
-      gap: 32px;
-      width: 1440px;
-      align-items: flex-start;
-      margin: 0 auto;
-      z-index: 2;
-    }
-
-    /* Modal Conexiones */
-    .connection-modal-card {
-      flex: 1.1;
-      background: #0d1322;
-      border: 1px solid rgba(6, 182, 212, 0.35);
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85);
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 14px;
-    }
-
-    .profile-item {
-      background: #080d1a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .profile-item.active {
-      border-color: #06b6d4;
-      background: rgba(6, 182, 212, 0.1);
-      box-shadow: 0 0 25px rgba(6, 182, 212, 0.15);
-    }
-
-    .conn-telemetry-box {
-      background: #050811;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 10px;
-      padding: 14px 18px;
+    /* Windows 11 Taskbar at Bottom (48px) */
+    .windows-taskbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: rgba(15, 20, 28, 0.85);
+      backdrop-filter: blur(25px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
+      padding: 0 16px;
+      z-index: 200;
+      user-select: none;
     }
 
-    /* System Tray & Windows UI */
-    .system-tray-showcase {
-      flex: 0.9;
-      background: #0d1322;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 18px;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85);
-      position: relative;
-    }
-
-    .tray-preview-bar {
-      background: #050811;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 14px 18px;
+    .taskbar-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 12px;
     }
 
-    .tray-icons {
+    .taskbar-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      justify-content: center;
+      cursor: pointer;
     }
 
-    .singularity-tray-icon {
-      width: 24px;
-      height: 24px;
-      filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.8));
-    }
-
-    /* Interactive Tray Context Menu */
-    .tray-context-menu {
-      background: #111827;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
-      padding: 8px 0;
-      width: 100%;
-      font-size: 13px;
-    }
-
-    .context-item {
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: #e2e8f0;
-    }
-
-    .context-item.highlight {
-      background: rgba(6, 182, 212, 0.15);
-      color: #06b6d4;
-      font-weight: 600;
-    }
-
-    .context-divider {
-      height: 1px;
+    .taskbar-icon.active {
       background: rgba(255, 255, 255, 0.08);
-      margin: 6px 0;
+      position: relative;
+    }
+
+    .taskbar-icon.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 16px;
+      height: 3px;
+      border-radius: 2px;
+      background: #10b981;
+    }
+
+    .taskbar-tray {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .tray-singularity-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #090b10;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    /* Windows 11 Desktop App Window */
+    .viewport-3d-stage {
+      position: absolute;
+      top: 40px;
+      left: 60px;
+      width: 1800px;
+      height: 960px;
+      transform-style: preserve-3d;
+      z-index: 10;
+    }
+
+    .app-window-frame {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #090b10;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95);
+      overflow: hidden;
+    }
+
+    /* Context Menu from Tray (Exact Desktop Shell) */
+    .tray-context-menu {
+      position: absolute;
+      bottom: 56px;
+      right: 24px;
+      width: 320px;
+      background: rgba(15, 20, 28, 0.95);
+      backdrop-filter: blur(25px);
+      border: 1px solid #2c374d;
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(16, 185, 129, 0.15);
+      z-index: 250;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 0;
+      transform: translateY(15px);
+      pointer-events: none;
+    }
+
+    .menu-header-bar {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1c2433;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #f8fafc;
+      cursor: pointer;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      background: #1c2433;
+      color: #10b981;
     }
 
     /* Virtual Mouse Cursor */
@@ -181,122 +179,140 @@
       position: absolute;
       width: 28px;
       height: 28px;
+      z-index: 300;
       pointer-events: none;
-      z-index: 100;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-    }
-
-    .cursor-ripple {
-      position: absolute;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid #06b6d4;
-      top: -4px;
-      left: -4px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
       opacity: 0;
-      transform: scale(0.5);
     }
   </style>
 
-  <div id="root" data-composition-id="scene-06-desktop-tray-multihost" data-width="1920" data-height="1080" data-hold>
-    <div id="desktop-wrap" style="width: 100%; display: flex; flex-direction: column;">
-      <div class="desktop-scene-title" id="desktop-header">
-        <div class="scene-badge" data-layout-ignore>Control Total y Ligero</div>
-        <div class="scene-heading">Conexión Flexible: <span>Local y VPS Remoto en la Nube</span></div>
-      </div>
+  <div id="root" data-composition-id="scene-06-desktop-tray-multihost" data-width="1920" data-height="1080">
+    <div class="desktop-wallpaper"></div>
+    <div class="ambient-glow"></div>
 
-      <div class="desktop-display-grid">
-        <!-- Conmutador de Conexiones Multi-Host -->
-        <div class="connection-modal-card" id="conn-card">
-          <div class="modal-head" data-layout-ignore>
-            <div>
-              <div style="font-weight: 700; font-size: 18px; color: #ffffff;">Selector de Nodos</div>
-              <div style="font-size: 13px; color: #94a3b8;">Cambia al instante entre servidores locales o tu VPS</div>
-            </div>
-            <span style="font-size: 12px; color: #10b981; font-weight: 700; background: rgba(16, 185, 129, 0.12); padding: 4px 10px; border-radius: 20px;">MULTI-HOST</span>
+    <!-- Application Window (Minimizes to Tray) -->
+    <div class="viewport-3d-stage" id="app-window" data-layout-ignore>
+      <div class="app-window-frame">
+        <div style="height: 38px; background: #0f141c; border-bottom: 1px solid #1c2433; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2"></rect>
+            </svg>
+            <span>Singularity Mission Control &bull; v0.1.0-alpha</span>
           </div>
-
-          <!-- Profile 1: Local -->
-          <div class="profile-item active" id="prof-local" data-layout-ignore>
-            <div style="display: flex; align-items: center; gap: 14px;">
-              <span style="font-size: 24px;">🖥️</span>
-              <div>
-                <div style="font-weight: 700; color: #ffffff;">Servidor Local (127.0.0.1:3000)</div>
-                <div style="font-size: 13px; color: #94a3b8;">Tu PC para desarrollo rápido</div>
-              </div>
-            </div>
-            <span style="color: #06b6d4; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;" id="badge-local">ACTIVO</span>
-          </div>
-
-          <!-- Profile 2: Cloud VPS -->
-          <div class="profile-item" id="prof-cloud" data-layout-ignore>
-            <div style="display: flex; align-items: center; gap: 14px;">
-              <span style="font-size: 24px;">☁️</span>
-              <div>
-                <div style="font-weight: 700; color: #ffffff;">VPS Oracle Cloud (OCI 24/7)</div>
-                <div style="font-size: 13px; color: #94a3b8;">vps.singularity.cloud:3000</div>
-              </div>
-            </div>
-            <span style="color: #94a3b8; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;" id="badge-cloud">CONECTAR</span>
-          </div>
-
-          <div class="conn-telemetry-box" id="conn-telemetry" style="opacity: 0;" data-layout-ignore>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="color: #10b981;">●</span>
-              <span style="color: #e2e8f0;">Conectado a VPS Remoto (18ms)</span>
-            </div>
-            <span style="color: #10b981; font-weight: 700;">Sincronizado en Vivo</span>
+          <div style="display: flex; gap: 16px; color: #64748b; font-size: 13px;">
+            <span>&minus;</span>
+            <span>&#9633;</span>
+            <span>&times;</span>
           </div>
         </div>
-
-        <!-- System Tray Showcase -->
-        <div class="system-tray-showcase" id="tray-card">
-          <div data-layout-ignore>
-            <div style="font-weight: 700; font-size: 18px; color: #ffffff;">Bandeja del Sistema (System Tray)</div>
-            <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-top: 4px;">
-              Corre silenciosamente en segundo plano consumiendo mínimos recursos.
-            </p>
-          </div>
-
-          <div class="tray-preview-bar" data-layout-ignore>
-            <span style="font-size: 13px; color: #64748b; font-family: 'JetBrains Mono', monospace;">Barra de Tareas Windows</span>
-            <div class="tray-icons">
-              <img src="assets/brand/master-symbol-color.svg" alt="Tray" class="singularity-tray-icon" id="tray-icon-el" />
-              <span style="font-size: 14px;">🔊</span>
-              <span style="font-size: 14px;">📶</span>
-            </div>
-          </div>
-
-          <!-- Tray Menu -->
-          <div class="tray-context-menu" id="tray-context-menu" data-layout-ignore>
-            <div class="context-item highlight">
-              <span>🌌 Singularity Controller</span>
-              <span style="color: #10b981;">● Online</span>
-            </div>
-            <div class="context-divider"></div>
-            <div class="context-item">
-              <span>🎮 Survival Aventura (Fabric 1.21.4)</span>
-              <span style="color: #06b6d4; font-family: 'JetBrains Mono', monospace;">20.0 TPS</span>
-            </div>
-            <div class="context-item">
-              <span>🔄 Reiniciar Servidor</span>
-            </div>
-            <div class="context-item">
-              <span>💻 Abrir Consola Interactiva</span>
-            </div>
-          </div>
+        <div style="flex: 1; background: #090b10; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #10b981;">
+          Servidor en ejecución 24/7 en segundo plano
         </div>
-      </div>
-
-      <!-- Virtual Mouse Cursor -->
-      <div class="virtual-cursor" id="virtual-cursor">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" stroke="#000000" stroke-width="1.5">
-          <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L5.85 2.85A.5.5 0 0 0 5.5 3.21z"/>
-        </svg>
-        <div class="cursor-ripple" id="cursor-ripple"></div>
       </div>
     </div>
+
+    <!-- System Tray Context Menu -->
+    <div class="tray-context-menu" id="tray-menu" data-layout-ignore>
+      <div class="menu-header-bar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <circle cx="12" cy="12" r="9"></circle>
+            <circle cx="12" cy="12" r="3" fill="#10b981"></circle>
+          </svg>
+          <span style="font-size: 12px; font-weight: 800; color: #f8fafc;">Singularity Desktop</span>
+        </div>
+        <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #10b981; font-weight: 700;">ACTIVO</span>
+      </div>
+
+      <div class="menu-item" style="color: #10b981; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+        <span>Better MC: En línea (20.0 TPS)</span>
+      </div>
+
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+        </svg>
+        <span>Abrir Panel de Control</span>
+      </div>
+
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        <span>Reiniciar Servidor (/restart)</span>
+      </div>
+
+      <div style="height: 1px; background: #1c2433; margin: 4px 0;"></div>
+
+      <div class="menu-item" id="item-oracle-cloud" style="display: flex; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+          <span>Cambiar a Oracle Cloud VPS</span>
+        </div>
+        <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #06b6d4; font-weight: 700;">18ms</span>
+      </div>
+
+      <div class="menu-item" style="color: #ef4444;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+          <line x1="12" y1="2" x2="12" y2="12"></line>
+        </svg>
+        <span>Salir</span>
+      </div>
+    </div>
+
+    <!-- Windows 11 Taskbar -->
+    <div class="windows-taskbar" data-layout-ignore>
+      <div></div>
+
+      <div class="taskbar-center">
+        <!-- Windows Start -->
+        <div class="taskbar-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#0078d4">
+            <rect x="2" y="2" width="9" height="9"></rect>
+            <rect x="13" y="2" width="9" height="9"></rect>
+            <rect x="2" y="13" width="9" height="9"></rect>
+            <rect x="13" y="13" width="9" height="9"></rect>
+          </svg>
+        </div>
+
+        <div class="taskbar-icon active" id="taskbar-singularity-app">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <circle cx="12" cy="12" r="9"></circle>
+            <circle cx="12" cy="12" r="3" fill="#10b981"></circle>
+          </svg>
+        </div>
+
+        <div class="taskbar-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="4"></rect>
+          </svg>
+        </div>
+      </div>
+
+      <!-- System Tray -->
+      <div class="taskbar-tray">
+        <div class="tray-singularity-icon" id="tray-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <circle cx="12" cy="12" r="9"></circle>
+            <circle cx="12" cy="12" r="3" fill="#10b981"></circle>
+          </svg>
+        </div>
+        <span>18:24</span>
+      </div>
+    </div>
+
+    <!-- Virtual Mouse Cursor -->
+    <svg class="virtual-cursor" id="virtual-cursor" viewBox="0 0 24 24" fill="none">
+      <path d="M5.5 3.5L11.5 20.5L14.5 13.5L21.5 10.5L5.5 3.5Z" fill="#ffffff" stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+    </svg>
   </div>
 
   <script>
@@ -304,86 +320,61 @@
     const tl = gsap.timeline({ paused: true });
     window.__timelines["scene-06-desktop-tray-multihost"] = tl;
 
-    // Entrance
-    tl.fromTo("#desktop-header",
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-      0.1
-    );
+    gsap.set("#virtual-cursor", { x: 1780, y: 500 });
 
-    tl.fromTo(".desktop-display-grid",
-      { opacity: 0, scale: 0.96, y: 20 },
-      { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "power2.out" },
-      0.3
-    );
+    // 0.5s: Singularity window smoothly minimizes into the system tray
+    tl.to("#app-window", {
+      scale: 0.05,
+      x: 880,
+      y: 500,
+      opacity: 0,
+      duration: 1.2,
+      ease: "power2.inOut"
+    }, 0.5);
 
-    // Mouse cursor moves to click "Cloud VPS" profile
-    tl.fromTo("#virtual-cursor",
-      { x: 300, y: 350, opacity: 0 },
-      { x: 680, y: 490, opacity: 1, duration: 1.0, ease: "power2.inOut" },
-      0.8
-    );
+    // 1.8s: Virtual cursor moves down to System Tray icon
+    tl.to("#virtual-cursor", {
+      opacity: 1,
+      x: 1845,
+      y: 1055,
+      duration: 0.8,
+      ease: "power2.out"
+    }, 1.8);
 
-    // Click profile
-    tl.fromTo("#cursor-ripple",
-      { opacity: 1, scale: 0.5 },
-      { opacity: 0, scale: 1.8, duration: 0.35, ease: "power1.out" },
-      1.8
-    );
+    // 2.7s: Right-click on tray icon -> Context menu opens
+    tl.to("#tray-menu", {
+      opacity: 1,
+      y: 0,
+      pointerEvents: "auto",
+      duration: 0.35,
+      ease: "back.out(1.4)"
+    }, 2.7);
 
-    tl.to("#prof-cloud", { scale: 0.98, duration: 0.12, yoyo: true, repeat: 1 }, 1.8);
+    // 3.4s: Cursor moves to "Cambiar a Oracle Cloud VPS"
+    tl.to("#virtual-cursor", {
+      x: 1750,
+      y: 955,
+      duration: 0.7,
+      ease: "power2.out"
+    }, 3.4);
 
-    // Profile activates with connection feedback
-    tl.call(() => {
-      const pLocal = document.getElementById("prof-local");
-      const pCloud = document.getElementById("prof-cloud");
-      const bLocal = document.getElementById("badge-local");
-      const bCloud = document.getElementById("badge-cloud");
-      if (pLocal && pCloud && bLocal && bCloud) {
-        pLocal.classList.remove("active");
-        pCloud.classList.add("active");
-        bLocal.textContent = "INACTIVO";
-        bLocal.style.color = "#94a3b8";
-        bCloud.textContent = "CONECTADO (18ms)";
-        bCloud.style.color = "#10b981";
-      }
-    }, null, 2.0);
-
-    // Show live telemetry bar
-    tl.fromTo("#conn-telemetry",
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
-      2.2
-    );
-
-    // Cursor moves to highlight System Tray Icon
-    tl.to("#virtual-cursor",
-      { x: 1250, y: 390, duration: 0.9, ease: "power2.inOut" },
-      2.7
-    );
-
-    // Tray icon glow & Context menu pulse
-    tl.to("#tray-icon-el", {
-      scale: 1.25,
-      filter: "drop-shadow(0 0 15px rgba(6, 182, 212, 1))",
-      duration: 0.3,
+    // 4.3s: Click "Cambiar a Oracle Cloud VPS"
+    tl.to("#item-oracle-cloud", {
+      scale: 0.96,
+      duration: 0.1,
       yoyo: true,
       repeat: 1
-    }, 3.6);
+    }, 4.3);
 
-    tl.fromTo("#tray-context-menu",
-      { opacity: 0, y: 15, scale: 0.95 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.4)" },
-      3.8
-    );
+    tl.call(() => {
+      const item = document.getElementById("item-oracle-cloud");
+      item.style.color = "#10b981";
+      item.innerHTML = '<span style="font-weight: 800;">✔ Conectado a Oracle Cloud (18ms)</span>';
+    }, null, 4.5);
 
-    // Exit transition
-    tl.to("#root", {
-      opacity: 0,
-      scale: 1.04,
-      duration: 0.5,
-      ease: "power2.in"
-    }, 5.5);
+    // 5.5s - 6.0s: Fade out to Scene 7
+    tl.to("#tray-menu", { opacity: 0, duration: 0.4 }, 5.5);
+    tl.to("#virtual-cursor", { opacity: 0, duration: 0.3 }, 5.5);
 
     tl.seek(0);
   </script>

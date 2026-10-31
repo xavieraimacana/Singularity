@@ -7,29 +7,62 @@
       height: 1080px;
       background: #060911;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #f8fafc;
+      overflow: hidden;
+      perspective: 1600px;
+    }
+
+    .ambient-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 60% 40%, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.05) 50%, transparent 75%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .viewport-3d-stage {
+      position: relative;
+      width: 1840px;
+      height: 1020px;
+      transform-style: preserve-3d;
+      z-index: 10;
+    }
+
+    .app-window-frame {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #090b10;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.08), 0 0 50px rgba(16, 185, 129, 0.1);
       overflow: hidden;
       position: relative;
     }
 
+    /* Windows 11 Titlebar */
     .window-titlebar {
       height: 38px;
-      background: #050811;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: #0f141c;
+      border-bottom: 1px solid #1c2433;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
-      z-index: 100;
+      user-select: none;
+      z-index: 60;
+      shrink: 0;
     }
 
     .window-title-left {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 13px;
+      font-size: 12px;
       color: #94a3b8;
       font-weight: 500;
     }
@@ -38,108 +71,289 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      font-size: 12px;
+      font-size: 13px;
       color: #64748b;
     }
 
-    /* Layout */
-    .app-body {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .app-sidebar {
-      width: 260px;
-      background: #080c16;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      padding: 20px 14px;
-      gap: 8px;
-    }
-
-    .sidebar-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 0 10px 18px 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 8px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #94a3b8;
-    }
-
-    .nav-item.active {
-      background: rgba(6, 182, 212, 0.12);
-      color: #06b6d4;
-      border: 1px solid rgba(6, 182, 212, 0.25);
-    }
-
-    /* Main Area */
-    .main-viewport {
+    .app-shell {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: #090d16;
       overflow: hidden;
+      background: #090b10;
     }
 
-    /* Server Header */
-    .server-header {
-      height: 90px;
-      background: #0b1120;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 0 32px;
+    /* Top App Header */
+    .app-header {
+      height: 56px;
+      border-bottom: 1px solid #1c2433;
+      background: rgba(15, 20, 28, 0.95);
+      padding: 0 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      z-index: 40;
+      shrink: 0;
     }
 
-    .server-name-block {
+    /* Main App Layout */
+    .app-main-layout {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar */
+    .app-sidebar {
+      width: 240px;
+      border-right: 1px solid #1c2433;
+      background: rgba(15, 20, 28, 0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      shrink: 0;
+      user-select: none;
+    }
+
+    .sidebar-brand-box {
+      height: 56px;
+      padding: 0 16px;
       display: flex;
       align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #1c2433;
+    }
+
+    .sidebar-logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #090b10;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-nav-links {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+
+    .sidebar-nav-item.active {
+      background: rgba(28, 36, 51, 0.9);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 600;
+    }
+
+    /* Server Detail Viewport (Exact ServerDetailPage.tsx) */
+    .server-detail-viewport {
+      flex: 1;
+      padding: 20px 28px;
+      display: flex;
+      flex-direction: column;
       gap: 16px;
+      background: #090b10;
+      overflow: hidden;
     }
 
-    .server-name {
-      font-size: 28px;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.02em;
+    .detail-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      shrink: 0;
     }
 
-    .server-badge-soft {
-      background: rgba(6, 182, 212, 0.15);
-      border: 1px solid rgba(6, 182, 212, 0.35);
-      color: #06b6d4;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .server-telemetry-row {
+    .detail-heading-left {
       display: flex;
       align-items: center;
       gap: 14px;
     }
 
-    .telemetry-pill {
-      background: #060a14;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
+    .btn-back {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #0f141c;
+      border: 1px solid #1c2433;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+    }
+
+    .server-name-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .server-status-pill {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .tps-pill {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .server-sub-specs {
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .detail-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-ide-bridge {
       padding: 8px 16px;
+      border-radius: 8px;
+      background: #1c2433;
+      border: 1px solid #2c374d;
+      color: #06b6d4;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    /* Navigation Tabs */
+    .detail-nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border-bottom: 1px solid #1c2433;
+      padding-bottom: 2px;
+      shrink: 0;
+      font-size: 13px;
+    }
+
+    .nav-tab-item {
+      padding: 8px 16px;
+      color: #94a3b8;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px solid transparent;
+    }
+
+    .nav-tab-item.active {
+      color: #10b981;
+      border-bottom-color: #10b981;
+      font-weight: 700;
+    }
+
+    /* Two-column Console & Players Grid */
+    .console-players-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* VT100 Terminal Box */
+    .terminal-box {
+      background: #090b10;
+      border: 1px solid #1c2433;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7);
+    }
+
+    .terminal-header-bar {
+      height: 36px;
+      background: #0f141c;
+      border-bottom: 1px solid #1c2433;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .terminal-logs-viewport {
+      flex: 1;
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-line {
+      opacity: 0;
+      transform: translateX(-6px);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .log-time { color: #64748b; }
+    .log-tag-fabric { color: #60a5fa; font-weight: 700; }
+    .log-tag-java { color: #10b981; font-weight: 700; }
+    .log-tag-server { color: #cbd5e1; }
+    .log-success { color: #10b981; font-weight: 800; }
+
+    .terminal-cmd-bar {
+      height: 44px;
+      background: #0f141c;
+      border-top: 1px solid #1c2433;
+      padding: 0 16px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -147,207 +361,340 @@
       font-size: 13px;
     }
 
-    .telemetry-pill.online {
-      border-color: rgba(16, 185, 129, 0.4);
-      background: rgba(16, 185, 129, 0.08);
-      color: #10b981;
-      font-weight: 700;
-    }
+    .cmd-prompt { color: #10b981; font-weight: 800; }
+    .cmd-input-text { color: #f8fafc; font-weight: 600; }
 
-    /* Tabs Bar */
-    .server-tabs-bar {
-      height: 48px;
-      background: #080c18;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      padding: 0 32px;
-      gap: 28px;
-      align-items: center;
-    }
-
-    .tab-link {
-      font-size: 14px;
-      font-weight: 600;
-      color: #94a3b8;
-      padding: 13px 0;
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-    }
-
-    .tab-link.active {
-      color: #06b6d4;
-      border-bottom-color: #06b6d4;
-    }
-
-    /* VT100 Terminal Area */
-    .terminal-container {
-      flex: 1;
-      background: #030712;
-      padding: 24px 32px;
+    /* Right Player Manager & Telemetry Card */
+    .side-telemetry-box {
+      background: #0f141c;
+      border: 1px solid #1c2433;
+      border-radius: 12px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      line-height: 1.6;
-      overflow: hidden;
+      gap: 18px;
     }
 
-    .log-line {
+    .side-section-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #f8fafc;
       display: flex;
-      gap: 12px;
-      opacity: 0;
-      transform: translateX(-10px);
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .log-time { color: #64748b; }
-    .log-info { color: #38bdf8; font-weight: 600; }
-    .log-msg { color: #e2e8f0; }
-    .log-success { color: #10b981; font-weight: 700; }
+    .player-row {
+      background: #090b10;
+      border: 1px solid #1c2433;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-    /* Virtual Mouse Cursor */
-    .virtual-cursor {
-      position: absolute;
+    .player-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .player-avatar-head {
       width: 28px;
       height: 28px;
-      z-index: 300;
-      pointer-events: none;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+      border-radius: 6px;
+      background: #1c2433;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .cursor-ripple {
-      position: absolute;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid #06b6d4;
-      top: -4px;
-      left: -4px;
-      opacity: 0;
-      transform: scale(0.5);
+    .telemetry-metric-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .telemetry-progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 9999px;
+      background: #090b10;
+      overflow: hidden;
+      border: 1px solid #1c2433;
+    }
+
+    .telemetry-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+      width: 52%;
     }
   </style>
 
-  <div id="root" data-composition-id="scene-03-console-live" data-width="1920" data-height="1080" data-hold>
-    <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
-      <!-- Titlebar -->
-      <div class="window-titlebar" data-layout-ignore>
-        <div class="window-title-left" data-layout-ignore>
-          <img src="assets/brand/singularity-app-icon.svg" alt="Icon" style="width: 18px; height: 18px;" />
-          <span style="font-weight: 600; color: #ffffff;">Singularity</span>
-          <span style="color: #475569;">—</span>
-          <span>Survival Aventura (Consola)</span>
-        </div>
-        <div class="window-controls" data-layout-ignore>
-          <span>─</span>
-          <span>□</span>
-          <span>✕</span>
-        </div>
-      </div>
+  <div id="root" data-composition-id="scene-03-console-live" data-width="1920" data-height="1080">
+    <div class="ambient-glow"></div>
 
-      <!-- App Body -->
-      <div class="app-body">
-        <!-- Sidebar -->
-        <div class="app-sidebar" data-layout-ignore>
-          <div class="sidebar-brand" data-layout-ignore>
-            <img src="assets/brand/master-symbol-color.svg" alt="Singularity" style="width: 28px; height: 28px;" />
-            <span style="font-size: 17px; font-weight: 800; color: #ffffff;">Singularity</span>
+    <div class="viewport-3d-stage" id="viewport-stage">
+      <div class="app-window-frame">
+        <!-- Windows 11 Titlebar -->
+        <div class="window-titlebar" data-layout-ignore>
+          <div class="window-title-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2"></rect>
+            </svg>
+            <span>Singularity Mission Control &mdash; Desktop Client v0.1.0-alpha</span>
           </div>
-
-          <div class="nav-item" data-layout-ignore>
-            <span>📊</span>
-            <span>Dashboard</span>
-          </div>
-          <div class="nav-item active" data-layout-ignore>
-            <span>🎮</span>
-            <span>Servidores</span>
-          </div>
-          <div class="nav-item" id="sidebar-nav-catalog" data-layout-ignore>
-            <span>📦</span>
-            <span>Catálogo Prism</span>
-          </div>
-          <div class="nav-item" data-layout-ignore>
-            <span>☕</span>
-            <span>Gestor Java</span>
-          </div>
-          <div class="nav-item" data-layout-ignore>
-            <span>⚙️</span>
-            <span>Ajustes</span>
+          <div class="window-controls">
+            <span>&minus;</span>
+            <span>&#9633;</span>
+            <span>&times;</span>
           </div>
         </div>
 
-        <!-- Main Viewport -->
-        <div class="main-viewport">
-          <!-- Server Header -->
-          <div class="server-header">
-            <div class="server-name-block">
-              <div class="server-name">Survival Aventura</div>
-              <div class="server-badge-soft" data-layout-ignore>FABRIC 1.21.4</div>
+        <!-- Application Shell -->
+        <div class="app-shell">
+          <!-- Top App Header -->
+          <div class="app-header" data-layout-ignore>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #94a3b8;">
+              <span style="color: #64748b;">Mission Control</span>
+              <span>&gt;</span>
+              <span style="font-weight: 700; color: #f8fafc;">Better MC Fabric</span>
             </div>
 
-            <!-- Telemetry Badges -->
-            <div class="server-telemetry-row" data-layout-ignore>
-              <div class="telemetry-pill online" id="status-pill" data-layout-ignore>
-                <span>●</span>
-                <span>ONLINE</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; font-size: 12px; font-family: 'JetBrains Mono', monospace; background: #090b10; border: 1px solid #1c2433; border-radius: 8px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                <span>Local PC (127.0.0.1)</span>
               </div>
-              <div class="telemetry-pill" id="tps-pill" data-layout-ignore>
-                <span style="color: #94a3b8;">TPS:</span>
-                <span style="color: #10b981; font-weight: 700;">20.0</span>
-              </div>
-              <div class="telemetry-pill" id="ram-pill" data-layout-ignore>
-                <span style="color: #94a3b8;">RAM:</span>
-                <span style="color: #06b6d4; font-weight: 700;">1.8 / 4.0 GB</span>
+              <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #06b6d4; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="4 17 10 11 4 5"></polyline>
+                  <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+                <span>SFTP :2022</span>
               </div>
             </div>
           </div>
 
-          <!-- Tabs -->
-          <div class="server-tabs-bar" data-layout-ignore>
-            <div class="tab-link active">💻 Consola</div>
-            <div class="tab-link" id="tab-files">📂 Archivos</div>
-            <div class="tab-link" id="tab-mods">📦 Mods &amp; Plugins</div>
-            <div class="tab-link">⚙️ Propiedades</div>
-            <div class="tab-link">💾 Backups</div>
-          </div>
+          <!-- Main Layout -->
+          <div class="app-main-layout">
+            <!-- Sidebar -->
+            <aside class="app-sidebar" data-layout-ignore>
+              <div>
+                <div class="sidebar-brand-box">
+                  <div class="sidebar-logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                      <circle cx="12" cy="12" r="9"></circle>
+                      <circle cx="12" cy="12" r="3" fill="#10b981"></circle>
+                    </svg>
+                  </div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 14px; font-weight: 800; color: #f8fafc;">Singularity</span>
+                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b;">NEBULAX STUDIO</span>
+                  </div>
+                </div>
 
-          <!-- VT100 Terminal Output -->
-          <div class="terminal-container" id="terminal-content">
-            <div class="log-line" id="log-1" data-layout-ignore>
-              <span class="log-time">[11:15:02]</span>
-              <span class="log-info">[FabricLoader/INFO]:</span>
-              <span class="log-msg">Loading Minecraft 1.21.4 with Fabric Loader 0.16.10</span>
-            </div>
-            <div class="log-line" id="log-2" data-layout-ignore>
-              <span class="log-time">[11:15:03]</span>
-              <span class="log-info">[JavaRuntime/INFO]:</span>
-              <span class="log-msg">Using Eclipse Adoptium OpenJDK 25.0.0 (x64) with Aikar's optimized flags</span>
-            </div>
-            <div class="log-line" id="log-3" data-layout-ignore>
-              <span class="log-time">[11:15:04]</span>
-              <span class="log-info">[ServerThread/INFO]:</span>
-              <span class="log-msg">Preparing level "world" (seed: -7481920491823901)</span>
-            </div>
-            <div class="log-line" id="log-4" data-layout-ignore>
-              <span class="log-time">[11:15:05]</span>
-              <span class="log-info">[ServerThread/INFO]:</span>
-              <span class="log-msg">Preparing start region for dimension minecraft:overworld: 100%</span>
-            </div>
-            <div class="log-line" id="log-5" data-layout-ignore>
-              <span class="log-time">[11:15:06]</span>
-              <span class="log-info">[ServerThread/INFO]:</span>
-              <span class="log-success">Done (3.820s)! For help, type "help". Dedicated server listening on port 25565.</span>
-            </div>
+                <nav class="sidebar-nav-links">
+                  <div class="sidebar-nav-item active">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="20" height="8" rx="2"></rect>
+                        <rect x="2" y="14" width="20" height="8" rx="2"></rect>
+                      </svg>
+                      <span>Servidores Activos</span>
+                    </div>
+                  </div>
+                  <div class="sidebar-nav-item">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      </svg>
+                      <span>Catálogo Prism</span>
+                    </div>
+                  </div>
+                  <div class="sidebar-nav-item">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                      </svg>
+                      <span>Java Runtimes</span>
+                    </div>
+                  </div>
+                </nav>
+              </div>
+            </aside>
+
+            <!-- Server Detail Viewport -->
+            <main class="server-detail-viewport" data-layout-ignore>
+              <!-- Detail Top Bar -->
+              <div class="detail-top-bar" data-layout-ignore>
+                <div class="detail-heading-left">
+                  <button class="btn-back">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="19" y1="12" x2="5" y2="12"></line>
+                      <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                  </button>
+                  <div>
+                    <div class="server-name-title">
+                      <span>Better MC Fabric</span>
+                      <span class="server-status-pill" id="server-status-pill">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+                        <span id="status-text">ONLINE</span>
+                      </span>
+                      <span class="tps-pill" id="tps-pill">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        <span>20.0 TPS</span>
+                      </span>
+                    </div>
+                    <div class="server-sub-specs">
+                      <span style="color: #60a5fa; font-weight: 700;">FABRIC 1.21.4</span>
+                      <span>&bull;</span>
+                      <span>Puerto: 25565</span>
+                      <span>&bull;</span>
+                      <span>RAM: 4096 MB</span>
+                      <span>&bull;</span>
+                      <span>PID: 4188</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="detail-actions-right">
+                  <button class="btn-ide-bridge" id="btn-open-ide">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="16 18 22 12 16 6"></polyline>
+                      <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    <span>Abrir en IDE</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <button style="padding: 8px 14px; border-radius: 8px; background: rgba(234, 88, 12, 0.2); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.4); font-size: 12px; font-weight: 700; cursor: pointer;">
+                    Detener (/stop)
+                  </button>
+                  <button style="padding: 8px 14px; border-radius: 8px; background: #151b26; color: #cbd5e1; border: 1px solid #2c374d; font-size: 12px; font-weight: 700; cursor: pointer;">
+                    Reiniciar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Navigation Tabs -->
+              <div class="detail-nav-tabs" data-layout-ignore>
+                <div class="nav-tab-item active">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                  </svg>
+                  <span>Consola y Jugadores</span>
+                </div>
+                <div class="nav-tab-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  </svg>
+                  <span>Mods y Plugins</span>
+                </div>
+                <div class="nav-tab-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span>Archivos</span>
+                </div>
+                <div class="nav-tab-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                  <span>Configuración</span>
+                </div>
+              </div>
+
+              <!-- Two-column Console & Telemetry Grid -->
+              <div class="console-players-grid">
+                <!-- VT100 Console Box -->
+                <div class="terminal-box">
+                  <div class="terminal-header-bar" data-layout-ignore>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                      <span style="font-weight: 700; color: #f8fafc;">VT100 Terminal Emulation (xterm)</span>
+                    </div>
+                    <span>Encoding: UTF-8 &bull; ANSI Colors</span>
+                  </div>
+
+                  <div class="terminal-logs-viewport" id="terminal-viewport">
+                    <div class="log-line" id="log-1"><span class="log-time">[18:24:01]</span> <span class="log-tag-fabric">[FabricLoader/INFO]:</span> Loading 184 mods with Fabric Loader 0.16.10</div>
+                    <div class="log-line" id="log-2"><span class="log-time">[18:24:02]</span> <span class="log-tag-java">[Adoptium/INFO]:</span> Runtime verified: Eclipse Temurin OpenJDK 64-Bit (build 25.0.0)</div>
+                    <div class="log-line" id="log-3"><span class="log-time">[18:24:02]</span> <span class="log-tag-server">[Server thread/INFO]:</span> Loading Better MC core optimization modules...</div>
+                    <div class="log-line" id="log-4"><span class="log-time">[18:24:03]</span> <span class="log-tag-server">[Server thread/INFO]:</span> Preparing start region for dimension minecraft:overworld</div>
+                    <div class="log-line" id="log-5"><span class="log-time">[18:24:04]</span> <span class="log-tag-server">[Server thread/INFO]:</span> Time elapsed: 4218 ms</div>
+                    <div class="log-line log-success" id="log-6"><span class="log-time">[18:24:05]</span> [Server thread/INFO]: Done (4.218s)! For help, type "help"</div>
+                    <div class="log-line" id="log-7" style="color: #06b6d4;"><span class="log-time">[18:24:06]</span> [User/INFO]: Steve joined the game (127.0.0.1:52114)</div>
+                  </div>
+
+                  <div class="terminal-cmd-bar" data-layout-ignore>
+                    <span class="cmd-prompt">&gt;</span>
+                    <span class="cmd-input-text">say &iexcl;Servidor Better MC listo en Singularity!</span>
+                    <span style="width: 8px; height: 16px; background: #10b981; display: inline-block;"></span>
+                  </div>
+                </div>
+
+                <!-- Right Side Player Manager & Telemetry -->
+                <div class="side-telemetry-box" data-layout-ignore>
+                  <div>
+                    <div class="side-section-title">
+                      <span>Jugadores Conectados</span>
+                      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #10b981;">1 / 20</span>
+                    </div>
+                    <div style="margin-top: 10px;">
+                      <div class="player-row">
+                        <div class="player-left">
+                          <div class="player-avatar-head">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#60a5fa">
+                              <circle cx="12" cy="8" r="4"></circle>
+                              <path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path>
+                            </svg>
+                          </div>
+                          <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 13px; font-weight: 700; color: #f8fafc;">Steve</span>
+                            <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #10b981;">12ms latency</span>
+                          </div>
+                        </div>
+                        <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #10b981;">OP</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Telemetry Metrics -->
+                  <div style="display: flex; flex-direction: column; gap: 14px; border-top: 1px solid #1c2433; padding-top: 14px;">
+                    <div class="telemetry-metric-row">
+                      <div style="display: flex; justify-content: space-between; font-size: 12px; font-family: 'JetBrains Mono', monospace;">
+                        <span style="color: #94a3b8;">Uso de Memoria</span>
+                        <span style="color: #f8fafc; font-weight: 700;">2.1 GB / 4.0 GB (52%)</span>
+                      </div>
+                      <div class="telemetry-progress-bar">
+                        <div class="telemetry-progress-fill"></div>
+                      </div>
+                    </div>
+
+                    <div class="telemetry-metric-row">
+                      <div style="display: flex; justify-content: space-between; font-size: 12px; font-family: 'JetBrains Mono', monospace;">
+                        <span style="color: #94a3b8;">Estabilidad TPS</span>
+                        <span style="color: #10b981; font-weight: 800;">20.0 TPS (100%)</span>
+                      </div>
+                      <div class="telemetry-progress-bar">
+                        <div style="height: 100%; width: 100%; background: #10b981;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </main>
           </div>
         </div>
-      </div>
-
-      <!-- Virtual Mouse Cursor -->
-      <div class="virtual-cursor" id="virtual-cursor">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L5.85 2.85A.5.5 0 0 0 5.5 3.21z" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-        </svg>
-        <div class="cursor-ripple" id="cursor-ripple"></div>
       </div>
     </div>
   </div>
@@ -357,34 +704,21 @@
     const tl = gsap.timeline({ paused: true });
     window.__timelines["scene-03-console-live"] = tl;
 
-    // Initial log visibility
-    gsap.set(["#log-1", "#log-2", "#log-3", "#log-4", "#log-5"], { opacity: 0, x: -10 });
-    gsap.set("#status-pill", { opacity: 0.4 });
-    gsap.set("#tps-pill", { opacity: 0.4 });
+    // Sequential log lines streaming in
+    tl.to("#log-1", { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 0.5);
+    tl.to("#log-2", { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 1.3);
+    tl.to("#log-3", { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 2.1);
+    tl.to("#log-4", { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 2.9);
+    tl.to("#log-5", { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 3.7);
+    tl.to("#log-6", { opacity: 1, x: 0, duration: 0.4, ease: "back.out(1.5)" }, 4.5);
+    tl.to("#log-7", { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 5.5);
 
-    // Stream logs sequentially
-    tl.to("#log-1", { opacity: 1, x: 0, duration: 0.3, ease: "power1.out" }, 0.3);
-    tl.to("#log-2", { opacity: 1, x: 0, duration: 0.3, ease: "power1.out" }, 0.9);
-    tl.to("#log-3", { opacity: 1, x: 0, duration: 0.3, ease: "power1.out" }, 1.5);
-    tl.to("#log-4", { opacity: 1, x: 0, duration: 0.3, ease: "power1.out" }, 2.1);
-    tl.to("#log-5", { opacity: 1, x: 0, duration: 0.4, ease: "power1.out" }, 2.8);
-
-    // Boot Done -> Telemetry illuminates green
-    tl.to("#status-pill", { opacity: 1, scale: 1.05, duration: 0.3, yoyo: true, repeat: 1 }, 3.1);
-    tl.to("#tps-pill", { opacity: 1, scale: 1.05, duration: 0.3, yoyo: true, repeat: 1 }, 3.3);
-
-    // Virtual Cursor glides across screen to click on "Mods & Plugins" tab
-    tl.fromTo("#virtual-cursor", { x: 1000, y: 500, opacity: 0 }, { x: 580, y: 152, opacity: 1, duration: 1.2, ease: "power2.inOut" }, 3.8);
-
-    // Hover & Click on "Mods & Plugins" tab
-    tl.to("#tab-mods", { color: "#ffffff", duration: 0.2 }, 5.0);
-    tl.fromTo("#cursor-ripple", { opacity: 1, scale: 0.5 }, { opacity: 0, scale: 1.8, duration: 0.35, ease: "power1.out" }, 5.4);
-
-    // Tab activates
-    tl.to("#tab-mods", { borderBottomColor: "#06b6d4", color: "#06b6d4", duration: 0.2 }, 5.6);
-
-    // Transition exit into Prism Catalog
-    tl.to("#root", { scale: 1.04, opacity: 0, duration: 0.5, ease: "power2.in" }, 7.3);
+    // Subtle 3D camera pan
+    tl.fromTo("#viewport-stage",
+      { rotationX: 2, rotationY: -3, z: 0 },
+      { rotationX: 0, rotationY: 0, z: 0, duration: 2.5, ease: "power2.out" },
+      0
+    );
 
     tl.seek(0);
   </script>

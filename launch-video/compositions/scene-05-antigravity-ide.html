@@ -5,13 +5,13 @@
       inset: 0;
       width: 1920px;
       height: 1080px;
-      background: #1e1e1e;
+      background: #181818;
       display: flex;
       flex-direction: column;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #cccccc;
       overflow: hidden;
-      perspective: 1400px;
+      perspective: 1600px;
     }
 
     /* Full Window Frame */
@@ -20,12 +20,11 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      background: #181818;
-      border: 1px solid #2d2d2d;
+      background: #1e1e1e;
       position: relative;
     }
 
-    /* Top Titlebar */
+    /* Top IDE Titlebar (VS Code / Antigravity IDE standard) */
     .ide-titlebar {
       height: 35px;
       background: #181818;
@@ -38,28 +37,34 @@
       color: #999999;
       user-select: none;
       z-index: 100;
+      shrink: 0;
     }
 
-    .ide-titlebar-center {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+    .ide-titlebar-left {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #cccccc;
+      gap: 10px;
     }
 
     .ide-search-pill {
       background: #252526;
       border: 1px solid #3c3c3c;
       border-radius: 6px;
-      padding: 3px 24px;
-      font-size: 11px;
-      color: #858585;
-      width: 320px;
-      text-align: center;
+      padding: 3px 28px;
+      font-size: 12px;
+      color: #cccccc;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: #64748b;
     }
 
     /* Main IDE Layout */
@@ -70,94 +75,99 @@
       position: relative;
     }
 
-    /* Activity Bar (Far Left 50px) */
+    /* Activity Bar (Far Left 48px) */
     .activity-bar {
-      width: 50px;
+      width: 48px;
       background: #181818;
       border-right: 1px solid #2b2b2b;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px 0;
-      gap: 20px;
+      padding: 8px 0;
+      gap: 14px;
       z-index: 20;
+      shrink: 0;
     }
 
     .activity-icon {
-      font-size: 20px;
-      color: #858585;
-      cursor: pointer;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
+      color: #858585;
+      cursor: pointer;
+      position: relative;
     }
 
     .activity-icon.active {
       color: #ffffff;
-      border-left: 2px solid #007acc;
+      border-left: 2px solid #ffffff;
     }
 
-    /* Explorer Side Bar (260px) */
+    /* Explorer Sidebar (260px) */
     .explorer-sidebar {
-      width: 280px;
-      background: #1e1e1e;
+      width: 260px;
+      background: #252526;
       border-right: 1px solid #2b2b2b;
       display: flex;
       flex-direction: column;
-      font-size: 13px;
-      font-family: 'Segoe UI', -apple-system, sans-serif;
+      shrink: 0;
+      user-select: none;
     }
 
     .explorer-header {
-      padding: 10px 20px;
+      height: 35px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.08em;
       color: #bbbbbb;
-      text-transform: uppercase;
-      display: flex;
-      justify-content: space-between;
+      border-bottom: 1px solid #2b2b2b;
     }
 
     .sftp-badge-pill {
-      font-size: 10px;
-      padding: 2px 6px;
-      background: rgba(6, 182, 212, 0.2);
-      border: 1px solid #06b6d4;
-      color: #06b6d4;
-      border-radius: 4px;
+      font-size: 9px;
       font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.4);
     }
 
-    .tree-view {
+    .file-tree-viewport {
+      padding: 8px 0;
       display: flex;
       flex-direction: column;
-      padding: 6px 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', -apple-system, sans-serif;
+      font-size: 13px;
     }
 
-    .tree-item {
-      padding: 5px 20px;
+    .tree-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      height: 26px;
+      padding-left: 14px;
       color: #cccccc;
       cursor: pointer;
     }
 
-    .tree-item.selected {
+    .tree-row.active {
       background: #37373d;
       color: #ffffff;
     }
 
-    .tree-indent {
-      padding-left: 36px;
-    }
+    .tree-indent-1 { padding-left: 28px; }
+    .tree-indent-2 { padding-left: 44px; }
 
-    /* Editor Canvas Area */
-    .editor-stage {
+    /* Editor Viewport */
+    .editor-viewport {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -165,35 +175,29 @@
       overflow: hidden;
     }
 
-    /* Tabs Bar */
     .editor-tabs-bar {
-      height: 38px;
+      height: 35px;
       background: #181818;
       display: flex;
       align-items: center;
-      border-bottom: 1px solid #2b2b2b;
+      border-bottom: 1px solid #252525;
+      overflow-x: auto;
     }
 
     .editor-tab {
-      height: 100%;
+      height: 35px;
       background: #1e1e1e;
-      border-right: 1px solid #2b2b2b;
-      padding: 0 16px;
+      border-right: 1px solid #252525;
+      border-top: 1px solid #007acc;
+      padding: 0 14px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: #ffffff;
-      border-top: 1px solid #007acc;
-    }
-
-    .tab-close {
+      gap: 8px;
       font-size: 12px;
-      color: #999999;
+      color: #ffffff;
     }
 
-    /* Breadcrumbs */
-    .editor-breadcrumbs {
+    .breadcrumbs-bar {
       height: 24px;
       padding: 0 16px;
       display: flex;
@@ -203,60 +207,101 @@
       color: #888888;
       background: #1e1e1e;
       border-bottom: 1px solid #252525;
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Code View */
-    .code-editor-content {
+    /* Code Lines & Syntax */
+    .code-editor-area {
       flex: 1;
       padding: 16px 20px;
       display: flex;
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
-      line-height: 1.7;
+      line-height: 1.65;
+      overflow-y: auto;
     }
 
-    .line-numbers {
+    .line-numbers-col {
       width: 44px;
       display: flex;
       flex-direction: column;
       color: #6e7681;
-      user-select: none;
       text-align: right;
-      padding-right: 16px;
+      padding-right: 18px;
+      user-select: none;
     }
 
-    .code-lines {
+    .code-lines-col {
       flex: 1;
       display: flex;
       flex-direction: column;
     }
 
-    .code-prop-key { color: #79c0ff; }
-    .code-prop-eq { color: #d2a8ff; }
-    .code-prop-val { color: #a5d6ff; }
-    .code-prop-string { color: #a5d6ff; }
-    .code-prop-highlight { color: #7ee787; font-weight: 700; }
+    .syn-comment { color: #6a9955; font-style: italic; }
+    .syn-key { color: #9cdcfe; }
+    .syn-eq { color: #d4d4d4; }
+    .syn-num { color: #b5cea8; }
+    .syn-bool { color: #569cd6; }
+    .syn-string { color: #ce9178; }
+    .syn-highlight { color: #4ec9b0; font-weight: 700; }
 
-    /* IDE Toast Sync Notification */
-    .ide-toast {
+    .blinking-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 16px;
+      background: #528bff;
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Keystroke Shortcut Overlay */
+    .keystroke-badge {
       position: absolute;
-      bottom: 40px;
+      top: 60px;
+      right: 40px;
+      background: rgba(30, 30, 30, 0.9);
+      border: 1px solid #007acc;
+      border-radius: 8px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #ffffff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 122, 204, 0.3);
+      opacity: 0;
+      z-index: 100;
+    }
+
+    /* Native VS Code Notification Toast */
+    .ide-notification-toast {
+      position: absolute;
+      bottom: 36px;
       right: 32px;
+      width: 420px;
       background: #252526;
       border: 1px solid #007acc;
       border-radius: 8px;
-      padding: 14px 20px;
+      padding: 14px 18px;
       display: flex;
       align-items: center;
       gap: 14px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 122, 204, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 122, 204, 0.3);
       font-size: 13px;
-      color: #ffffff;
+      color: #f8fafc;
       z-index: 150;
       opacity: 0;
+      transform: translateY(15px);
     }
 
-    /* Bottom Status Bar (24px) */
+    /* Bottom Status Bar */
     .ide-statusbar {
       height: 24px;
       background: #007acc;
@@ -269,6 +314,7 @@
       font-family: 'Segoe UI', sans-serif;
       user-select: none;
       z-index: 100;
+      shrink: 0;
     }
 
     .statusbar-left,
@@ -278,32 +324,41 @@
       gap: 16px;
     }
 
-    /* Virtual Mouse Cursor */
-    .virtual-cursor {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      z-index: 300;
-      pointer-events: none;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+    .ssh-remote-pill {
+      background: #16825d;
+      padding: 0 10px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
     }
   </style>
 
-  <div id="root" data-composition-id="scene-05-antigravity-ide" data-width="1920" data-height="1080" data-hold>
-    <div class="ide-window-frame" id="ide-window">
+  <div id="root" data-composition-id="scene-05-antigravity-ide" data-width="1920" data-height="1080">
+    <div class="ide-window-frame">
       <!-- Titlebar -->
       <div class="ide-titlebar" data-layout-ignore>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="assets/brand/master-symbol-color.svg" alt="Antigravity IDE" style="width: 16px; height: 16px;" />
-          <span>Antigravity IDE — Singularity SFTP Bridge</span>
+        <div class="ide-titlebar-left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007acc" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          <span style="font-weight: 600; color: #cccccc;">Antigravity IDE &mdash; server.properties [SSH: 127.0.0.1:2022]</span>
         </div>
-        <div class="ide-titlebar-center">
-          <div class="ide-search-pill">server.properties — survival-aventura [SFTP]</div>
+
+        <div class="ide-search-pill">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#858585" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>server.properties &bull; Singularity SFTP Bridge</span>
         </div>
-        <div style="display: flex; gap: 14px; color: #858585;">
-          <span>─</span>
-          <span>□</span>
-          <span>✕</span>
+
+        <div class="window-controls">
+          <span>&minus;</span>
+          <span>&#9633;</span>
+          <span>&times;</span>
         </div>
       </div>
 
@@ -311,137 +366,260 @@
       <div class="ide-body">
         <!-- Activity Bar -->
         <div class="activity-bar" data-layout-ignore>
-          <div class="activity-icon active">📁</div>
-          <div class="activity-icon">🔍</div>
-          <div class="activity-icon">⑂</div>
-          <div class="activity-icon">▶</div>
-          <div class="activity-icon">🧩</div>
+          <!-- Explorer (Active) -->
+          <div class="activity-icon active">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+
+          <!-- Search -->
+          <div class="activity-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+
+          <!-- Source Control -->
+          <div class="activity-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="6" cy="6" r="3"></circle>
+              <circle cx="6" cy="18" r="3"></circle>
+              <circle cx="18" cy="9" r="3"></circle>
+              <path d="M6 9v6"></path>
+              <path d="M18 9a9 9 0 0 1-9 9"></path>
+            </svg>
+          </div>
+
+          <!-- Run / Debug -->
+          <div class="activity-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </div>
+
+          <!-- Extensions -->
+          <div class="activity-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="2" y="2" width="8" height="8" rx="1"></rect>
+              <rect x="14" y="2" width="8" height="8" rx="1"></rect>
+              <rect x="2" y="14" width="8" height="8" rx="1"></rect>
+              <rect x="14" y="14" width="8" height="8" rx="1"></rect>
+            </svg>
+          </div>
+
+          <!-- Antigravity AI Sparkle -->
+          <div class="activity-icon" style="color: #10b981;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path>
+            </svg>
+          </div>
+
           <div style="flex: 1;"></div>
-          <div class="activity-icon">⚙️</div>
+
+          <!-- Settings Gear -->
+          <div class="activity-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
         </div>
 
         <!-- Explorer Sidebar -->
         <div class="explorer-sidebar" data-layout-ignore>
           <div class="explorer-header">
-            <span>EXPLORADOR: SFTP</span>
-            <span class="sftp-badge-pill">PORT 2022</span>
+            <span>EXPLORER</span>
+            <span class="sftp-badge-pill">SFTP :2022</span>
           </div>
 
-          <div class="tree-view">
-            <div class="tree-item" style="font-weight: 700; color: #58a6ff;">
-              <span>▼</span>
-              <span>survival-aventura</span>
+          <div class="file-tree-viewport">
+            <div class="tree-row" style="font-weight: 700; color: #58a6ff;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+              <span>SFTP: SINGULARITY (127.0.0.1:2022)</span>
             </div>
-            <div class="tree-item tree-indent">
-              <span>▶</span>
-              <span style="color: #79c0ff;">world/</span>
+
+            <!-- config/ -->
+            <div class="tree-row tree-indent-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>config</span>
             </div>
-            <div class="tree-item tree-indent">
-              <span>▼</span>
-              <span style="color: #79c0ff;">mods/</span>
+
+            <!-- mods/ -->
+            <div class="tree-row tree-indent-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>mods</span>
             </div>
-            <div class="tree-item" style="padding-left: 54px; color: #8b949e; font-size: 12px;">
-              <span>📦</span>
-              <span>better-mc-core.jar</span>
+
+            <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              </svg>
+              <span>better-combat-1.8.0.jar</span>
             </div>
-            <div class="tree-item" style="padding-left: 54px; color: #8b949e; font-size: 12px;">
-              <span>📦</span>
-              <span>sodium-fabric.jar</span>
+
+            <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              </svg>
+              <span>fabric-api-0.96.11.jar</span>
             </div>
-            <div class="tree-item tree-indent">
-              <span>▶</span>
-              <span style="color: #79c0ff;">config/</span>
+
+            <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              </svg>
+              <span>sodium-0.6.2.jar</span>
             </div>
-            <div class="tree-item tree-indent selected">
-              <span>📄</span>
-              <span style="color: #ffffff; font-weight: 600;">server.properties</span>
+
+            <!-- world/ -->
+            <div class="tree-row tree-indent-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>world</span>
             </div>
-            <div class="tree-item tree-indent">
-              <span>📄</span>
-              <span style="color: #94a3b8;">eula.txt</span>
+
+            <!-- eula.txt -->
+            <div class="tree-row tree-indent-1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#858585" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              </svg>
+              <span>eula.txt</span>
+            </div>
+
+            <!-- server.properties (Active) -->
+            <div class="tree-row tree-indent-1 active">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e5c07b" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span>server.properties</span>
             </div>
           </div>
         </div>
 
-        <!-- Editor Stage -->
-        <div class="editor-stage">
-          <!-- Editor Tabs -->
+        <!-- Editor Viewport -->
+        <div class="editor-viewport">
           <div class="editor-tabs-bar" data-layout-ignore>
             <div class="editor-tab">
-              <span style="color: #f59e0b;">⚙</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e5c07b" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
               <span>server.properties</span>
-              <span class="tab-close" id="tab-save-dot">●</span>
-            </div>
-            <div style="padding: 0 16px; font-size: 13px; color: #888888; display: flex; align-items: center; gap: 8px;">
-              <span>📄</span>
-              <span>fabric-server.json</span>
+              <span style="font-size: 14px; color: #858585; cursor: pointer;">&times;</span>
             </div>
           </div>
 
-          <!-- Breadcrumbs -->
-          <div class="editor-breadcrumbs" data-layout-ignore>
-            <span>survival-aventura</span>
-            <span>›</span>
-            <span style="color: #ffffff;">server.properties</span>
+          <div class="breadcrumbs-bar" data-layout-ignore>
+            <span>singularity</span>
+            <span>&gt;</span>
+            <span>servers</span>
+            <span>&gt;</span>
+            <span>Better MC Fabric</span>
+            <span>&gt;</span>
+            <span style="color: #cccccc;">server.properties</span>
           </div>
 
-          <!-- Code Lines -->
-          <div class="code-editor-content">
-            <div class="line-numbers" data-layout-ignore>
-              <div>1</div>
-              <div>2</div>
-              <div>3</div>
-              <div>4</div>
-              <div>5</div>
-              <div>6</div>
-              <div>7</div>
-              <div>8</div>
-              <div>9</div>
+          <!-- Code Content Area -->
+          <div class="code-editor-area" data-layout-ignore>
+            <div class="line-numbers-col" data-layout-ignore>
+              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+              <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+              <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+              <span>16</span>
             </div>
 
-            <div class="code-lines" data-layout-ignore>
-              <div><span class="code-prop-key"># Minecraft Server Configuration</span></div>
-              <div><span class="code-prop-key"># Managed by Singularity Mission Control</span></div>
-              <div><span class="code-prop-key">server-port</span><span class="code-prop-eq">=</span><span class="code-prop-val">25565</span></div>
-              <div><span class="code-prop-key">online-mode</span><span class="code-prop-eq">=</span><span class="code-prop-val">true</span></div>
-              <div><span class="code-prop-key">gamemode</span><span class="code-prop-eq">=</span><span class="code-prop-val">survival</span></div>
-              <div id="code-line-motd"><span class="code-prop-key">motd</span><span class="code-prop-eq">=</span><span class="code-prop-highlight" id="motd-value">§6⚔ Servidor Aventura §7| §bFabric 1.21.4</span></div>
-              <div><span class="code-prop-key">difficulty</span><span class="code-prop-eq">=</span><span class="code-prop-val" id="diff-value">hard</span></div>
-              <div><span class="code-prop-key">view-distance</span><span class="code-prop-eq">=</span><span class="code-prop-val">12</span></div>
-              <div><span class="code-prop-key">max-players</span><span class="code-prop-eq">=</span><span class="code-prop-val">20</span></div>
+            <div class="code-lines-col">
+              <div><span class="syn-comment"># Minecraft Server Properties &mdash; Singularity Live SFTP</span></div>
+              <div><span class="syn-key">server-port</span><span class="syn-eq">=</span><span class="syn-num">25565</span></div>
+              <div><span class="syn-key">server-ip</span><span class="syn-eq">=</span><span class="syn-string">127.0.0.1</span></div>
+              <div><span class="syn-key">max-players</span><span class="syn-eq">=</span><span class="syn-num">20</span></div>
+              <div><span class="syn-key">view-distance</span><span class="syn-eq">=</span><span class="syn-num">12</span></div>
+              <div><span class="syn-key">simulation-distance</span><span class="syn-eq">=</span><span class="syn-num">8</span></div>
+              <div><span class="syn-key">enable-rcon</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
+              <div><span class="syn-key">rcon.port</span><span class="syn-eq">=</span><span class="syn-num">25575</span></div>
+              <div><span class="syn-key">online-mode</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
+              <div><span class="syn-key">difficulty</span><span class="syn-eq">=</span><span class="syn-string" id="code-difficulty">normal</span></div>
+              <div><span class="syn-key">gamemode</span><span class="syn-eq">=</span><span class="syn-string">survival</span></div>
+              <div><span class="syn-key">pvp</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
+              <div><span class="syn-key">spawn-protection</span><span class="syn-eq">=</span><span class="syn-num">16</span></div>
+              <div>
+                <span class="syn-key">motd</span><span class="syn-eq">=</span><span class="syn-string" id="code-motd">&sect;a&sect;lSingularity &sect;7| &sect;fServidor Minecraft</span><span class="blinking-cursor" id="blinking-cursor"></span>
+              </div>
+              <div><span class="syn-key">allow-flight</span><span class="syn-eq">=</span><span class="syn-bool">false</span></div>
+              <div><span class="syn-key">white-list</span><span class="syn-eq">=</span><span class="syn-bool">false</span></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Live Sync Toast Notification -->
-      <div class="ide-toast" id="ide-sync-toast" data-layout-ignore>
-        <span style="font-size: 20px;">⚡</span>
-        <div>
-          <div style="font-weight: 700; color: #ffffff;">SFTP Hot Reload en Vivo</div>
-          <div style="font-size: 12px; color: #79c0ff;">server.properties guardado y sincronizado (puerto 2022)</div>
+      <!-- Keystroke Shortcut Badge -->
+      <div class="keystroke-badge" id="keystroke-badge" data-layout-ignore>
+        <span style="color: #64748b;">Guardar &amp; Subir:</span>
+        <kbd style="padding: 2px 8px; border-radius: 4px; background: #007acc; color: #ffffff; font-weight: 700;">Ctrl + S</kbd>
+      </div>
+
+      <!-- Native VS Code Notification Toast -->
+      <div class="ide-notification-toast" id="ide-toast" data-layout-ignore>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <div style="flex: 1;">
+          <div style="font-weight: 700; color: #ffffff;">SFTP Sincronizado</div>
+          <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8; margin-top: 2px;">
+            server.properties actualizado en Singularity (24ms)
+          </div>
         </div>
       </div>
 
       <!-- Bottom Status Bar -->
       <div class="ide-statusbar" data-layout-ignore>
         <div class="statusbar-left">
-          <span>⑂ main*</span>
-          <span>⚡ SFTP: Conectado a Singularity (puerto 2022)</span>
+          <div class="ssh-remote-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span>SSH: 127.0.0.1:2022</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="6" cy="6" r="3"></circle>
+              <circle cx="6" cy="18" r="3"></circle>
+              <circle cx="18" cy="9" r="3"></circle>
+              <path d="M6 9v6"></path>
+            </svg>
+            <span>main*</span>
+          </div>
+          <span>0 &otimes;  0 &triangle;</span>
         </div>
+
         <div class="statusbar-right">
-          <span>Ln 6, Col 48</span>
+          <span>Ln 14, Col 36</span>
+          <span>Spaces: 2</span>
           <span>UTF-8</span>
           <span>LF</span>
           <span>Properties</span>
         </div>
-      </div>
-
-      <!-- Virtual Mouse Cursor -->
-      <div class="virtual-cursor" id="virtual-cursor">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L5.85 2.85A.5.5 0 0 0 5.5 3.21z" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-        </svg>
       </div>
     </div>
   </div>
@@ -451,54 +629,51 @@
     const tl = gsap.timeline({ paused: true });
     window.__timelines["scene-05-antigravity-ide"] = tl;
 
-    // IDE Entrance - zooms forward like camera dive
-    tl.fromTo("#ide-window",
-      { scale: 0.9, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.7, ease: "power3.out" },
-      0.1
-    );
+    // 0.0s - 2.5s: Live Syntax Typing on MOTD & difficulty
+    tl.call(() => {
+      document.getElementById("code-difficulty").innerText = "hard";
+    }, null, 1.2);
 
-    // Virtual Cursor glides into editor
-    tl.fromTo("#virtual-cursor",
-      { x: 500, y: 700, opacity: 0 },
-      { x: 920, y: 310, opacity: 1, duration: 1.0, ease: "power2.out" },
-      0.8
-    );
+    tl.call(() => {
+      document.getElementById("code-motd").innerText = "§a§lSingularity §7| §fBetter MC Fabric 1.21.4 [Modpack 184 Mods]";
+    }, null, 2.8);
 
-    // Code highlights and edits in real-time
-    tl.fromTo("#motd-value",
-      { opacity: 0.5 },
-      { opacity: 1, color: "#38bdf8", duration: 0.4, yoyo: true, repeat: 1 },
-      1.8
-    );
+    // 4.0s: User presses "Ctrl + S"
+    tl.to("#keystroke-badge", {
+      opacity: 1,
+      y: 0,
+      duration: 0.3,
+      ease: "power2.out"
+    }, 4.0);
 
-    // Difficulty switch to hard
-    tl.fromTo("#diff-value",
-      { color: "#a5d6ff" },
-      { color: "#ef4444", duration: 0.3 },
-      2.8
-    );
-
-    // Simulate Ctrl+S: Tab dot flashes to saved
-    tl.to("#tab-save-dot", { color: "#10b981", scale: 1.4, duration: 0.2, yoyo: true, repeat: 1 }, 3.5);
-
-    // Toast pops up in bottom-right corner
-    tl.fromTo("#ide-sync-toast",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" },
-      3.8
-    );
-
-    // Toast pulse
-    tl.to("#ide-sync-toast", {
-      boxShadow: "0 0 35px rgba(0, 122, 204, 0.6)",
-      duration: 0.4,
+    tl.to("#keystroke-badge", {
+      scale: 1.05,
+      duration: 0.1,
       yoyo: true,
       repeat: 1
-    }, 5.0);
+    }, 4.3);
 
-    // Exit transition
-    tl.to("#ide-window", { scale: 1.05, opacity: 0, filter: "blur(6px)", duration: 0.6, ease: "power2.in" }, 9.2);
+    tl.to("#keystroke-badge", {
+      opacity: 0,
+      duration: 0.4,
+      ease: "power2.in"
+    }, 5.5);
+
+    // 4.6s: Instant SFTP Sync Notification Toast Slides in
+    tl.to("#ide-toast", {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      ease: "back.out(1.4)"
+    }, 4.6);
+
+    // 8.5s: Toast slides down before transition
+    tl.to("#ide-toast", {
+      opacity: 0,
+      y: 15,
+      duration: 0.4,
+      ease: "power2.in"
+    }, 8.5);
 
     tl.seek(0);
   </script>
