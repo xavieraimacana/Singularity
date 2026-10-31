@@ -115,23 +115,29 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
 
     try {
       if (desktopApi?.openInIde) {
-        const res = await desktopApi.openInIde(server.id, ideToUse);
-        if (res.success) {
-          localStorage.setItem('singularity_preferred_ide', ideToUse);
-          setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
-          setTimeout(() => setIdeFeedbackMsg(null), 3000);
-        } else {
-          setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
+        try {
+          const res = await desktopApi.openInIde(server.id, ideToUse);
+          if (res.success) {
+            localStorage.setItem('singularity_preferred_ide', ideToUse);
+            setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
+            setTimeout(() => setIdeFeedbackMsg(null), 3000);
+            return;
+          } else {
+            setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
+            return;
+          }
+        } catch {
+          // Fall through to REST API if desktop IPC has issues
         }
+      }
+
+      const res = await api.post<{ success: boolean; ideUsed: string; error?: string }>(`/servers/${server.id}/open-ide`, { ide: ideToUse });
+      if (res.success) {
+        localStorage.setItem('singularity_preferred_ide', ideToUse);
+        setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
+        setTimeout(() => setIdeFeedbackMsg(null), 3000);
       } else {
-        const res = await api.post<{ success: boolean; ideUsed: string; error?: string }>(`/servers/${server.id}/open-ide`, { ide: ideToUse });
-        if (res.success) {
-          localStorage.setItem('singularity_preferred_ide', ideToUse);
-          setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
-          setTimeout(() => setIdeFeedbackMsg(null), 3000);
-        } else {
-          setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
-        }
+        setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
       }
     } catch (err: unknown) {
       setActionErrorMsg(err instanceof Error ? err.message : 'Error al invocar IDE');

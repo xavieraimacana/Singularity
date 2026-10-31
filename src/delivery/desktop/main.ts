@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { spawn } from 'node:child_process';
 import { app, BrowserWindow, ipcMain, shell, dialog, Menu } from 'electron';
 import { buildServer } from '../http/server.js';
 import { SftpServer } from '../sftp/index.js';
@@ -52,6 +53,9 @@ const ideBridge = new IdeBridge(SERVERS_DIR);
 const connectionManager = new ConnectionManager();
 const autoStartManager = new AutoStartManager();
 const nativeNotifier = new NativeNotifier();
+
+// Register all IPC handlers immediately before window creation or any async task
+registerIpcHandlers();
 
 // Single instance lock to prevent duplicate servers
 const gotLock = app.requestSingleInstanceLock();
@@ -238,16 +242,34 @@ function createMainWindow(startHidden: boolean = false): BrowserWindow {
 }
 
 function registerIpcHandlers(): void {
-  ipcMain.handle('singularity:open-ide', async (_event, args: { serverId: string; ide?: string }) => {
-    const pref = (args.ide || 'antigravity') as 'antigravity' | 'vscode' | 'cursor' | 'explorer';
-    return ideBridge.openInIde(args.serverId, pref);
+  ipcMain.handle('singularity:open-ide', async (_event, args: { serverId?: string; ide?: string } | string, maybeIde?: string) => {
+    let serverId = '';
+    let ide = 'antigravity';
+    if (typeof args === 'string') {
+      serverId = args;
+      ide = maybeIde || 'antigravity';
+    } else if (args && typeof args === 'object') {
+      serverId = args.serverId || '';
+      ide = args.ide || 'antigravity';
+    }
+    const pref = (ide || 'antigravity') as 'antigravity' | 'vscode' | 'cursor' | 'explorer';
+    return ideBridge.openInIde(serverId, pref);
   });
 
-  ipcMain.handle('singularity:open-folder', async (_event, args: { targetPath?: string }) => {
+  ipcMain.handle('singularity:open-folder', async (_event, args: { targetPath?: string } | string) => {
     try {
-      const p = ideBridge.resolveInstancePath(args.targetPath || '');
-      const err = await shell.openPath(p);
-      return !err;
+      const target = typeof args === 'string' ? args : args?.targetPath || '';
+      const p = ideBridge.resolveInstancePath(target);
+      const isWin = process.platform === 'win32';
+      const isMac = process.platform === 'darwin';
+      if (isWin) {
+        spawn('explorer.exe', [p], { detached: true, stdio: 'ignore' }).unref();
+      } else if (isMac) {
+        spawn('open', [p], { detached: true, stdio: 'ignore' }).unref();
+      } else {
+        spawn('xdg-open', [p], { detached: true, stdio: 'ignore' }).unref();
+      }
+      return true;
     } catch {
       return false;
     }
@@ -387,8 +409,6 @@ app.whenReady().then(async () => {
   if (trayManager.getTray()) {
     nativeNotifier.setTray(trayManager.getTray()!);
   }
-
-  registerIpcHandlers();
 });
 
 app.on('activate', () => {

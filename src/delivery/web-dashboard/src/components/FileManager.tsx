@@ -106,23 +106,29 @@ export const FileManager: React.FC<FileManagerProps> = ({ serverId }) => {
 
     try {
       if (desktopApi?.openInIde) {
-        const res = await desktopApi.openInIde(serverId, ideToUse);
-        if (res.success) {
-          localStorage.setItem('singularity_preferred_ide', ideToUse);
-          setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
-          setTimeout(() => setIdeFeedbackMsg(null), 3000);
-        } else {
-          setErrorMessage(res.error || 'No se pudo abrir el editor seleccionado.');
+        try {
+          const res = await desktopApi.openInIde(serverId, ideToUse);
+          if (res.success) {
+            localStorage.setItem('singularity_preferred_ide', ideToUse);
+            setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
+            setTimeout(() => setIdeFeedbackMsg(null), 3000);
+            return;
+          } else {
+            setErrorMessage(res.error || 'No se pudo abrir el editor seleccionado.');
+            return;
+          }
+        } catch {
+          // Fall through to REST API if desktop IPC has issues
         }
+      }
+
+      const res = await api.post<{ success: boolean; ideUsed: string; error?: string }>(`/servers/${serverId}/open-ide`, { ide: ideToUse });
+      if (res.success) {
+        localStorage.setItem('singularity_preferred_ide', ideToUse);
+        setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
+        setTimeout(() => setIdeFeedbackMsg(null), 3000);
       } else {
-        const res = await api.post<{ success: boolean; ideUsed: string; error?: string }>(`/servers/${serverId}/open-ide`, { ide: ideToUse });
-        if (res.success) {
-          localStorage.setItem('singularity_preferred_ide', ideToUse);
-          setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
-          setTimeout(() => setIdeFeedbackMsg(null), 3000);
-        } else {
-          setErrorMessage(res.error || 'No se pudo abrir el editor seleccionado.');
-        }
+        setErrorMessage(res.error || 'No se pudo abrir el editor seleccionado.');
       }
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : 'Error al invocar el editor');
