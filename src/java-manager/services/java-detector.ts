@@ -76,7 +76,7 @@ export async function inspectJavaBinary(executablePath: string): Promise<JavaRun
 }
 
 export async function detectSystemRuntimes(
-  dataJavaDir: string = path.join(process.cwd(), 'data', 'java')
+  dataJavaDir: string = process.env['SINGULARITY_DATA_JAVA_DIR'] || path.join(process.cwd(), 'data', 'java')
 ): Promise<JavaRuntime[]> {
   const candidatePaths = new Set<string>();
 
@@ -93,18 +93,38 @@ export async function detectSystemRuntimes(
   // 2. PATH (current default java)
   candidatePaths.add(process.platform === 'win32' ? 'java.exe' : 'java');
 
-  // 3. Portable data/java directory
+  // 3. Portable data/java directory (supports both direct and nested Adoptium/OpenJDK layouts)
   try {
     const portableEntries = await fs.readdir(dataJavaDir, { withFileTypes: true });
     for (const entry of portableEntries) {
       if (entry.isDirectory()) {
-        const bin = path.join(
-          dataJavaDir,
-          entry.name,
+        const topDir = path.join(dataJavaDir, entry.name);
+
+        // 3a. Direct layout: data/java/jdk-25/bin/java.exe
+        const directBin = path.join(
+          topDir,
           'bin',
           process.platform === 'win32' ? 'java.exe' : 'java'
         );
-        candidatePaths.add(bin);
+        candidatePaths.add(directBin);
+
+        // 3b. Nested Adoptium release layout: data/java/jdk-25/jdk-25.0.5+8/bin/java.exe
+        try {
+          const subdirs = await fs.readdir(topDir, { withFileTypes: true });
+          for (const sub of subdirs) {
+            if (sub.isDirectory() && sub.name !== 'bin') {
+              const nestedBin = path.join(
+                topDir,
+                sub.name,
+                'bin',
+                process.platform === 'win32' ? 'java.exe' : 'java'
+              );
+              candidatePaths.add(nestedBin);
+            }
+          }
+        } catch {
+          // Ignore subfolder read errors
+        }
       }
     }
   } catch {

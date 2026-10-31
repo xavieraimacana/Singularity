@@ -36,6 +36,7 @@ export interface ServerOptions {
   serversDir?: string;
   jwtSecret?: string;
   skipDefaultAdmin?: boolean;
+  dataJavaDir?: string;
 }
 
 export async function buildServer(options: ServerOptions = {}): Promise<FastifyInstance> {
@@ -140,8 +141,9 @@ export async function buildServer(options: ServerOptions = {}): Promise<FastifyI
     backupService,
     fileManagerService
   });
+  const dataJavaDir = options.dataJavaDir || process.env['SINGULARITY_DATA_JAVA_DIR'] || path.join(process.cwd(), 'data', 'java');
   await fastify.register(catalogRoutes, { prefix: '/api/catalog', providers, installer: contentInstaller, authService });
-  await fastify.register(javaRoutes, { prefix: '/api/java', authService });
+  await fastify.register(javaRoutes, { prefix: '/api/java', authService, dataJavaDir });
   await fastify.register(schedulerRoutes, { prefix: '/api/tasks', taskScheduler, authService });
 
   // Register WebSocket plugin

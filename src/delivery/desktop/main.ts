@@ -30,7 +30,20 @@ let isEmbeddedRunning = false;
 const HTTP_PORT = parseInt(process.env['PORT'] || '3000', 10);
 const HTTP_HOST = '127.0.0.1';
 const SFTP_PORT = parseInt(process.env['SINGULARITY_SFTP_PORT'] || '2022', 10);
-const SERVERS_DIR = path.resolve(process.env['SINGULARITY_SERVERS_DIR'] || 'data/servers');
+
+// Base data directory: in packaged app, use Electron's writable userData (AppData/Roaming/Singularity/data)
+// In development, keep local project ./data folder
+const defaultDataDir = app.isPackaged
+  ? path.join(app.getPath('userData'), 'data')
+  : path.resolve('data');
+
+const SERVERS_DIR = path.resolve(process.env['SINGULARITY_SERVERS_DIR'] || path.join(defaultDataDir, 'servers'));
+const JAVA_DIR = path.resolve(process.env['SINGULARITY_DATA_JAVA_DIR'] || path.join(defaultDataDir, 'java'));
+const DB_PATH = path.resolve(process.env['SINGULARITY_DB_PATH'] || path.join(defaultDataDir, 'singularity.db'));
+
+process.env['SINGULARITY_DATA_JAVA_DIR'] = JAVA_DIR;
+process.env['SINGULARITY_SERVERS_DIR'] = SERVERS_DIR;
+process.env['SINGULARITY_DB_PATH'] = DB_PATH;
 
 const ideBridge = new IdeBridge(SERVERS_DIR);
 const connectionManager = new ConnectionManager();
@@ -72,7 +85,9 @@ async function startEmbeddedServices(): Promise<void> {
   try {
     // Start Fastify HTTP & WebSocket server
     fastifyApp = await buildServer({
-      serversDir: SERVERS_DIR
+      serversDir: SERVERS_DIR,
+      dbPath: DB_PATH,
+      dataJavaDir: JAVA_DIR
     });
 
     try {

@@ -30,9 +30,33 @@ export function getAdoptiumDownloadUrl(
   return `https://api.adoptium.net/v3/binary/latest/${majorVersion}/ga/${os}/${mappedArch}/jdk/hotspot/normal/eclipse`;
 }
 
+export async function extractArchive(archivePath: string, targetDir: string): Promise<void> {
+  await fs.mkdir(targetDir, { recursive: true });
+
+  if (process.platform === 'win32') {
+    // 1. Try Windows native tar.exe (available on Windows 10/11, bsdtar supports .zip without PowerShell dependency)
+    try {
+      await execFileAsync('tar.exe', ['-xf', archivePath, '-C', targetDir]);
+      return;
+    } catch {
+      // 2. Fallback to PowerShell Expand-Archive with ExecutionPolicy Bypass
+      await execFileAsync('powershell.exe', [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-Command',
+        `Expand-Archive -LiteralPath '${archivePath.replace(/'/g, "''")}' -DestinationPath '${targetDir.replace(/'/g, "''")}' -Force`
+      ]);
+    }
+  } else {
+    // Linux/macOS extraction using tar
+    await execFileAsync('tar', ['-xzf', archivePath, '-C', targetDir]);
+  }
+}
+
 export async function downloadPortableJava(
   majorVersion: number,
-  dataJavaDir: string = path.join(process.cwd(), 'data', 'java'),
+  dataJavaDir: string = process.env['SINGULARITY_DATA_JAVA_DIR'] || path.join(process.cwd(), 'data', 'java'),
   onProgress?: (bytes: number) => void
 ): Promise<JavaRuntime> {
   const downloadUrl = getAdoptiumDownloadUrl(majorVersion);
@@ -54,20 +78,8 @@ export async function downloadPortableJava(
   const fileStream = createWriteStream(tempArchive);
   await pipeline(Readable.fromWeb(response.body as WebReadableStream), fileStream);
 
-  // Extract
-  await fs.mkdir(extractTargetDir, { recursive: true });
-
-  if (process.platform === 'win32') {
-    // Windows extraction using PowerShell Expand-Archive
-    await execFileAsync('powershell.exe', [
-      '-NoProfile',
-      '-Command',
-      `Expand-Archive -LiteralPath '${tempArchive}' -DestinationPath '${extractTargetDir}' -Force`
-    ]);
-  } else {
-    // Linux/macOS extraction using tar
-    await execFileAsync('tar', ['-xzf', tempArchive, '-C', extractTargetDir]);
-  }
+  // Extract archive safely
+  await extractArchive(tempArchive, extractTargetDir);
 
   // Clean temp archive
   try {

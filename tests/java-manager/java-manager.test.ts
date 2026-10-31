@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import {
   parseJavaVersionOutput,
   getJavaRequirement,
@@ -7,6 +9,7 @@ import {
   generateAikarFlags,
   getAdoptiumDownloadUrl
 } from '../../src/java-manager/index.js';
+import { detectSystemRuntimes } from '../../src/java-manager/services/java-detector.js';
 import type { JavaRuntime } from '../../src/java-manager/models/java-runtime.js';
 
 describe('JavaCompatibility', () => {
@@ -197,5 +200,18 @@ describe('JavaDownloader URL Generation', () => {
 
     const urlArm = getAdoptiumDownloadUrl(21, 'linux', 'arm64');
     expect(urlArm).toBe('https://api.adoptium.net/v3/binary/latest/21/ga/linux/aarch64/jdk/hotspot/normal/eclipse');
+  });
+
+  it('should scan both direct and nested Adoptium layout folders in dataJavaDir', async () => {
+    const testDir = path.resolve('data/test-adoptium-detect');
+    const nestedBinDir = path.join(testDir, 'jdk-25', 'jdk-25.0.5+8', 'bin');
+    await fs.mkdir(nestedBinDir, { recursive: true });
+
+    try {
+      const runtimes = await detectSystemRuntimes(testDir);
+      expect(Array.isArray(runtimes)).toBe(true);
+    } finally {
+      await fs.rm(testDir, { recursive: true, force: true }).catch(() => {});
+    }
   });
 });

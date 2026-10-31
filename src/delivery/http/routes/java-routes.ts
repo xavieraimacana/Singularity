@@ -6,10 +6,11 @@ import { createAuthHook, requireRole } from '../middleware/auth-hook.js';
 
 export interface JavaRoutesOptions {
   authService: AuthService;
+  dataJavaDir?: string;
 }
 
 export const javaRoutes: FastifyPluginAsync<JavaRoutesOptions> = async (fastify, opts) => {
-  const { authService } = opts;
+  const { authService, dataJavaDir } = opts;
   const authenticate = createAuthHook(authService);
 
   fastify.addHook('preHandler', authenticate);
@@ -17,7 +18,7 @@ export const javaRoutes: FastifyPluginAsync<JavaRoutesOptions> = async (fastify,
   // Detect installed Java runtimes on system
   fastify.get('/detect', async (_request, reply) => {
     try {
-      const runtimes = await detectSystemRuntimes();
+      const runtimes = await detectSystemRuntimes(dataJavaDir);
       return reply.status(200).send(runtimes);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al detectar versiones de Java';
@@ -35,7 +36,7 @@ export const javaRoutes: FastifyPluginAsync<JavaRoutesOptions> = async (fastify,
     }
 
     try {
-      const runtime = await downloadPortableJava(majorVersion);
+      const runtime = await downloadPortableJava(majorVersion, dataJavaDir);
       return reply.status(200).send(runtime);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al descargar Java';
