@@ -18,7 +18,7 @@
     .ambient-glow {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 40%, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.05) 50%, transparent 75%);
+      background: radial-gradient(circle at 50% 40%, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.05) 50%, transparent 75%);
       pointer-events: none;
       z-index: 1;
     }
@@ -39,7 +39,7 @@
       background: #090b10;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.08), 0 0 50px rgba(139, 92, 246, 0.12);
+      box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.08), 0 0 50px rgba(6, 182, 212, 0.12);
       overflow: hidden;
       position: relative;
     }
@@ -127,10 +127,12 @@
       height: 32px;
       border-radius: 8px;
       background: #090b10;
-      border: 1px solid rgba(139, 92, 246, 0.4);
+      border: 1px solid rgba(6, 182, 212, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 5px;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
     }
 
     .sidebar-nav-links {
@@ -152,10 +154,10 @@
     }
 
     .sidebar-nav-item.active {
-      background: rgba(139, 92, 246, 0.15);
-      color: #a78bfa;
-      border: 1px solid rgba(139, 92, 246, 0.35);
-      font-weight: 700;
+      background: rgba(28, 36, 51, 0.9);
+      color: #06b6d4;
+      font-weight: 600;
+      border: 1px solid rgba(6, 182, 212, 0.35);
     }
 
     /* Catalog Viewport (Exact CatalogExplorer.tsx) */
@@ -165,8 +167,9 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
       background: #090b10;
+      position: relative;
     }
 
     .catalog-header-row {
@@ -175,111 +178,129 @@
       justify-content: space-between;
     }
 
-    .catalog-title-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
     .catalog-main-heading {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: #f8fafc;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       letter-spacing: -0.02em;
     }
 
     .provider-tabs-pill {
       display: flex;
-      padding: 4px;
-      border-radius: 12px;
+      gap: 4px;
       background: #0f141c;
       border: 1px solid #1c2433;
+      padding: 4px;
+      border-radius: 10px;
       font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .provider-tab-btn {
-      padding: 8px 16px;
-      border-radius: 8px;
+      padding: 6px 14px;
+      border-radius: 6px;
       color: #94a3b8;
-      font-weight: 600;
-      cursor: pointer;
     }
 
     .provider-tab-btn.active {
-      background: #8b5cf6;
-      color: #ffffff;
+      background: #06b6d4;
+      color: #090b10;
       font-weight: 800;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
     }
 
-    /* Search & Filter Bar */
+    /* Search & Query State Bar */
     .catalog-search-row {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
     }
 
     .catalog-search-input {
       width: 100%;
-      height: 44px;
+      height: 42px;
       background: #0f141c;
       border: 1px solid #1c2433;
-      border-radius: 12px;
-      padding: 0 16px 0 44px;
+      border-radius: 10px;
+      padding: 0 40px;
       font-size: 13px;
       color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+    }
+
+    .search-query-spinner {
+      position: absolute;
+      right: 14px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
+      color: #06b6d4;
     }
 
     .search-chips-line {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
     }
 
     .chip-item {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
       padding: 4px 10px;
       border-radius: 6px;
       background: #0f141c;
       border: 1px solid #1c2433;
-      color: #94a3b8;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      color: #cbd5e1;
+      cursor: pointer;
     }
 
-    /* Content Cards Grid (Exact ContentCard.tsx) */
+    .chip-item.active {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: #06b6d4;
+      color: #06b6d4;
+      font-weight: 700;
+    }
+
+    /* Catalog Cards Grid (Real Rich Simulation) */
     .catalog-cards-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
     }
 
     .content-card-box {
-      background: #0f141c;
+      background: rgba(15, 20, 28, 0.9);
       border: 1px solid #1c2433;
       border-radius: 14px;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      gap: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
     }
 
     .content-card-top {
       display: flex;
-      gap: 16px;
-      margin-bottom: 12px;
+      gap: 12px;
     }
 
     .content-icon-square {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
       background: #090b10;
       border: 1px solid #1c2433;
       display: flex;
@@ -292,38 +313,47 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
     }
 
     .content-item-name {
-      font-size: 16px;
-      font-weight: 800;
+      font-size: 14px;
+      font-weight: 700;
       color: #f8fafc;
     }
 
-    .type-badge-modpack {
-      font-size: 10px;
+    .type-badge-pill {
+      font-size: 9px;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
-      color: #c084fc;
-      background: rgba(192, 132, 252, 0.15);
-      border: 1px solid rgba(192, 132, 252, 0.35);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .badge-modpack {
+      background: rgba(6, 182, 212, 0.15);
+      color: #06b6d4;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+    }
+
+    .badge-mod {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.35);
     }
 
     .content-desc-p {
-      font-size: 12px;
+      font-size: 11px;
       color: #94a3b8;
-      line-height: 1.5;
-      margin-top: 6px;
+      line-height: 1.4;
+      margin-top: 4px;
     }
 
     .content-card-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 16px;
-      padding-top: 14px;
+      padding-top: 10px;
       border-top: 1px solid #151b26;
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
@@ -331,18 +361,18 @@
     }
 
     .btn-install-content {
-      background: #8b5cf6;
-      color: #ffffff;
+      background: #06b6d4;
+      color: #090b10;
       font-weight: 800;
-      font-size: 12px;
-      padding: 8px 18px;
+      font-size: 11px;
+      padding: 6px 14px;
       border-radius: 8px;
       border: none;
       display: flex;
       align-items: center;
       gap: 6px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
     }
 
     /* Content Install Modal (Exact ContentInstallModal.tsx) */
@@ -350,7 +380,7 @@
       position: absolute;
       inset: 0;
       background: rgba(6, 9, 17, 0.85);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -360,15 +390,15 @@
     }
 
     .install-modal-card {
-      width: 600px;
+      width: 640px;
       background: #0f141c;
       border: 1px solid #2c374d;
       border-radius: 20px;
-      padding: 32px;
-      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95), 0 0 40px rgba(139, 92, 246, 0.2);
+      padding: 28px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95), 0 0 40px rgba(6, 182, 212, 0.2);
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
     .modal-mode-tabs {
@@ -390,8 +420,8 @@
     }
 
     .modal-mode-tab.active {
-      background: #8b5cf6;
-      color: #ffffff;
+      background: #06b6d4;
+      color: #090b10;
       font-weight: 800;
     }
 
@@ -399,10 +429,10 @@
       background: #090b10;
       border: 1px solid #1c2433;
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
     }
@@ -443,9 +473,15 @@
         <!-- Windows 11 Titlebar -->
         <div class="window-titlebar" data-layout-ignore>
           <div class="window-title-left">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            </svg>
+            <div style="width: 18px; height: 18px;">
+              <svg viewBox="0 0 256 256" width="100%" height="100%">
+                <path d="M 128.000,34.000 L 209.406,81.000 L 209.406,175.000 L 128.000,222.000 L 46.594,175.000 L 46.594,81.000 Z M 128.000,54.000 L 63.914,91.000 L 63.914,165.000 L 128.000,202.000 L 192.086,165.000 L 192.086,91.000 Z" fill-rule="evenodd" fill="#06b6d4" />
+                <polygon points="128.000,88.000 159.177,106.000 132.500,121.400 128.000,118.800 123.500,121.400 96.823,106.000" fill="#38bdf8" />
+                <polygon points="93.359,112.000 123.500,129.400 123.500,162.000 93.359,144.596" fill="#0284c7" />
+                <polygon points="162.641,112.000 162.641,144.596 132.500,162.000 132.500,129.400" fill="#10b981" />
+                <polygon points="128.000,123.000 131.464,125.000 131.464,131.000 128.000,133.000 124.536,131.000 124.536,125.000" fill="#38bdf8" />
+              </svg>
+            </div>
             <span>Singularity Mission Control &mdash; Desktop Client v0.1.0-alpha</span>
           </div>
           <div class="window-controls">
@@ -462,7 +498,7 @@
             <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #94a3b8;">
               <span style="color: #64748b;">Singularity</span>
               <span>&gt;</span>
-              <span style="font-weight: 700; color: #f8fafc;">Catálogo de Contenido</span>
+              <span style="font-weight: 700; color: #f8fafc;">Catálogo Prism (Modrinth &amp; CurseForge)</span>
             </div>
 
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -487,9 +523,12 @@
               <div>
                 <div class="sidebar-brand-box">
                   <div class="sidebar-logo-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
-                      <circle cx="12" cy="12" r="9"></circle>
-                      <circle cx="12" cy="12" r="3" fill="#8b5cf6"></circle>
+                    <svg viewBox="0 0 256 256" width="100%" height="100%">
+                      <path d="M 128.000,34.000 L 209.406,81.000 L 209.406,175.000 L 128.000,222.000 L 46.594,175.000 L 46.594,81.000 Z M 128.000,54.000 L 63.914,91.000 L 63.914,165.000 L 128.000,202.000 L 192.086,165.000 L 192.086,91.000 Z" fill-rule="evenodd" fill="#06b6d4" />
+                      <polygon points="128.000,88.000 159.177,106.000 132.500,121.400 128.000,118.800 123.500,121.400 96.823,106.000" fill="#38bdf8" />
+                      <polygon points="93.359,112.000 123.500,129.400 123.500,162.000 93.359,144.596" fill="#0284c7" />
+                      <polygon points="162.641,112.000 162.641,144.596 132.500,162.000 132.500,129.400" fill="#10b981" />
+                      <polygon points="128.000,123.000 131.464,125.000 131.464,131.000 128.000,133.000 124.536,131.000 124.536,125.000" fill="#38bdf8" />
                     </svg>
                   </div>
                   <div style="display: flex; flex-direction: column;">
@@ -515,7 +554,7 @@
                       </svg>
                       <span>Catálogo Prism</span>
                     </div>
-                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 6px; background: rgba(139, 92, 246, 0.2); color: #c084fc; border-radius: 4px; font-weight: 700;">Modrinth</span>
+                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 6px; background: rgba(6, 182, 212, 0.2); color: #06b6d4; border-radius: 4px; font-weight: 700;">Modrinth</span>
                   </div>
                   <div class="sidebar-nav-item">
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -532,14 +571,16 @@
             <!-- Catalog Viewport -->
             <main class="catalog-viewport" data-layout-ignore>
               <div class="catalog-header-row" data-layout-ignore>
-                <div class="catalog-title-group">
+                <div>
                   <h1 class="catalog-main-heading">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
                       <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                     </svg>
-                    <span>Catálogo Unificado Singularity</span>
+                    <span>Catálogo Unificado Prism</span>
                   </h1>
-                  <p style="font-size: 12px; color: #94a3b8;">Explora e instala mods de Modrinth, plugins Paper/Spigot y modpacks en 1-clic</p>
+                  <p style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+                    Explora e instala mods de Modrinth, plugins Paper/Spigot y modpacks completos en 1-clic
+                  </p>
                 </div>
 
                 <div class="provider-tabs-pill">
@@ -549,54 +590,57 @@
                 </div>
               </div>
 
-              <!-- Search Row -->
+              <!-- Search Row with Live Query Simulator -->
               <div class="catalog-search-row" data-layout-ignore>
-                <div style="position: relative; display: flex; align-items: center;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" style="position: absolute; left: 16px;">
+                <div class="search-input-wrap">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" style="position: absolute; left: 14px;">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
                   <input type="text" class="catalog-search-input" id="search-input" value="" placeholder="Buscar mods, modpacks, plugins por nombre..." readonly />
+                  <div class="search-query-spinner" id="search-spinner">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"></circle>
+                    </svg>
+                    <span>Consultando Modrinth API v2...</span>
+                  </div>
                 </div>
 
                 <div class="search-chips-line">
-                  <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #64748b;">Sugeridos:</span>
+                  <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #64748b;">Populares:</span>
+                  <span class="chip-item">Sodium</span>
                   <span class="chip-item">Lithium</span>
                   <span class="chip-item">FerriteCore</span>
-                  <span class="chip-item">Spark</span>
-                  <span class="chip-item">Better MC</span>
-                  <span class="chip-item">Sodium</span>
+                  <span class="chip-item" id="chip-bettermc">Better MC</span>
+                  <span class="chip-item">Cobblemon</span>
                 </div>
               </div>
 
-              <!-- Content Cards Grid -->
+              <!-- Content Cards Grid: Real Rich Simulation -->
               <div class="catalog-cards-grid" id="cards-grid">
-                <!-- Card 1: Better MC -->
+                <!-- Card 1: Better MC [Fabric] -->
                 <div class="content-card-box" id="card-bettermc">
-                  <div>
-                    <div class="content-card-top">
-                      <div class="content-icon-square">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2">
-                          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                          <polyline points="2 17 12 22 22 17"></polyline>
-                          <polyline points="2 12 12 17 22 12"></polyline>
-                        </svg>
+                  <div class="content-card-top">
+                    <div class="content-icon-square" style="border-color: rgba(6, 182, 212, 0.4); color: #06b6d4;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                      </svg>
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="content-title-line">
+                        <span class="content-item-name">Better MC [Fabric]</span>
+                        <span class="type-badge-pill badge-modpack">MODPACK</span>
                       </div>
-                      <div style="flex: 1;">
-                        <div class="content-title-line">
-                          <span class="content-item-name">Better MC [Fabric]</span>
-                          <span class="type-badge-modpack">MODPACK / PACK</span>
-                        </div>
-                        <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por SHXRKIE</span>
-                        <p class="content-desc-p">El modpack de exploración insignia con 184 mods optimizados, mazmorras y biomas.</p>
-                      </div>
+                      <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por SHXRKIE</span>
+                      <p class="content-desc-p">El modpack de exploración insignia con 184 mods optimizados, mazmorras y biomas.</p>
                     </div>
                   </div>
-
                   <div class="content-card-footer">
-                    <span>4.8M descargas &bull; Fabric 1.21.4</span>
+                    <span>4.8M descargas &bull; Fabric 1.20.1</span>
                     <button class="btn-install-content" id="btn-install-bettermc">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -607,26 +651,129 @@
                 </div>
 
                 <!-- Card 2: Sodium -->
-                <div class="content-card-box">
-                  <div>
-                    <div class="content-card-top">
-                      <div class="content-icon-square">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
-                          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                        </svg>
+                <div class="content-card-box" id="card-sodium">
+                  <div class="content-card-top">
+                    <div class="content-icon-square" style="border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                      </svg>
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="content-title-line">
+                        <span class="content-item-name">Sodium</span>
+                        <span class="type-badge-pill badge-mod">MOD</span>
                       </div>
-                      <div style="flex: 1;">
-                        <div class="content-title-line">
-                          <span class="content-item-name">Sodium</span>
-                          <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; padding: 2px 8px; border-radius: 6px; color: #60a5fa; background: rgba(59, 130, 246, 0.15);">MOD</span>
-                        </div>
-                        <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por JellySquid</span>
-                        <p class="content-desc-p">Motor de renderizado moderno y optimización gráfica extrema para Fabric.</p>
-                      </div>
+                      <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por JellySquid</span>
+                      <p class="content-desc-p">Motor de renderizado moderno que multiplica drásticamente los FPS y el rendimiento.</p>
                     </div>
                   </div>
                   <div class="content-card-footer">
                     <span>28.5M descargas &bull; Fabric 1.21.4</span>
+                    <button class="btn-install-content" style="background: #1c2433; color: #cbd5e1; border: 1px solid #2c374d;">
+                      <span>Instalado</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 3: Lithium -->
+                <div class="content-card-box" id="card-lithium">
+                  <div class="content-card-top">
+                    <div class="content-icon-square" style="border-color: rgba(16, 185, 129, 0.4); color: #10b981;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                      </svg>
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="content-title-line">
+                        <span class="content-item-name">Lithium</span>
+                        <span class="type-badge-pill badge-mod">OPTIMIZACIÓN</span>
+                      </div>
+                      <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por CaffeineMC</span>
+                      <p class="content-desc-p">Optimizador general de físicas, chunks y lógica de entidades para el servidor sin alterar mecánicas.</p>
+                    </div>
+                  </div>
+                  <div class="content-card-footer">
+                    <span>24.1M descargas &bull; Fabric 1.21.4</span>
+                    <button class="btn-install-content">
+                      <span>Instalar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 4: FerriteCore -->
+                <div class="content-card-box" id="card-ferrite">
+                  <div class="content-card-top">
+                    <div class="content-icon-square" style="border-color: rgba(245, 158, 11, 0.4); color: #f59e0b;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="content-title-line">
+                        <span class="content-item-name">FerriteCore</span>
+                        <span class="type-badge-pill badge-mod">MEMORIA</span>
+                      </div>
+                      <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por malte0811</span>
+                      <p class="content-desc-p">Reduce drásticamente el consumo de memoria RAM de Minecraft optimizando los modelos del juego.</p>
+                    </div>
+                  </div>
+                  <div class="content-card-footer">
+                    <span>19.8M descargas &bull; Fabric / Forge</span>
+                    <button class="btn-install-content">
+                      <span>Instalar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 5: Cobblemon -->
+                <div class="content-card-box" id="card-cobblemon">
+                  <div class="content-card-top">
+                    <div class="content-icon-square" style="border-color: rgba(239, 68, 68, 0.4); color: #ef4444;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <circle cx="12" cy="12" r="3" fill="#ef4444"></circle>
+                      </svg>
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="content-title-line">
+                        <span class="content-item-name">Cobblemon</span>
+                        <span class="type-badge-pill badge-modpack">MODPACK</span>
+                      </div>
+                      <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por Cobblemon Team</span>
+                      <p class="content-desc-p">Mod de mundo abierto con animaciones increíbles y captura en el ecosistema Minecraft.</p>
+                    </div>
+                  </div>
+                  <div class="content-card-footer">
+                    <span>7.2M descargas &bull; Fabric 1.20.1</span>
+                    <button class="btn-install-content">
+                      <span>Instalar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 6: Fabric API -->
+                <div class="content-card-box" id="card-fabricapi">
+                  <div class="content-card-top">
+                    <div class="content-icon-square" style="border-color: rgba(6, 182, 212, 0.4); color: #06b6d4;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      </svg>
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="content-title-line">
+                        <span class="content-item-name">Fabric API</span>
+                        <span class="type-badge-pill badge-mod">LIBRERÍA</span>
+                      </div>
+                      <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">por modmuss50</span>
+                      <p class="content-desc-p">La capa de librerías esenciales requerida por la gran mayoría de mods en Fabric.</p>
+                    </div>
+                  </div>
+                  <div class="content-card-footer">
+                    <span>45.3M descargas &bull; Fabric 1.21.4</span>
                     <button class="btn-install-content" style="background: #1c2433; color: #cbd5e1; border: 1px solid #2c374d;">
                       <span>Instalado</span>
                     </button>
@@ -642,8 +789,8 @@
           <div class="install-modal-card" id="install-card" data-layout-ignore>
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
-                <h3 style="font-size: 18px; font-weight: 800; color: #f8fafc;">Desplegar Modpack</h3>
-                <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #c084fc;">Better MC [Fabric] &bull; MODRINTH</span>
+                <h3 style="font-size: 17px; font-weight: 800; color: #f8fafc;">Desplegar Modpack</h3>
+                <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #06b6d4;">Better MC [Fabric] &bull; MODRINTH</span>
               </div>
               <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;">&times;</button>
             </div>
@@ -658,44 +805,48 @@
               </div>
             </div>
 
-            <!-- Modpack Parameters -->
+            <!-- Modpack Deployment Parameters -->
             <div class="modal-params-box">
               <div style="display: flex; justify-content: space-between;">
                 <span style="color: #94a3b8;">Versión Modpack:</span>
-                <span style="color: #c084fc; font-weight: 700;">v0.16.0 (184 mods)</span>
+                <span style="color: #06b6d4; font-weight: 700;">v28.5 (184 mods &bull; Fabric 1.20.1)</span>
               </div>
               <div style="display: flex; justify-content: space-between;">
                 <span style="color: #94a3b8;">Nombre de Instancia:</span>
                 <span style="color: #f8fafc; font-weight: 700;">Better MC Server</span>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #94a3b8;">Memoria RAM asignada:</span>
+                <span style="color: #94a3b8;">Memoria RAM Asignada:</span>
                 <span style="color: #10b981; font-weight: 700;">6144 MB (6.0 GB)</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #94a3b8;">Puerto de Red:</span>
+                <span style="color: #f8fafc; font-weight: 700;">:25565</span>
               </div>
             </div>
 
             <!-- Deployment Progress Steps -->
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
               <div class="progress-step-item" id="step-1">
                 <span>✔</span>
-                <span>1. Creando instancia dedicada con Fabric 1.21.4...</span>
+                <span>1. Creando instancia del servidor (Better MC Server)...</span>
               </div>
               <div class="progress-step-item" id="step-2">
                 <span>✔</span>
-                <span>2. Descargando paquete .mrpack oficial (184 mods)...</span>
+                <span>2. Descargando paquete modpack oficial (.mrpack desde Modrinth)...</span>
               </div>
               <div class="progress-step-item" id="step-3">
                 <span>✔</span>
-                <span>3. Extrayendo configs, datapacks y scripts del servidor...</span>
+                <span>3. Extrayendo configs, datapacks y scripts (omitiendo mods de cliente)...</span>
               </div>
               <div class="progress-step-item" id="step-4">
                 <span>✔</span>
-                <span>¡Servidor "Better MC Server" desplegado exitosamente!</span>
+                <span>¡Servidor "Better MC Server" creado y modpack desplegado exitosamente!</span>
               </div>
             </div>
 
-            <button id="btn-deploy-confirm" style="padding: 12px; border-radius: 10px; background: #8b5cf6; color: #ffffff; font-weight: 800; font-size: 13px; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); margin-top: 6px;">
-              Desplegar Modpack Completo
+            <button id="btn-deploy-confirm" style="padding: 12px; border-radius: 10px; background: #06b6d4; color: #090b10; font-weight: 800; font-size: 13px; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(6, 182, 212, 0.35); margin-top: 4px;">
+              Crear Servidor y Desplegar Modpack
             </button>
           </div>
         </div>
@@ -713,63 +864,137 @@
     const tl = gsap.timeline({ paused: true });
     window.__timelines["scene-04-prism-catalog"] = tl;
 
-    gsap.set("#virtual-cursor", { x: 960, y: 300 });
+    // Subtle initial 3D angle
+    tl.set("#viewport-stage", {
+      rotationX: 3.5,
+      rotationY: -2.5,
+      z: -15,
+      transformOrigin: "center center"
+    });
 
-    // 0.5s: Types "Better MC" in search input
-    tl.to("#virtual-cursor", { opacity: 1, x: 500, y: 190, duration: 0.8, ease: "power2.out" }, 0.5);
+    tl.set("#virtual-cursor", { x: 960, y: 300, opacity: 0 });
 
+    // 0.4s: Cursor moves towards search bar
+    tl.to("#virtual-cursor", {
+      opacity: 1,
+      x: 600,
+      y: 190,
+      duration: 0.7,
+      ease: "power2.out"
+    }, 0.4);
+
+    // 1.2s: Types "Better MC" in search input & activates spinner
     tl.call(() => {
       document.getElementById("search-input").value = "Better MC";
-    }, null, 1.4);
+      document.getElementById("search-spinner").style.display = "flex";
+      document.getElementById("chip-bettermc").classList.add("active");
+    }, null, 1.2);
 
-    // 2.0s: Cursor moves to "Instalar" button on Better MC card
-    tl.to("#virtual-cursor", { x: 880, y: 395, duration: 0.9, ease: "power2.out" }, 2.0);
+    // 1.8s: Query completes, spinner hides, cards filter with subtle focus
+    tl.call(() => {
+      document.getElementById("search-spinner").style.display = "none";
+      document.getElementById("card-sodium").style.opacity = "0.35";
+      document.getElementById("card-lithium").style.opacity = "0.35";
+      document.getElementById("card-ferrite").style.opacity = "0.35";
+      document.getElementById("card-cobblemon").style.opacity = "0.35";
+      document.getElementById("card-fabricapi").style.opacity = "0.35";
+      document.getElementById("card-bettermc").style.transform = "scale(1.02)";
+      document.getElementById("card-bettermc").style.borderColor = "#06b6d4";
+    }, null, 1.8);
 
-    // 3.2s: Click "Instalar"
+    // Continuous camera glide
+    tl.to("#viewport-stage", {
+      rotationX: 1.5,
+      rotationY: -1,
+      z: 10,
+      duration: 2.8,
+      ease: "sine.inOut"
+    }, 0.5);
+
+    // 2.2s: Cursor moves to "Instalar" on Better MC card
+    tl.to("#virtual-cursor", {
+      x: 640,
+      y: 400,
+      duration: 0.8,
+      ease: "power2.out"
+    }, 2.2);
+
+    // 3.1s: Click "Instalar"
     tl.to("#btn-install-bettermc", {
       scale: 0.94,
-      duration: 0.12,
+      duration: 0.1,
       yoyo: true,
       repeat: 1
-    }, 3.2);
+    }, 3.1);
 
-    // 3.5s: Content Install Modal Opens
-    tl.to("#install-modal", { opacity: 1, pointerEvents: "auto", duration: 0.4, ease: "power2.out" }, 3.5);
-    tl.fromTo("#install-card", { scale: 0.92, y: 20 }, { scale: 1, y: 0, duration: 0.4, ease: "back.out(1.2)" }, 3.5);
+    // 3.3s: Content Install Modal Opens with forward dolly
+    tl.to("#install-modal", {
+      opacity: 1,
+      pointerEvents: "auto",
+      duration: 0.35,
+      ease: "power2.out"
+    }, 3.3);
 
-    // 4.2s: Cursor moves to "Desplegar Modpack Completo" button
-    tl.to("#virtual-cursor", { x: 960, y: 640, duration: 0.7, ease: "power2.out" }, 4.2);
+    tl.to("#viewport-stage", {
+      rotationX: 0,
+      rotationY: 0,
+      z: 40,
+      duration: 1.0,
+      ease: "sine.out"
+    }, 3.3);
 
-    // 5.0s: Click "Desplegar Modpack Completo"
-    tl.to("#btn-deploy-confirm", { scale: 0.96, duration: 0.1, yoyo: true, repeat: 1 }, 5.0);
+    // 4.0s: Cursor moves to "Crear Servidor y Desplegar Modpack" button
+    tl.to("#virtual-cursor", {
+      x: 960,
+      y: 690,
+      duration: 0.7,
+      ease: "power2.out"
+    }, 4.0);
 
-    // 5.4s - 9.5s: Progressive Real-Time Installation Steps with active GSAP tweens
-    tl.to("#step-1", { opacity: 1, duration: 0.3, ease: "power2.out" }, 5.5);
+    // 4.8s: Click confirm deployment
+    tl.to("#btn-deploy-confirm", {
+      scale: 0.96,
+      duration: 0.08,
+      yoyo: true,
+      repeat: 1
+    }, 4.8);
+
+    // 5.2s - 9.5s: 4 Sequential Real Deployment Steps
+    tl.to("#step-1", { opacity: 1, duration: 0.3, ease: "power2.out" }, 5.2);
     tl.call(() => {
       document.getElementById("step-1").classList.add("done");
-    }, null, 5.5);
+    }, null, 5.2);
 
-    tl.to("#step-2", { opacity: 1, duration: 0.3, ease: "power2.out" }, 6.8);
+    tl.to("#step-2", { opacity: 1, duration: 0.3, ease: "power2.out" }, 6.5);
     tl.call(() => {
       document.getElementById("step-2").classList.add("done");
-    }, null, 6.8);
+    }, null, 6.5);
 
-    tl.to("#step-3", { opacity: 1, duration: 0.3, ease: "power2.out" }, 8.1);
+    tl.to("#step-3", { opacity: 1, duration: 0.3, ease: "power2.out" }, 7.8);
     tl.call(() => {
       document.getElementById("step-3").classList.add("done");
-    }, null, 8.1);
+    }, null, 7.8);
 
-    tl.to("#step-4", { opacity: 1, duration: 0.3, ease: "power2.out" }, 9.3);
+    tl.to("#step-4", { opacity: 1, duration: 0.3, ease: "power2.out" }, 9.0);
     tl.call(() => {
       document.getElementById("step-4").classList.add("done");
       const btn = document.getElementById("btn-deploy-confirm");
       btn.style.background = "#10b981";
-      btn.innerText = "✔ Modpack Desplegado y Activo";
-    }, null, 9.3);
+      btn.innerText = "✔ Servidor Better MC Desplegado y Activo";
+    }, null, 9.0);
 
-    // 10.5s - 12.0s: Zoom out / modal fade into IDE scene
-    tl.to("#install-modal", { opacity: 0, scale: 1.05, duration: 0.6, ease: "power2.in" }, 10.8);
-    tl.to("#virtual-cursor", { opacity: 0, duration: 0.3 }, 10.5);
+    // 10.5s - 12.0s: Modal fades and zooms out smoothly into IDE scene
+    tl.to("#install-modal", {
+      opacity: 0,
+      scale: 1.05,
+      duration: 0.6,
+      ease: "power2.in"
+    }, 10.6);
+
+    tl.to("#virtual-cursor", {
+      opacity: 0,
+      duration: 0.3
+    }, 10.4);
 
     tl.seek(0);
   </script>

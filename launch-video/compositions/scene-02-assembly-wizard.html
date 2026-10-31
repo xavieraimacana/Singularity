@@ -18,7 +18,7 @@
     .ambient-glow {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 40%, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.05) 50%, transparent 75%);
+      background: radial-gradient(circle at 50% 40%, rgba(6, 182, 212, 0.12), rgba(16, 185, 129, 0.05) 50%, transparent 75%);
       pointer-events: none;
       z-index: 1;
     }
@@ -40,7 +40,7 @@
       background: #090b10;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.08), 0 0 50px rgba(16, 185, 129, 0.1);
+      box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.08), 0 0 50px rgba(6, 182, 212, 0.12);
       overflow: hidden;
       position: relative;
     }
@@ -197,11 +197,12 @@
       height: 32px;
       border-radius: 8px;
       background: #090b10;
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      border: 1px solid rgba(6, 182, 212, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+      padding: 5px;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
     }
 
     .sidebar-nav-links {
@@ -225,8 +226,8 @@
 
     .sidebar-nav-item.active {
       background: rgba(28, 36, 51, 0.9);
-      color: #10b981;
-      border-color: rgba(16, 185, 129, 0.3);
+      color: #06b6d4;
+      border-color: rgba(6, 182, 212, 0.35);
       font-weight: 600;
     }
 
@@ -269,7 +270,7 @@
     }
 
     .btn-create-server {
-      background: #10b981;
+      background: #06b6d4;
       color: #090b10;
       font-weight: 800;
       font-size: 13px;
@@ -279,7 +280,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
       cursor: pointer;
     }
 
@@ -348,22 +349,24 @@
       align-items: center;
       gap: 8px;
       font-size: 12px;
-      color: #94a3b8;
+      color: #64748b;
     }
 
     .filter-pills-box {
       display: flex;
-      padding: 4px;
-      border-radius: 10px;
+      align-items: center;
+      gap: 6px;
       background: #0f141c;
       border: 1px solid #1c2433;
+      padding: 4px;
+      border-radius: 10px;
       font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .filter-pill {
-      padding: 6px 14px;
-      border-radius: 8px;
+      padding: 4px 10px;
+      border-radius: 6px;
       color: #94a3b8;
     }
 
@@ -373,24 +376,17 @@
       font-weight: 700;
     }
 
-    /* Server Card (Exact ServerCard.tsx) */
-    .server-cards-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
+    /* Server Card: Better MC Fabric */
     .server-card-box {
-      background: #0f141c;
+      background: rgba(15, 20, 28, 0.9);
       border: 1px solid #1c2433;
       border-radius: 14px;
-      padding: 20px;
+      padding: 20px 22px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-      position: relative;
-      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      width: 440px;
     }
 
     .card-row-top {
@@ -418,9 +414,9 @@
       font-weight: 700;
       padding: 3px 8px;
       border-radius: 6px;
-      color: #60a5fa;
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #06b6d4;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.35);
     }
 
     .status-badge-online {
@@ -459,21 +455,12 @@
       gap: 8px;
     }
 
-    .card-actions-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid #1c2433;
-    }
-
-    /* Create Server Wizard Modal (Exact CreateServerWizard.tsx) */
+    /* Create Server Wizard Modal (Exact CreateServerWizard.tsx 3-step replica) */
     .wizard-modal-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(6, 9, 17, 0.78);
-      backdrop-filter: blur(10px);
+      background: rgba(6, 9, 17, 0.82);
+      backdrop-filter: blur(14px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -483,73 +470,172 @@
     }
 
     .wizard-modal-card {
-      width: 720px;
+      width: 780px;
       background: #0f141c;
       border: 1px solid #2c374d;
       border-radius: 20px;
-      padding: 32px;
-      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95), 0 0 40px rgba(16, 185, 129, 0.15);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95), 0 0 40px rgba(6, 182, 212, 0.2);
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      overflow: hidden;
     }
 
-    .wizard-header-row {
+    .wizard-modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #1c2433;
+      background: #090b10;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
     }
 
-    .wizard-steps-pills {
-      display: flex;
-      gap: 8px;
-      margin-top: 4px;
+    .wizard-progress-track {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      height: 3px;
+      background: #090b10;
     }
 
-    .step-pill {
-      padding: 4px 12px;
-      border-radius: 9999px;
+    .wizard-step-progress-bar {
+      height: 100%;
+      background: #1c2433;
+      transition: background 0.3s ease;
+    }
+
+    .wizard-step-progress-bar.active {
+      background: #06b6d4;
+    }
+
+    .wizard-step-container {
+      padding: 24px;
+      display: none;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .wizard-step-container.visible {
+      display: flex;
+    }
+
+    /* Category Filter Pills */
+    .category-filter-pills {
+      display: flex;
+      gap: 4px;
+      padding: 3px;
+      background: #090b10;
+      border: 1px solid #1c2433;
+      border-radius: 8px;
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
+    }
+
+    .category-pill-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
       color: #94a3b8;
-      background: #1c2433;
     }
 
-    .step-pill.active {
-      background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.4);
+    .category-pill-btn.active {
+      background: #06b6d4;
+      color: #090b10;
+      font-weight: 800;
     }
 
-    .loaders-selection-grid {
+    /* Loader Cards Grid */
+    .loaders-cards-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
 
-    .loader-choice-card {
+    .loader-spec-card {
       background: #090b10;
       border: 1px solid #1c2433;
       border-radius: 12px;
-      padding: 16px 12px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .loader-spec-card.selected {
+      border-color: #06b6d4;
+      background: rgba(6, 182, 212, 0.08);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+    }
+
+    .loader-badge-tag {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Quick Version Chips */
+    .version-chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
       gap: 8px;
-      text-align: center;
     }
 
-    .loader-choice-card.selected {
-      border-color: #60a5fa;
-      background: rgba(59, 130, 246, 0.12);
+    .version-chip-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #090b10;
+      border: 1px solid #1c2433;
+      color: #cbd5e1;
     }
 
-    .java-auto-detect-box {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.35);
+    .version-chip-btn.selected {
+      background: #06b6d4;
+      color: #090b10;
+      font-weight: 800;
+      border-color: #06b6d4;
+    }
+
+    /* Smart Java Compatibility Tile */
+    .smart-java-tile {
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.35);
       border-radius: 12px;
       padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* RAM Presets Grid */
+    .ram-presets-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .ram-preset-btn {
+      background: #090b10;
+      border: 1px solid #1c2433;
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ram-preset-btn.selected {
+      border-color: #06b6d4;
+      background: rgba(6, 182, 212, 0.15);
+      color: #06b6d4;
+    }
+
+    .wizard-footer-bar {
+      padding: 16px 24px;
+      border-top: 1px solid #1c2433;
+      background: #090b10;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -574,12 +660,15 @@
         <!-- Windows 11 Titlebar -->
         <div class="window-titlebar" data-layout-ignore>
           <div class="window-title-left">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-              <line x1="6" y1="6" x2="6.01" y2="6"></line>
-              <line x1="6" y1="18" x2="6.01" y2="18"></line>
-            </svg>
+            <div style="width: 18px; height: 18px;">
+              <svg viewBox="0 0 256 256" width="100%" height="100%">
+                <path d="M 128.000,34.000 L 209.406,81.000 L 209.406,175.000 L 128.000,222.000 L 46.594,175.000 L 46.594,81.000 Z M 128.000,54.000 L 63.914,91.000 L 63.914,165.000 L 128.000,202.000 L 192.086,165.000 L 192.086,91.000 Z" fill-rule="evenodd" fill="#06b6d4" />
+                <polygon points="128.000,88.000 159.177,106.000 132.500,121.400 128.000,118.800 123.500,121.400 96.823,106.000" fill="#38bdf8" />
+                <polygon points="93.359,112.000 123.500,129.400 123.500,162.000 93.359,144.596" fill="#0284c7" />
+                <polygon points="162.641,112.000 162.641,144.596 132.500,162.000 132.500,129.400" fill="#10b981" />
+                <polygon points="128.000,123.000 131.464,125.000 131.464,131.000 128.000,133.000 124.536,131.000 124.536,125.000" fill="#38bdf8" />
+              </svg>
+            </div>
             <span>Singularity Mission Control &mdash; Desktop Client v0.1.0-alpha</span>
           </div>
           <div class="window-controls">
@@ -594,7 +683,7 @@
           <!-- Top App Header -->
           <div class="app-header" id="app-header" data-layout-ignore>
             <div class="header-search-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
@@ -616,14 +705,14 @@
               </div>
               <div class="user-profile-widget">
                 <div class="user-avatar-box">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#10b981">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#06b6d4">
                     <circle cx="12" cy="8" r="4"></circle>
                     <path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path>
                   </svg>
                 </div>
                 <div style="display: flex; flex-direction: column;">
                   <span style="font-size: 12px; font-weight: 700; color: #f8fafc;">admin</span>
-                  <span style="font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #10b981;">ADMIN &bull; RBAC</span>
+                  <span style="font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #06b6d4;">ADMIN &bull; RBAC</span>
                 </div>
               </div>
             </div>
@@ -636,15 +725,18 @@
               <div>
                 <div class="sidebar-brand-box">
                   <div class="sidebar-logo-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                      <circle cx="12" cy="12" r="9"></circle>
-                      <circle cx="12" cy="12" r="3" fill="#10b981"></circle>
+                    <svg viewBox="0 0 256 256" width="100%" height="100%">
+                      <path d="M 128.000,34.000 L 209.406,81.000 L 209.406,175.000 L 128.000,222.000 L 46.594,175.000 L 46.594,81.000 Z M 128.000,54.000 L 63.914,91.000 L 63.914,165.000 L 128.000,202.000 L 192.086,165.000 L 192.086,91.000 Z" fill-rule="evenodd" fill="#06b6d4" />
+                      <polygon points="128.000,88.000 159.177,106.000 132.500,121.400 128.000,118.800 123.500,121.400 96.823,106.000" fill="#38bdf8" />
+                      <polygon points="93.359,112.000 123.500,129.400 123.500,162.000 93.359,144.596" fill="#0284c7" />
+                      <polygon points="162.641,112.000 162.641,144.596 132.500,162.000 132.500,129.400" fill="#10b981" />
+                      <polygon points="128.000,123.000 131.464,125.000 131.464,131.000 128.000,133.000 124.536,131.000 124.536,125.000" fill="#38bdf8" />
                     </svg>
                   </div>
                   <div style="display: flex; flex-direction: column;">
                     <div style="font-size: 14px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
                       <span>Singularity</span>
-                      <span style="font-size: 9px; font-family: 'JetBrains Mono', monospace; padding: 2px 4px; background: #1c2433; color: #10b981; border-radius: 4px;">v0.1</span>
+                      <span style="font-size: 9px; font-family: 'JetBrains Mono', monospace; padding: 2px 4px; background: #1c2433; color: #06b6d4; border-radius: 4px;">v0.1</span>
                     </div>
                     <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b; letter-spacing: 0.05em;">NEBULAX STUDIO</span>
                   </div>
@@ -659,7 +751,7 @@
                       </svg>
                       <span>Servidores Activos</span>
                     </div>
-                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 6px; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 4px; font-weight: 700;">1</span>
+                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 6px; background: rgba(6, 182, 212, 0.2); color: #06b6d4; border-radius: 4px; font-weight: 700;">1</span>
                   </div>
 
                   <div class="sidebar-nav-item">
@@ -685,19 +777,6 @@
                   <div class="sidebar-nav-item">
                     <div style="display: flex; align-items: center; gap: 10px;">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                      </svg>
-                      <span>Cuentas & Accesos</span>
-                    </div>
-                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 6px; background: #1c2433; color: #94a3b8; border-radius: 4px;">RBAC</span>
-                  </div>
-
-                  <div class="sidebar-nav-item">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="3"></circle>
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                       </svg>
@@ -714,7 +793,7 @@
               <div class="dashboard-header-row" id="dashboard-top-row">
                 <div class="dashboard-title-group">
                   <h1 class="dashboard-main-heading">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
                       <rect x="2" y="2" width="20" height="8" rx="2"></rect>
                       <rect x="2" y="14" width="20" height="8" rx="2"></rect>
                     </svg>
@@ -734,7 +813,7 @@
 
               <!-- 3 Aggregate Metric Tiles -->
               <div class="metrics-tiles-grid" id="metrics-grid">
-                <!-- Tile 1: Servidores Activos -->
+                <!-- Tile 1 -->
                 <div class="metric-tile" id="metric-tile-1">
                   <div>
                     <span class="metric-tile-title">Servidores Activos</span>
@@ -751,7 +830,7 @@
                   </div>
                 </div>
 
-                <!-- Tile 2: Memoria RAM Reservada -->
+                <!-- Tile 2 -->
                 <div class="metric-tile" id="metric-tile-2">
                   <div>
                     <span class="metric-tile-title">Memoria RAM Reservada</span>
@@ -769,22 +848,22 @@
                   </div>
                 </div>
 
-                <!-- Tile 3: Servicio SFTP Embebido -->
+                <!-- Tile 3 -->
                 <div class="metric-tile" id="metric-tile-3">
                   <div>
                     <span class="metric-tile-title">Servicio SFTP Embebido</span>
                     <div class="metric-tile-val" style="color: #10b981; font-size: 20px;">
                       <span>Activo :2022</span>
                     </div>
-                    <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #a78bfa; margin-top: 4px; display: block;">Listo para Antigravity IDE</span>
+                    <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #06b6d4; margin-top: 4px; display: block;">Listo para Antigravity IDE</span>
                   </div>
-                  <div class="metric-icon-box" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800;">
+                  <div class="metric-icon-box" style="background: rgba(6, 182, 212, 0.12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800;">
                     SFTP
                   </div>
                 </div>
               </div>
 
-              <!-- Search and Filter Row -->
+              <!-- Filter and Search Row -->
               <div class="search-filter-row" data-layout-ignore>
                 <div class="search-input-box">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
@@ -802,7 +881,6 @@
 
               <!-- Server Cards Grid -->
               <div class="server-cards-grid" id="server-card-section">
-                <!-- Server Card: Better MC Fabric -->
                 <div class="server-card-box" id="card-bettermc">
                   <div>
                     <div class="card-row-top">
@@ -834,83 +912,216 @@
                       </div>
                     </div>
                   </div>
-
-                  <div class="card-actions-row">
-                    <div style="display: flex; gap: 8px;">
-                      <button style="padding: 6px 10px; border-radius: 8px; background: rgba(234, 88, 12, 0.2); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.35); font-size: 11px; font-weight: 700; cursor: pointer;">
-                        Detener (/stop)
-                      </button>
-                      <button style="padding: 6px 10px; border-radius: 8px; background: #151b26; color: #cbd5e1; border: 1px solid #2c374d; font-size: 11px; font-weight: 700; cursor: pointer;">
-                        Reiniciar
-                      </button>
-                    </div>
-                    <button style="padding: 6px 14px; border-radius: 8px; background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.35); font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="4 17 10 11 4 5"></polyline>
-                        <line x1="12" y1="19" x2="20" y2="19"></line>
-                      </svg>
-                      <span>Consola</span>
-                    </button>
-                  </div>
                 </div>
               </div>
             </main>
           </div>
         </div>
 
-        <!-- Create Server Wizard Modal -->
+        <!-- Real 3-Step Create Server Wizard Modal (Exact CreateServerWizard.tsx) -->
         <div class="wizard-modal-overlay" id="wizard-modal" data-layout-ignore>
           <div class="wizard-modal-card" id="wizard-card" data-layout-ignore>
-            <div class="wizard-header-row">
-              <div>
-                <h3 style="font-size: 18px; font-weight: 800; color: #f8fafc;">Crear Nuevo Servidor &bull; Asistente Guiado</h3>
-                <div class="wizard-steps-pills">
-                  <span class="step-pill active">1. Motor / Loader</span>
-                  <span class="step-pill">2. Versión & Java</span>
-                  <span class="step-pill">3. Recursos</span>
+            <!-- Wizard Header -->
+            <div class="wizard-modal-header">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35); display: flex; align-items: center; justify-content: center; color: #06b6d4;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 15px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                    <span>Desplegar Nueva Instancia</span>
+                    <span id="wizard-step-badge" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 8px; border-radius: 9999px; background: #1c2433; color: #06b6d4; border: 1px solid #2c374d;">
+                      Paso 1 de 3
+                    </span>
+                  </div>
+                  <p id="wizard-step-subtitle" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                    Selecciona el motor (loader) y nombre del servidor
+                  </p>
                 </div>
               </div>
               <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;">&times;</button>
             </div>
 
-            <div class="loaders-selection-grid">
-              <div class="loader-choice-card">
-                <span style="font-size: 13px; font-weight: 800; color: #10b981;">PaperMC</span>
-                <span style="font-size: 10px; color: #94a3b8;">Plugins Bukkit</span>
-              </div>
-              <div class="loader-choice-card selected" id="choice-fabric">
-                <span style="font-size: 13px; font-weight: 800; color: #60a5fa;">Fabric</span>
-                <span style="font-size: 10px; color: #60a5fa;">Mods 1.21.4</span>
-              </div>
-              <div class="loader-choice-card">
-                <span style="font-size: 13px; font-weight: 800; color: #a78bfa;">Purpur</span>
-                <span style="font-size: 10px; color: #94a3b8;">Físicas Pro</span>
-              </div>
-              <div class="loader-choice-card">
-                <span style="font-size: 13px; font-weight: 800; color: #fb923c;">NeoForge</span>
-                <span style="font-size: 10px; color: #94a3b8;">Mods Pesados</span>
-              </div>
+            <!-- Progress Track -->
+            <div class="wizard-progress-track">
+              <div class="wizard-step-progress-bar active" id="prog-1"></div>
+              <div class="wizard-step-progress-bar" id="prog-2"></div>
+              <div class="wizard-step-progress-bar" id="prog-3"></div>
             </div>
 
-            <div class="java-auto-detect-box" id="java-box">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <div style="display: flex; flex-direction: column;">
-                  <span style="font-size: 13px; font-weight: 700; color: #10b981;">Adoptium Temurin OpenJDK 25.0.0</span>
-                  <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">Detectado automáticamente para Minecraft 1.21.4</span>
+            <!-- STEP 1: Name and Loader Ecosystem -->
+            <div class="wizard-step-container visible" id="step-1-content">
+              <div>
+                <label style="display: block; font-size: 11px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">
+                  Nombre de la Instancia
+                </label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="wizard-server-name" value="Mi Servidor Fabric" readonly style="flex: 1; height: 38px; background: #090b10; border: 1px solid #1c2433; border-radius: 8px; padding: 0 12px; color: #f8fafc; font-size: 13px; font-family: 'Inter', sans-serif;" />
+                  <button type="button" style="padding: 0 12px; background: #090b10; border: 1px solid #1c2433; border-radius: 8px; color: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', monospace;">
+                    🎲 Sugerir
+                  </button>
                 </div>
               </div>
-              <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 4px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: 700;">Óptimo</span>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <label style="font-size: 11px; font-weight: 600; color: #cbd5e1;">Tipo de Software / Loader</label>
+                  <div class="category-filter-pills">
+                    <span class="category-pill-btn">Todos (8)</span>
+                    <span class="category-pill-btn">🔌 Plugins</span>
+                    <span class="category-pill-btn active">⚙️ Mods</span>
+                    <span class="category-pill-btn">🏛️ Vanilla</span>
+                  </div>
+                </div>
+
+                <div class="loaders-cards-grid">
+                  <!-- Fabric (Selected) -->
+                  <div class="loader-spec-card selected" id="choice-fabric">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 14px; font-weight: 800; color: #06b6d4;">Fabric</span>
+                      <span class="loader-badge-tag" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3);">
+                        Ligero &amp; Rápido
+                      </span>
+                    </div>
+                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">Mods &amp; Datapacks</span>
+                    <p style="font-size: 11px; color: #cbd5e1; line-height: 1.4; margin-top: 4px;">
+                      Carga mods a velocidad récord con bajo consumo de memoria. Ideal para mods de optimización (Lithium, FerriteCore) y técnicos.
+                    </p>
+                  </div>
+
+                  <!-- NeoForge -->
+                  <div class="loader-spec-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 14px; font-weight: 800; color: #f43f5e;">NeoForge</span>
+                      <span class="loader-badge-tag" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);">
+                        El Futuro de Forge
+                      </span>
+                    </div>
+                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">Mods Modernos 1.20.2+</span>
+                    <p style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">
+                      La evolución moderna de Forge. El nuevo estándar oficial para modpacks pesados en versiones modernas.
+                    </p>
+                  </div>
+
+                  <!-- PaperMC -->
+                  <div class="loader-spec-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 14px; font-weight: 800; color: #10b981;">PaperMC</span>
+                      <span class="loader-badge-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                        Estándar Oro
+                      </span>
+                    </div>
+                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">Plugins Bukkit / Spigot</span>
+                    <p style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">
+                      El motor de servidor más usado. Rendimiento extremo, anti-lag y compatible con plugins Bukkit y Spigot.
+                    </p>
+                  </div>
+
+                  <!-- Purpur -->
+                  <div class="loader-spec-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 14px; font-weight: 800; color: #c084fc;">Purpur</span>
+                      <span class="loader-badge-tag" style="background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3);">
+                        Ultra Configurable
+                      </span>
+                    </div>
+                    <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">Plugins Bukkit / Spigot</span>
+                    <p style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">
+                      Fork de Paper diseñado para control total de mecánicas del juego (montar mobs y físicas modificables).
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-              <span style="font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">Asignación RAM: <strong style="color: #f8fafc;">4096 MB</strong> &bull; Puerto: <strong style="color: #f8fafc;">:25565</strong></span>
-              <button id="btn-submit-wizard" style="padding: 10px 24px; border-radius: 10px; background: #10b981; color: #090b10; font-weight: 800; font-size: 13px; border: none; cursor: pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);">
-                Crear Instancia
-              </button>
+            <!-- STEP 2: Version and Smart Java Assistant -->
+            <div class="wizard-step-container" id="step-2-content">
+              <div>
+                <label style="display: block; font-size: 11px; font-weight: 600; color: #cbd5e1; margin-bottom: 8px;">
+                  Versión de Minecraft
+                </label>
+                <div class="version-chips-wrap">
+                  <span class="version-chip-btn">26.3 ⭐</span>
+                  <span class="version-chip-btn">26.1</span>
+                  <span class="version-chip-btn selected">1.21.4</span>
+                  <span class="version-chip-btn">1.20.1</span>
+                  <span class="version-chip-btn">1.16.5</span>
+                  <span class="version-chip-btn">1.12.2</span>
+                </div>
+              </div>
+
+              <!-- Smart Java Compatibility Assistant -->
+              <div class="smart-java-tile" id="java-assistant-box">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #10b981;">Adoptium Temurin OpenJDK 25.0.0</div>
+                    <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8; margin-top: 2px;">
+                      Detectado automáticamente en PATH &bull; Óptimo para Minecraft 1.21.4 (Java 21 LTS)
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; padding: 4px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.2); color: #10b981;">
+                  Verificado SHA-256
+                </span>
+              </div>
+            </div>
+
+            <!-- STEP 3: Resources & MOTD -->
+            <div class="wizard-step-container" id="step-3-content">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <label style="font-size: 11px; font-weight: 600; color: #cbd5e1;">Memoria RAM Asignada (Xmx)</label>
+                  <span style="font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #06b6d4;">4.0 GB (4096 MB)</span>
+                </div>
+                <div class="ram-presets-grid">
+                  <div class="ram-preset-btn">
+                    <span style="font-weight: 700; font-size: 12px; color: #cbd5e1;">2 GB</span>
+                    <span style="font-size: 9px; color: #64748b;">Pruebas</span>
+                  </div>
+                  <div class="ram-preset-btn selected">
+                    <span style="font-weight: 700; font-size: 12px; color: #06b6d4;">4 GB</span>
+                    <span style="font-size: 9px; color: #06b6d4;">Estándar</span>
+                  </div>
+                  <div class="ram-preset-btn">
+                    <span style="font-weight: 700; font-size: 12px; color: #cbd5e1;">6 GB</span>
+                    <span style="font-size: 9px; color: #64748b;">Mods</span>
+                  </div>
+                  <div class="ram-preset-btn">
+                    <span style="font-weight: 700; font-size: 12px; color: #cbd5e1;">8 GB</span>
+                    <span style="font-size: 9px; color: #64748b;">Modpacks</span>
+                  </div>
+                  <div class="ram-preset-btn">
+                    <span style="font-weight: 700; font-size: 12px; color: #cbd5e1;">16 GB</span>
+                    <span style="font-size: 9px; color: #64748b;">Masivo</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 11px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">
+                  Mensaje del Servidor (MOTD en tiempo real)
+                </label>
+                <input type="text" value="§aUn servidor administrado con §bSingularity" readonly style="width: 100%; height: 38px; background: #090b10; border: 1px solid #1c2433; border-radius: 8px; padding: 0 12px; color: #f8fafc; font-size: 12px; font-family: 'JetBrains Mono', monospace;" />
+              </div>
+            </div>
+
+            <!-- Wizard Footer Bar -->
+            <div class="wizard-footer-bar">
+              <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #64748b;">
+                Puerto por defecto: <strong style="color: #cbd5e1;">:25565</strong> &bull; SFTP: <strong style="color: #06b6d4;">:2022</strong>
+              </span>
+              <div style="display: flex; gap: 10px;">
+                <button id="btn-wizard-action" style="padding: 10px 22px; border-radius: 10px; background: #06b6d4; color: #090b10; font-weight: 800; font-size: 13px; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(6, 182, 212, 0.35); display: flex; align-items: center; gap: 8px;">
+                  <span id="btn-wizard-text">Siguiente &rarr;</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -928,108 +1139,131 @@
     const tl = gsap.timeline({ paused: true });
     window.__timelines["scene-02-assembly-wizard"] = tl;
 
-    // 0.0s: Exploded 3D Isometric Initial State
+    // Smooth starting 3D isometric perspective
     tl.set("#viewport-stage", {
-      rotationX: 16,
-      rotationY: -14,
-      z: -90,
+      rotationX: 8,
+      rotationY: -6,
+      z: -30,
       transformOrigin: "center center"
     });
 
-    tl.set("#app-sidebar", { x: -60, opacity: 0 });
-    tl.set("#app-header", { y: -40, opacity: 0 });
-    tl.set("#metric-tile-1", { y: 30, opacity: 0 });
-    tl.set("#metric-tile-2", { y: 40, opacity: 0 });
-    tl.set("#metric-tile-3", { y: 50, opacity: 0 });
-    tl.set("#card-bettermc", { scale: 0.94, opacity: 0 });
+    tl.set("#app-sidebar", { x: -40, opacity: 0 });
+    tl.set("#app-header", { y: -30, opacity: 0 });
+    tl.set("#metric-tile-1", { y: 20, opacity: 0 });
+    tl.set("#metric-tile-2", { y: 25, opacity: 0 });
+    tl.set("#metric-tile-3", { y: 30, opacity: 0 });
+    tl.set("#card-bettermc", { scale: 0.95, opacity: 0 });
     tl.set("#virtual-cursor", { x: 1400, y: 700, opacity: 0 });
 
-    // 0.2s - 2.0s: Isometric Components Snap and Embed into Place
-    tl.to("#app-sidebar", { x: 0, opacity: 1, duration: 0.8, ease: "power2.out" }, 0.2);
-    tl.to("#app-header", { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }, 0.3);
+    // 0.2s - 1.6s: Components smoothly glide and embed into place
+    tl.to("#app-sidebar", { x: 0, opacity: 1, duration: 0.7, ease: "power2.out" }, 0.2);
+    tl.to("#app-header", { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" }, 0.3);
 
-    tl.to("#metric-tile-1", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.6);
-    tl.to("#metric-tile-2", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.8);
-    tl.to("#metric-tile-3", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 1.0);
+    tl.to("#metric-tile-1", { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 0.5);
+    tl.to("#metric-tile-2", { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 0.65);
+    tl.to("#metric-tile-3", { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 0.8);
 
-    tl.to("#card-bettermc", { scale: 1, opacity: 1, duration: 0.8, ease: "power2.out" }, 1.3);
+    tl.to("#card-bettermc", { scale: 1, opacity: 1, duration: 0.7, ease: "power2.out" }, 1.0);
 
-    // 2.0s - 3.6s: Camera smoothly levels down from 3D to 0deg flat
-    tl.to("#viewport-stage", {
-      rotationX: 0,
-      rotationY: 0,
-      z: 0,
-      duration: 1.6,
-      ease: "power2.inOut"
-    }, 2.0);
-
-    // 3.5s: Virtual cursor appears and moves to "+ Crear Servidor" emerald button
+    // 1.5s: Virtual cursor appears and moves to "+ Crear Servidor" button
     tl.to("#virtual-cursor", {
       opacity: 1,
       x: 1680,
       y: 135,
-      duration: 0.9,
+      duration: 0.8,
       ease: "power2.out"
-    }, 3.5);
+    }, 1.5);
 
-    // 4.6s: Click "+ Crear Servidor" button
+    // 2.3s: Click "+ Crear Servidor"
     tl.to("#btn-create-server", {
-      scale: 0.94,
-      duration: 0.12,
-      yoyo: true,
-      repeat: 1
-    }, 4.6);
-
-    // 4.8s: Wizard Modal Opens with Smooth Glassmorphic Zoom
-    tl.to("#wizard-modal", {
-      opacity: 1,
-      pointerEvents: "auto",
-      duration: 0.4,
-      ease: "power2.out"
-    }, 4.8);
-
-    tl.fromTo("#wizard-card",
-      { scale: 0.92, y: 20 },
-      { scale: 1, y: 0, duration: 0.4, ease: "back.out(1.2)" },
-      4.8
-    );
-
-    // 5.4s: Cursor moves to "Fabric" option
-    tl.to("#virtual-cursor", {
-      x: 960,
-      y: 490,
-      duration: 0.6,
-      ease: "power2.out"
-    }, 5.4);
-
-    // 6.2s: Cursor moves to "Crear Instancia" button
-    tl.to("#virtual-cursor", {
-      x: 1250,
-      y: 630,
-      duration: 0.7,
-      ease: "power2.out"
-    }, 6.2);
-
-    // 7.1s: Click "Crear Instancia"
-    tl.to("#btn-submit-wizard", {
       scale: 0.95,
       duration: 0.1,
       yoyo: true,
       repeat: 1
-    }, 7.1);
+    }, 2.3);
 
-    // 7.4s - 8.0s: Modal closes & transitions smoothly to Server Detail view in Scene 3
+    // 2.5s: Modal opens with gentle forward dolly and dynamic camera angle
+    tl.to("#wizard-modal", {
+      opacity: 1,
+      pointerEvents: "auto",
+      duration: 0.35,
+      ease: "power2.out"
+    }, 2.5);
+
+    tl.to("#viewport-stage", {
+      rotationX: 2.5,
+      rotationY: -1.5,
+      z: 35,
+      duration: 1.2,
+      ease: "sine.out"
+    }, 2.5);
+
+    // 3.2s: Cursor moves to "Siguiente ->" to proceed to Step 2
+    tl.to("#virtual-cursor", {
+      x: 1300,
+      y: 720,
+      duration: 0.6,
+      ease: "power2.out"
+    }, 3.2);
+
+    // 3.9s: Click Siguiente -> Step 2
+    tl.to("#btn-wizard-action", {
+      scale: 0.95,
+      duration: 0.08,
+      yoyo: true,
+      repeat: 1
+    }, 3.9);
+
+    tl.call(() => {
+      document.getElementById("step-1-content").classList.remove("visible");
+      document.getElementById("step-2-content").classList.add("visible");
+      document.getElementById("prog-2").classList.add("active");
+      document.getElementById("wizard-step-badge").innerText = "Paso 2 de 3";
+      document.getElementById("wizard-step-subtitle").innerText = "Elige la versión de Minecraft y runtime Java";
+    }, null, 4.0);
+
+    // 4.3s: Cursor clicks Step 2 Siguiente -> Step 3
+    tl.to("#btn-wizard-action", {
+      scale: 0.95,
+      duration: 0.08,
+      yoyo: true,
+      repeat: 1
+    }, 5.3);
+
+    tl.call(() => {
+      document.getElementById("step-2-content").classList.remove("visible");
+      document.getElementById("step-3-content").classList.add("visible");
+      document.getElementById("prog-3").classList.add("active");
+      document.getElementById("wizard-step-badge").innerText = "Paso 3 de 3";
+      document.getElementById("wizard-step-subtitle").innerText = "Asigna memoria RAM, puerto de red y mensaje de bienvenida";
+      document.getElementById("btn-wizard-text").innerText = "Desplegar Servidor";
+      document.getElementById("btn-wizard-action").style.background = "#10b981";
+    }, null, 5.4);
+
+    // 6.2s: Click "Desplegar Servidor"
+    tl.to("#btn-wizard-action", {
+      scale: 0.95,
+      duration: 0.1,
+      yoyo: true,
+      repeat: 1
+    }, 6.2);
+
+    tl.call(() => {
+      document.getElementById("btn-wizard-text").innerHTML = "✔ ¡Servidor Creado!";
+    }, null, 6.4);
+
+    // 6.8s - 8.0s: Modal seamlessly folds into Server Detail View in Scene 3
     tl.to("#wizard-modal", {
       opacity: 0,
-      scale: 1.05,
-      duration: 0.5,
+      scale: 1.04,
+      duration: 0.6,
       ease: "power2.in"
-    }, 7.4);
+    }, 7.0);
 
     tl.to("#virtual-cursor", {
       opacity: 0,
       duration: 0.3
-    }, 7.5);
+    }, 7.0);
 
     tl.seek(0);
   </script>

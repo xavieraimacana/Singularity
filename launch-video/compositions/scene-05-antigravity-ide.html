@@ -14,6 +14,23 @@
       perspective: 1600px;
     }
 
+    .ambient-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 60% 40%, rgba(6, 182, 212, 0.08), transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* 3D Stage Wrapper */
+    .viewport-3d-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      z-index: 10;
+    }
+
     /* Full Window Frame */
     .ide-window-frame {
       width: 100%;
@@ -22,6 +39,7 @@
       flex-direction: column;
       background: #1e1e1e;
       position: relative;
+      overflow: hidden;
     }
 
     /* Top IDE Titlebar (VS Code / Antigravity IDE standard) */
@@ -102,12 +120,12 @@
 
     .activity-icon.active {
       color: #ffffff;
-      border-left: 2px solid #ffffff;
+      border-left: 2px solid #007acc;
     }
 
     /* Explorer Sidebar (260px) */
     .explorer-sidebar {
-      width: 260px;
+      width: 270px;
       background: #252526;
       border-right: 1px solid #2b2b2b;
       display: flex;
@@ -135,16 +153,16 @@
       font-weight: 700;
       padding: 2px 6px;
       border-radius: 4px;
-      background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      background: rgba(6, 182, 212, 0.2);
+      color: #06b6d4;
+      border: 1px solid rgba(6, 182, 212, 0.4);
     }
 
     .file-tree-viewport {
       padding: 8px 0;
       display: flex;
       flex-direction: column;
-      font-family: 'Segoe UI', -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-size: 13px;
     }
 
@@ -173,6 +191,7 @@
       flex-direction: column;
       background: #1e1e1e;
       overflow: hidden;
+      position: relative;
     }
 
     .editor-tabs-bar {
@@ -208,6 +227,26 @@
       background: #1e1e1e;
       border-bottom: 1px solid #252525;
       font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Handshake Overlay Banner */
+    .sftp-handshake-banner {
+      position: absolute;
+      top: 60px;
+      left: 300px;
+      right: 40px;
+      background: rgba(15, 20, 28, 0.95);
+      border: 1px solid #06b6d4;
+      border-radius: 8px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(6, 182, 212, 0.25);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #f8fafc;
+      z-index: 120;
     }
 
     /* Code Lines & Syntax */
@@ -252,12 +291,6 @@
       background: #528bff;
       vertical-align: middle;
       margin-left: 2px;
-      animation: blink 1s step-end infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
     }
 
     /* Keystroke Shortcut Overlay */
@@ -265,7 +298,7 @@
       position: absolute;
       top: 60px;
       right: 40px;
-      background: rgba(30, 30, 30, 0.9);
+      background: rgba(30, 30, 30, 0.95);
       border: 1px solid #007acc;
       border-radius: 8px;
       padding: 10px 16px;
@@ -285,7 +318,7 @@
       position: absolute;
       bottom: 36px;
       right: 32px;
-      width: 420px;
+      width: 440px;
       background: #252526;
       border: 1px solid #007acc;
       border-radius: 8px;
@@ -311,7 +344,7 @@
       padding: 0 14px;
       font-size: 11px;
       color: #ffffff;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       user-select: none;
       z-index: 100;
       shrink: 0;
@@ -335,290 +368,286 @@
     }
   </style>
 
-  <div id="root" data-composition-id="scene-05-antigravity-ide" data-width="1920" data-height="1080">
-    <div class="ide-window-frame">
-      <!-- Titlebar -->
-      <div class="ide-titlebar" data-layout-ignore>
-        <div class="ide-titlebar-left">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007acc" stroke-width="2">
-            <polyline points="16 18 22 12 16 6"></polyline>
-            <polyline points="8 6 2 12 8 18"></polyline>
-          </svg>
-          <span style="font-weight: 600; color: #cccccc;">Antigravity IDE &mdash; server.properties [SSH: 127.0.0.1:2022]</span>
-        </div>
+  <div id="root" data-composition-id="scene-05-antigravity-ide" data-width="1920" data-height="1080" data-hold>
+    <div class="ambient-glow"></div>
 
-        <div class="ide-search-pill">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#858585" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <span>server.properties &bull; Singularity SFTP Bridge</span>
-        </div>
-
-        <div class="window-controls">
-          <span>&minus;</span>
-          <span>&#9633;</span>
-          <span>&times;</span>
-        </div>
-      </div>
-
-      <!-- IDE Body -->
-      <div class="ide-body">
-        <!-- Activity Bar -->
-        <div class="activity-bar" data-layout-ignore>
-          <!-- Explorer (Active) -->
-          <div class="activity-icon active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
+    <div class="viewport-3d-stage" id="viewport-stage">
+      <div class="ide-window-frame">
+        <!-- Titlebar -->
+        <div class="ide-titlebar" data-layout-ignore>
+          <div class="ide-titlebar-left">
+            <!-- Official Singularity Hexacore Logo in IDE Titlebar -->
+            <div style="width: 16px; height: 16px;">
+              <svg viewBox="0 0 256 256" width="100%" height="100%">
+                <path d="M 128.000,34.000 L 209.406,81.000 L 209.406,175.000 L 128.000,222.000 L 46.594,175.000 L 46.594,81.000 Z M 128.000,54.000 L 63.914,91.000 L 63.914,165.000 L 128.000,202.000 L 192.086,165.000 L 192.086,91.000 Z" fill-rule="evenodd" fill="#06b6d4" />
+                <polygon points="128.000,88.000 159.177,106.000 132.500,121.400 128.000,118.800 123.500,121.400 96.823,106.000" fill="#38bdf8" />
+                <polygon points="93.359,112.000 123.500,129.400 123.500,162.000 93.359,144.596" fill="#0284c7" />
+                <polygon points="162.641,112.000 162.641,144.596 132.500,162.000 132.500,129.400" fill="#10b981" />
+                <polygon points="128.000,123.000 131.464,125.000 131.464,131.000 128.000,133.000 124.536,131.000 124.536,125.000" fill="#38bdf8" />
+              </svg>
+            </div>
+            <span style="font-weight: 600; color: #cccccc;">Antigravity IDE &mdash; server.properties [SFTP: 127.0.0.1:2022]</span>
           </div>
 
-          <!-- Search -->
-          <div class="activity-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <div class="ide-search-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#858585" stroke-width="2">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
+            <span>server.properties &bull; Singularity SFTP Bridge (:2022)</span>
           </div>
 
-          <!-- Source Control -->
-          <div class="activity-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="6" cy="6" r="3"></circle>
-              <circle cx="6" cy="18" r="3"></circle>
-              <circle cx="18" cy="9" r="3"></circle>
-              <path d="M6 9v6"></path>
-              <path d="M18 9a9 9 0 0 1-9 9"></path>
-            </svg>
-          </div>
-
-          <!-- Run / Debug -->
-          <div class="activity-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-          </div>
-
-          <!-- Extensions -->
-          <div class="activity-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="2" y="2" width="8" height="8" rx="1"></rect>
-              <rect x="14" y="2" width="8" height="8" rx="1"></rect>
-              <rect x="2" y="14" width="8" height="8" rx="1"></rect>
-              <rect x="14" y="14" width="8" height="8" rx="1"></rect>
-            </svg>
-          </div>
-
-          <!-- Antigravity AI Sparkle -->
-          <div class="activity-icon" style="color: #10b981;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path>
-            </svg>
-          </div>
-
-          <div style="flex: 1;"></div>
-
-          <!-- Settings Gear -->
-          <div class="activity-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
+          <div class="window-controls">
+            <span>&minus;</span>
+            <span>&#9633;</span>
+            <span>&times;</span>
           </div>
         </div>
 
-        <!-- Explorer Sidebar -->
-        <div class="explorer-sidebar" data-layout-ignore>
-          <div class="explorer-header">
-            <span>EXPLORER</span>
-            <span class="sftp-badge-pill">SFTP :2022</span>
-          </div>
-
-          <div class="file-tree-viewport">
-            <div class="tree-row" style="font-weight: 700; color: #58a6ff;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-              <span>SFTP: SINGULARITY (127.0.0.1:2022)</span>
-            </div>
-
-            <!-- config/ -->
-            <div class="tree-row tree-indent-1">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <span>config</span>
-            </div>
-
-            <!-- mods/ -->
-            <div class="tree-row tree-indent-1">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <span>mods</span>
-            </div>
-
-            <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-              </svg>
-              <span>better-combat-1.8.0.jar</span>
-            </div>
-
-            <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-              </svg>
-              <span>fabric-api-0.96.11.jar</span>
-            </div>
-
-            <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-              </svg>
-              <span>sodium-0.6.2.jar</span>
-            </div>
-
-            <!-- world/ -->
-            <div class="tree-row tree-indent-1">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <span>world</span>
-            </div>
-
-            <!-- eula.txt -->
-            <div class="tree-row tree-indent-1">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#858585" stroke-width="2">
+        <!-- IDE Body -->
+        <div class="ide-body">
+          <!-- Activity Bar -->
+          <div class="activity-bar" data-layout-ignore>
+            <!-- Explorer (Active) -->
+            <div class="activity-icon active">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
               </svg>
-              <span>eula.txt</span>
             </div>
 
-            <!-- server.properties (Active) -->
-            <div class="tree-row tree-indent-1 active">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e5c07b" stroke-width="2">
+            <!-- Search -->
+            <div class="activity-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+
+            <!-- Source Control -->
+            <div class="activity-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="6" cy="6" r="3"></circle>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="9" r="3"></circle>
+                <path d="M6 9v6"></path>
+                <path d="M18 9a9 9 0 0 1-9 9"></path>
+              </svg>
+            </div>
+
+            <!-- Antigravity AI Core -->
+            <div class="activity-icon" style="color: #06b6d4;">
+              <svg viewBox="0 0 256 256" width="20" height="20">
+                <path d="M 128.000,34.000 L 209.406,81.000 L 209.406,175.000 L 128.000,222.000 L 46.594,175.000 L 46.594,81.000 Z M 128.000,54.000 L 63.914,91.000 L 63.914,165.000 L 128.000,202.000 L 192.086,165.000 L 192.086,91.000 Z" fill-rule="evenodd" fill="#06b6d4" />
+                <polygon points="128.000,88.000 159.177,106.000 132.500,121.400 128.000,118.800 123.500,121.400 96.823,106.000" fill="#38bdf8" />
+              </svg>
+            </div>
+
+            <div style="flex: 1;"></div>
+
+            <!-- Settings Gear -->
+            <div class="activity-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
               </svg>
-              <span>server.properties</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Editor Viewport -->
-        <div class="editor-viewport">
-          <div class="editor-tabs-bar" data-layout-ignore>
-            <div class="editor-tab">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e5c07b" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <span>server.properties</span>
-              <span style="font-size: 14px; color: #858585; cursor: pointer;">&times;</span>
             </div>
           </div>
 
-          <div class="breadcrumbs-bar" data-layout-ignore>
-            <span>singularity</span>
-            <span>&gt;</span>
-            <span>servers</span>
-            <span>&gt;</span>
-            <span>Better MC Fabric</span>
-            <span>&gt;</span>
-            <span style="color: #cccccc;">server.properties</span>
-          </div>
-
-          <!-- Code Content Area -->
-          <div class="code-editor-area" data-layout-ignore>
-            <div class="line-numbers-col" data-layout-ignore>
-              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-              <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
-              <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
-              <span>16</span>
+          <!-- Explorer Sidebar -->
+          <div class="explorer-sidebar" data-layout-ignore>
+            <div class="explorer-header">
+              <span>EXPLORER</span>
+              <span class="sftp-badge-pill">SFTP :2022</span>
             </div>
 
-            <div class="code-lines-col">
-              <div><span class="syn-comment"># Minecraft Server Properties &mdash; Singularity Live SFTP</span></div>
-              <div><span class="syn-key">server-port</span><span class="syn-eq">=</span><span class="syn-num">25565</span></div>
-              <div><span class="syn-key">server-ip</span><span class="syn-eq">=</span><span class="syn-string">127.0.0.1</span></div>
-              <div><span class="syn-key">max-players</span><span class="syn-eq">=</span><span class="syn-num">20</span></div>
-              <div><span class="syn-key">view-distance</span><span class="syn-eq">=</span><span class="syn-num">12</span></div>
-              <div><span class="syn-key">simulation-distance</span><span class="syn-eq">=</span><span class="syn-num">8</span></div>
-              <div><span class="syn-key">enable-rcon</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
-              <div><span class="syn-key">rcon.port</span><span class="syn-eq">=</span><span class="syn-num">25575</span></div>
-              <div><span class="syn-key">online-mode</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
-              <div><span class="syn-key">difficulty</span><span class="syn-eq">=</span><span class="syn-string" id="code-difficulty">normal</span></div>
-              <div><span class="syn-key">gamemode</span><span class="syn-eq">=</span><span class="syn-string">survival</span></div>
-              <div><span class="syn-key">pvp</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
-              <div><span class="syn-key">spawn-protection</span><span class="syn-eq">=</span><span class="syn-num">16</span></div>
-              <div>
-                <span class="syn-key">motd</span><span class="syn-eq">=</span><span class="syn-string" id="code-motd">&sect;a&sect;lSingularity &sect;7| &sect;fServidor Minecraft</span><span class="blinking-cursor" id="blinking-cursor"></span>
+            <div class="file-tree-viewport">
+              <div class="tree-row" style="font-weight: 700; color: #58a6ff;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                <span>SFTP: SINGULARITY (127.0.0.1:2022)</span>
               </div>
-              <div><span class="syn-key">allow-flight</span><span class="syn-eq">=</span><span class="syn-bool">false</span></div>
-              <div><span class="syn-key">white-list</span><span class="syn-eq">=</span><span class="syn-bool">false</span></div>
+
+              <!-- config/ -->
+              <div class="tree-row tree-indent-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>config</span>
+              </div>
+
+              <!-- mods/ (184 mods) -->
+              <div class="tree-row tree-indent-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>mods (184 mods)</span>
+              </div>
+
+              <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                </svg>
+                <span>better-combat-1.8.0.jar</span>
+              </div>
+
+              <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                </svg>
+                <span>fabric-api-0.96.11.jar</span>
+              </div>
+
+              <div class="tree-row tree-indent-2" style="font-size: 12px; color: #9cdcfe;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                </svg>
+                <span>sodium-0.6.2.jar</span>
+              </div>
+
+              <!-- world/ -->
+              <div class="tree-row tree-indent-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dcb67a" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>world</span>
+              </div>
+
+              <!-- server.properties (Active) -->
+              <div class="tree-row tree-indent-1 active">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e5c07b" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span>server.properties</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editor Viewport -->
+          <div class="editor-viewport">
+            <div class="editor-tabs-bar" data-layout-ignore>
+              <div class="editor-tab">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e5c07b" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span>server.properties</span>
+                <span style="font-size: 14px; color: #858585; cursor: pointer;">&times;</span>
+              </div>
+            </div>
+
+            <div class="breadcrumbs-bar" data-layout-ignore>
+              <span>singularity</span>
+              <span>&gt;</span>
+              <span>servers</span>
+              <span>&gt;</span>
+              <span>Better MC Fabric</span>
+              <span>&gt;</span>
+              <span style="color: #cccccc;">server.properties</span>
+            </div>
+
+            <!-- Handshake Banner Overlay -->
+            <div class="sftp-handshake-banner" id="handshake-banner" data-layout-ignore>
+              <div style="display: flex; align-items: center; gap: 10px;" data-layout-ignore>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span data-layout-ignore>[SFTP Bridge] Autenticado sftp://127.0.0.1:2022 &bull; Espacio /data/servers/BetterMC montado</span>
+              </div>
+              <span style="color: #06b6d4; font-weight: 700;" data-layout-ignore>Latencia: 8ms</span>
+            </div>
+
+            <!-- Code Content Area -->
+            <div class="code-editor-area" data-layout-ignore>
+              <div class="line-numbers-col" data-layout-ignore>
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+                <span>16</span>
+              </div>
+
+              <div class="code-lines-col">
+                <div><span class="syn-comment"># Minecraft Server Properties &mdash; Singularity Live SFTP</span></div>
+                <div><span class="syn-key">server-port</span><span class="syn-eq">=</span><span class="syn-num">25565</span></div>
+                <div><span class="syn-key">server-ip</span><span class="syn-eq">=</span><span class="syn-string">127.0.0.1</span></div>
+                <div><span class="syn-key">max-players</span><span class="syn-eq">=</span><span class="syn-num">20</span></div>
+                <div><span class="syn-key">view-distance</span><span class="syn-eq">=</span><span class="syn-num">12</span></div>
+                <div><span class="syn-key">simulation-distance</span><span class="syn-eq">=</span><span class="syn-num">8</span></div>
+                <div><span class="syn-key">enable-rcon</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
+                <div><span class="syn-key">rcon.port</span><span class="syn-eq">=</span><span class="syn-num">25575</span></div>
+                <div><span class="syn-key">online-mode</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
+                <div><span class="syn-key">difficulty</span><span class="syn-eq">=</span><span class="syn-string" id="code-difficulty">normal</span></div>
+                <div><span class="syn-key">gamemode</span><span class="syn-eq">=</span><span class="syn-string">survival</span></div>
+                <div><span class="syn-key">pvp</span><span class="syn-eq">=</span><span class="syn-bool">true</span></div>
+                <div><span class="syn-key">spawn-protection</span><span class="syn-eq">=</span><span class="syn-num">16</span></div>
+                <div>
+                  <span class="syn-key">motd</span><span class="syn-eq">=</span><span class="syn-string" id="code-motd">&sect;a&sect;lSingularity &sect;7| &sect;fServidor Minecraft</span><span class="blinking-cursor" id="blinking-cursor"></span>
+                </div>
+                <div><span class="syn-key">allow-flight</span><span class="syn-eq">=</span><span class="syn-bool">false</span></div>
+                <div><span class="syn-key">white-list</span><span class="syn-eq">=</span><span class="syn-bool">false</span></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Keystroke Shortcut Badge -->
-      <div class="keystroke-badge" id="keystroke-badge" data-layout-ignore>
-        <span style="color: #64748b;">Guardar &amp; Subir:</span>
-        <kbd style="padding: 2px 8px; border-radius: 4px; background: #007acc; color: #ffffff; font-weight: 700;">Ctrl + S</kbd>
-      </div>
-
-      <!-- Native VS Code Notification Toast -->
-      <div class="ide-notification-toast" id="ide-toast" data-layout-ignore>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        <div style="flex: 1;">
-          <div style="font-weight: 700; color: #ffffff;">SFTP Sincronizado</div>
-          <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8; margin-top: 2px;">
-            server.properties actualizado en Singularity (24ms)
-          </div>
-        </div>
-      </div>
-
-      <!-- Bottom Status Bar -->
-      <div class="ide-statusbar" data-layout-ignore>
-        <div class="statusbar-left">
-          <div class="ssh-remote-pill">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="16 18 22 12 16 6"></polyline>
-              <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-            <span>SSH: 127.0.0.1:2022</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="6" cy="6" r="3"></circle>
-              <circle cx="6" cy="18" r="3"></circle>
-              <circle cx="18" cy="9" r="3"></circle>
-              <path d="M6 9v6"></path>
-            </svg>
-            <span>main*</span>
-          </div>
-          <span>0 &otimes;  0 &triangle;</span>
+        <!-- Keystroke Shortcut Badge -->
+        <div class="keystroke-badge" id="keystroke-badge" data-layout-ignore>
+          <span style="color: #94a3b8;">Guardar en caliente por SFTP:</span>
+          <kbd style="padding: 2px 8px; border-radius: 4px; background: #007acc; color: #ffffff; font-weight: 700;">Ctrl + S</kbd>
         </div>
 
-        <div class="statusbar-right">
-          <span>Ln 14, Col 36</span>
-          <span>Spaces: 2</span>
-          <span>UTF-8</span>
-          <span>LF</span>
-          <span>Properties</span>
+        <!-- Native VS Code Notification Toast -->
+        <div class="ide-notification-toast" id="ide-toast" data-layout-ignore>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <div style="flex: 1;">
+            <div style="font-weight: 700; color: #ffffff;">SFTP Sincronizado</div>
+            <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8; margin-top: 2px;">
+              server.properties actualizado en Singularity (24ms)
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Status Bar -->
+        <div class="ide-statusbar" data-layout-ignore>
+          <div class="statusbar-left">
+            <div class="ssh-remote-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <span>SFTP: 127.0.0.1:2022</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="6" cy="6" r="3"></circle>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="9" r="3"></circle>
+                <path d="M6 9v6"></path>
+              </svg>
+              <span>main*</span>
+            </div>
+            <span>0 &otimes; 0 &triangle;</span>
+          </div>
+
+          <div class="statusbar-right">
+            <span>Ln 14, Col 42</span>
+            <span>Spaces: 2</span>
+            <span>UTF-8</span>
+            <span>LF</span>
+            <span>Properties</span>
+          </div>
         </div>
       </div>
     </div>
@@ -629,43 +658,74 @@
     const tl = gsap.timeline({ paused: true });
     window.__timelines["scene-05-antigravity-ide"] = tl;
 
-    // 0.0s - 2.5s: Live Syntax Typing on MOTD & difficulty
+    // Smooth starting 3D camera
+    tl.set("#viewport-stage", {
+      rotationX: 2,
+      rotationY: -1.5,
+      z: 10,
+      transformOrigin: "center center"
+    });
+
+    // 0.0s - 2.0s: Handshake banner appears, then fades out smoothly
+    tl.fromTo("#handshake-banner",
+      { y: -20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.4)" },
+      0.3
+    );
+
+    tl.to("#handshake-banner", {
+      y: -20,
+      opacity: 0,
+      duration: 0.4,
+      ease: "power2.in"
+    }, 2.4);
+
+    // Continuous dynamic camera drift
+    tl.to("#viewport-stage", {
+      rotationX: 0,
+      rotationY: 0,
+      z: 25,
+      duration: 6.0,
+      ease: "sine.inOut"
+    }, 0.5);
+
+    // 1.5s - 3.5s: Live Syntax Typing on MOTD & difficulty
     tl.call(() => {
       document.getElementById("code-difficulty").innerText = "hard";
-    }, null, 1.2);
+    }, null, 1.5);
 
     tl.call(() => {
-      document.getElementById("code-motd").innerText = "§a§lSingularity §7| §fBetter MC Fabric 1.21.4 [Modpack 184 Mods]";
-    }, null, 2.8);
+      document.getElementById("code-motd").innerText = "§a§lSingularity §7| §fBetter MC Fabric 1.20.1 [184 Mods]";
+    }, null, 3.0);
 
-    // 4.0s: User presses "Ctrl + S"
+    // 4.2s: Keystroke badge "Ctrl + S"
     tl.to("#keystroke-badge", {
       opacity: 1,
       y: 0,
       duration: 0.3,
       ease: "power2.out"
-    }, 4.0);
+    }, 4.2);
 
     tl.to("#keystroke-badge", {
       scale: 1.05,
       duration: 0.1,
       yoyo: true,
       repeat: 1
-    }, 4.3);
+    }, 4.5);
 
     tl.to("#keystroke-badge", {
       opacity: 0,
       duration: 0.4,
       ease: "power2.in"
-    }, 5.5);
+    }, 5.8);
 
-    // 4.6s: Instant SFTP Sync Notification Toast Slides in
+    // 4.8s: SFTP Sync Notification Toast Slides in
     tl.to("#ide-toast", {
       opacity: 1,
       y: 0,
       duration: 0.4,
       ease: "back.out(1.4)"
-    }, 4.6);
+    }, 4.8);
 
     // 8.5s: Toast slides down before transition
     tl.to("#ide-toast", {
