@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import type { IContentProvider } from '../../../content-catalog/providers/content-provider.interface.js';
+import type { CurseForgeProvider } from '../../../content-catalog/providers/curseforge-provider.js';
 import type { ContentInstallerService } from '../../../content-catalog/services/content-installer.js';
 import type { AuthService } from '../../../auth-identity/services/auth-service.js';
 import { createAuthHook, requireRole } from '../middleware/auth-hook.js';
@@ -29,6 +30,37 @@ export const catalogRoutes: FastifyPluginAsync<CatalogRoutesOptions> = async (fa
       isEnabled: p.isEnabled
     }));
     return reply.status(200).send(list);
+  });
+
+  // Get CurseForge key status
+  fastify.get('/curseforge-key', async (_request, reply) => {
+    const cf = providers.get('curseforge') as CurseForgeProvider | undefined;
+    return reply.status(200).send({
+      isConfigured: cf?.isEnabled ?? false,
+      masked: cf?.getMaskedKey() ?? null
+    });
+  });
+
+  // Save CurseForge key directly from Web UI (ADMIN, OPERATOR)
+  fastify.post<{
+    Body: { apiKey: string };
+  }>('/curseforge-key', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    const { apiKey } = request.body || {};
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+      return reply.status(400).send({ error: 'La API Key no puede estar vacía' });
+    }
+
+    const cf = providers.get('curseforge') as CurseForgeProvider | undefined;
+    if (!cf) {
+      return reply.status(500).send({ error: 'Proveedor CurseForge no encontrado' });
+    }
+
+    await cf.setApiKey(apiKey);
+    return reply.status(200).send({
+      ok: true,
+      message: 'API Key de CurseForge guardada exitosamente',
+      masked: cf.getMaskedKey()
+    });
   });
 
   // Search catalog across providers

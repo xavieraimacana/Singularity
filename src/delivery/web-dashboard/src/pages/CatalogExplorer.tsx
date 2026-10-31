@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Package, Orbit, RotateCw, Sparkles } from 'lucide-react';
+import { Search, Package, Orbit, RotateCw, Sparkles, Key, CheckCircle2, ShieldAlert, Save } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import { ContentCard, type CatalogItemData } from '../components/ContentCard.js';
 import { ContentInstallModal } from '../components/ContentInstallModal.js';
@@ -10,8 +10,7 @@ interface SearchResponse {
 }
 
 const POPULAR_MODS = [
-  { name: 'Sodium', type: 'Optimización' },
-  { name: 'Lithium', type: 'Físicas' },
+  { name: 'Lithium', type: 'Físicas Servidor' },
   { name: 'FerriteCore', type: 'Memoria RAM' },
   { name: 'Spark', type: 'Profiler / Anti-lag' },
   { name: 'LuckPerms', type: 'Permisos' },
@@ -30,15 +29,29 @@ export const CatalogExplorer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // CurseForge direct key config
+  const [showKeyConfig, setShowKeyConfig] = useState(false);
+  const [keyInput, setKeyInput] = useState('');
+  const [isSavingKey, setIsSavingKey] = useState(false);
+  const [keySuccessMsg, setKeySuccessMsg] = useState<string | null>(null);
+  const [curseforgeKeyInfo, setCurseforgeKeyInfo] = useState<{ isConfigured: boolean; masked: string | null } | null>(null);
+
   // Selected item for 1-Click install modal
   const [itemToInstall, setItemToInstall] = useState<CatalogItemData | null>(null);
 
-  // Check which providers are enabled on server
-  useEffect(() => {
+  const fetchProvidersStatus = useCallback(() => {
     api.get<{ id: string; name: string; isEnabled: boolean }[]>('/catalog/providers')
       .then((data) => setProvidersStatus(data || []))
       .catch(() => {});
+
+    api.get<{ isConfigured: boolean; masked: string | null }>('/catalog/curseforge-key')
+      .then((data) => setCurseforgeKeyInfo(data))
+      .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetchProvidersStatus();
+  }, [fetchProvidersStatus]);
 
   const curseforgeStatus = providersStatus.find((p) => p.id === 'curseforge');
 
@@ -69,6 +82,33 @@ export const CatalogExplorer: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [query, projectType, provider, performSearch]);
+
+  const handleSaveCurseForgeKey = async () => {
+    if (!keyInput.trim()) return;
+
+    setIsSavingKey(true);
+    setKeySuccessMsg(null);
+
+    try {
+      await api.post('/catalog/curseforge-key', { apiKey: keyInput.trim() });
+      setKeySuccessMsg('¡API Key guardada exitosamente! Conexión con CurseForge activada.');
+      setKeyInput('');
+      fetchProvidersStatus();
+      setTimeout(() => {
+        setKeySuccessMsg(null);
+        setShowKeyConfig(false);
+        performSearch(query, projectType, 'curseforge');
+      }, 1200);
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Error al guardar la clave de CurseForge');
+    } finally {
+      setIsSavingKey(false);
+    }
+  };
+
+  const isCurseForgeIssue =
+    provider === 'curseforge' &&
+    (showKeyConfig || (curseforgeStatus && !curseforgeStatus.isEnabled) || (errorMsg && errorMsg.includes('CurseForge')));
 
   return (
     <div className="space-y-6">
@@ -124,6 +164,16 @@ export const CatalogExplorer: React.FC = () => {
             </button>
           </div>
 
+          {provider === 'curseforge' && (
+            <button
+              onClick={() => setShowKeyConfig(!showKeyConfig)}
+              className="p-2 rounded-lg bg-nebula-900 border border-amber-500/40 text-amber-300 hover:bg-amber-950/50 hover:text-white transition-colors"
+              title="Configurar CurseForge API Key directamente"
+            >
+              <Key className="w-4 h-4" />
+            </button>
+          )}
+
           <button
             onClick={() => performSearch(query, projectType, provider)}
             className="p-2 rounded-lg bg-nebula-900 border border-nebula-800 text-slate-400 hover:text-slate-200"
@@ -133,6 +183,68 @@ export const CatalogExplorer: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* CurseForge Direct API Key Panel */}
+      {isCurseForgeIssue && (
+        <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-500/40 space-y-3 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+              <Key className="w-4 h-4 text-amber-400" />
+              <span>Configuración Directa de CurseForge API Key</span>
+            </div>
+            {curseforgeKeyInfo?.masked && (
+              <span className="text-[10px] font-mono text-slate-400">
+                Clave actual: <span className="text-slate-200">{curseforgeKeyInfo.masked}</span>
+              </span>
+            )}
+          </div>
+
+          <p className="text-[11px] text-slate-300 leading-relaxed">
+            Pega tu API Key directamente en Singularity. Esto guarda la clave en el almacenamiento persistente sin que Docker Compose o Coolify trunquen los símbolos <code className="text-amber-400 font-mono">$</code> o <code className="text-amber-400 font-mono">#</code>.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="password"
+              value={keyInput}
+              onChange={(e) => setKeyInput(e.target.value)}
+              placeholder="Pega aquí tu CurseForge API Key (ej. $2a$10$...)"
+              className="flex-1 px-3 py-2 bg-nebula-950 border border-nebula-800 rounded-lg text-xs font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-400"
+            />
+            <button
+              onClick={handleSaveCurseForgeKey}
+              disabled={isSavingKey || !keyInput.trim()}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 disabled:opacity-40"
+            >
+              {isSavingKey ? <Orbit className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              <span>Guardar y Probar</span>
+            </button>
+          </div>
+
+          {keyInput && (
+            <div className="text-[10px] font-mono flex flex-wrap items-center gap-2">
+              <span className={keyInput.length >= 40 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                Longitud detectada: {keyInput.length} caracteres
+              </span>
+              {keyInput.length < 40 && (
+                <span className="text-amber-300/90 font-sans flex items-center gap-1">
+                  <ShieldAlert className="w-3 h-3 text-amber-400 shrink-0" />
+                  <span>
+                    Aviso: Las claves de CurseForge Eternal suelen tener ~60 caracteres y empezar por <code>$2a$10$</code>. Si tiene 21 caracteres, verifica no haber copiado el nombre o el Project ID.
+                  </span>
+                </span>
+              )}
+            </div>
+          )}
+
+          {keySuccessMsg && (
+            <div className="p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+              <span>{keySuccessMsg}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Quick Search Chips */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
@@ -195,26 +307,14 @@ export const CatalogExplorer: React.FC = () => {
         </div>
       </div>
 
-      {errorMsg && (
+      {errorMsg && !isCurseForgeIssue && (
         <div className="p-3 rounded-xl bg-red-950/50 border border-red-500/40 text-red-200 text-xs">
           {errorMsg}
         </div>
       )}
 
       {/* Results Grid */}
-      {provider === 'curseforge' && curseforgeStatus && !curseforgeStatus.isEnabled ? (
-        <div className="py-16 text-center border border-amber-500/30 rounded-2xl bg-amber-950/20 p-8 space-y-3">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
-            <Package className="w-6 h-6" />
-          </div>
-          <h3 className="text-sm font-bold text-amber-200">
-            CurseForge API Key no detectada
-          </h3>
-          <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-            Si ya agregaste la variable de entorno <code className="text-amber-400 font-mono font-bold">CURSEFORGE_API_KEY</code> en Coolify, debes hacer clic en <strong>Redeploy</strong> o reiniciar el contenedor para que Singularity la cargue al arrancar.
-          </p>
-        </div>
-      ) : isLoading ? (
+      {isLoading ? (
         <div className="py-24 flex flex-col items-center justify-center gap-2 text-slate-500 text-xs font-mono">
           <Orbit className="w-7 h-7 text-nebula-purple animate-spin" />
           <span>Buscando en {provider === 'modrinth' ? 'Modrinth' : provider === 'curseforge' ? 'CurseForge' : 'PaperMC'}...</span>

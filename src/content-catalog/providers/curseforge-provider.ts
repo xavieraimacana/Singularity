@@ -1,3 +1,6 @@
+import path from 'node:path';
+import fs from 'node:fs';
+import fsPromises from 'node:fs/promises';
 import type { IContentProvider } from './content-provider.interface.js';
 import type {
   CatalogItem,
@@ -32,18 +35,71 @@ export class CurseForgeProvider implements IContentProvider {
   readonly name = 'CurseForge';
 
   private readonly baseUrl = 'https://api.curseforge.com/v1';
+  private readonly keyFilePath: string;
+  private currentApiKey: string | undefined;
 
-  constructor(private readonly apiKey: string | undefined = process.env.CURSEFORGE_API_KEY) {}
+  constructor(
+    initialKey: string | undefined = process.env.CURSEFORGE_API_KEY,
+    dataDir: string = path.join(process.cwd(), 'data')
+  ) {
+    this.keyFilePath = path.join(dataDir, 'curseforge-key.txt');
+    this.currentApiKey = initialKey;
+    this.loadPersistedKey();
+  }
 
-  private get cleanApiKey(): string | undefined {
-    if (!this.apiKey) return undefined;
-    // Strip surrounding quotes or whitespace that Coolify/Docker often passes
-    const cleaned = this.apiKey.trim().replace(/^["']|["']$/g, '').trim();
-    return cleaned.length > 0 ? cleaned : undefined;
+  private loadPersistedKey(): void {
+    try {
+      if (fs.existsSync(this.keyFilePath)) {
+        const fileContent = fs.readFileSync(this.keyFilePath, 'utf8').trim();
+        if (fileContent.length > 0) {
+          this.currentApiKey = fileContent;
+        }
+      }
+    } catch {
+      // Ignore read error on startup
+    }
+  }
+
+  async setApiKey(key: string): Promise<void> {
+    const cleaned = key.trim().replace(/^["']|["']$/g, '').trim();
+    this.currentApiKey = cleaned;
+    await fsPromises.mkdir(path.dirname(this.keyFilePath), { recursive: true });
+    await fsPromises.writeFile(this.keyFilePath, cleaned, 'utf8');
+  }
+
+  get cleanApiKey(): string | undefined {
+    // 1. In-memory or persisted file
+    if (this.currentApiKey) {
+      const cleaned = this.currentApiKey.trim().replace(/^["']|["']$/g, '').trim();
+      if (cleaned.length > 0) return cleaned;
+    }
+
+    // 2. Base64 environment variable (immune to $ or # bash parsing)
+    if (process.env.CURSEFORGE_API_KEY_BASE64) {
+      try {
+        const decoded = Buffer.from(process.env.CURSEFORGE_API_KEY_BASE64, 'base64').toString('utf8').trim();
+        if (decoded.length > 0) return decoded;
+      } catch {}
+    }
+
+    // 3. Regular environment variable
+    if (process.env.CURSEFORGE_API_KEY) {
+      const cleaned = process.env.CURSEFORGE_API_KEY.trim().replace(/^["']|["']$/g, '').trim();
+      if (cleaned.length > 0) return cleaned;
+    }
+
+    return undefined;
   }
 
   get isEnabled(): boolean {
     return Boolean(this.cleanApiKey);
+  }
+
+  getMaskedKey(): string | null {
+    const key = this.cleanApiKey;
+    if (!key) return null;
+    if (key.length <= 8) return '****';
+    return `${key.slice(0, 4)}...${key.slice(-4)} (${key.length} caracteres)`;
   }
 
   private format403Error(errBody: string): string {
