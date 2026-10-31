@@ -91,6 +91,12 @@ async function startEmbeddedServices(): Promise<void> {
 
 function createMainWindow(): BrowserWindow {
   const iconCandidates = [
+    ...(process.platform === 'win32'
+      ? [
+          path.join(__dirname, 'assets', 'icon.ico'),
+          path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.ico')
+        ]
+      : []),
     path.join(__dirname, 'assets', 'icon.png'),
     path.join(process.cwd(), 'src', 'delivery', 'desktop', 'assets', 'icon.png'),
     path.join(process.cwd(), 'resources', 'icon.png')

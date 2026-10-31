@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { shell } from 'electron';
 
 export interface IdeInfo {
-  id: 'antigravity' | 'vscode' | 'explorer';
+  id: 'antigravity' | 'vscode' | 'cursor' | 'explorer';
   name: string;
   command: string;
   isAvailable: boolean;
@@ -28,19 +28,31 @@ export class IdeBridge {
   }
 
   /**
-   * Checks if a command executable exists in system PATH.
+   * Checks if a command executable exists in system PATH with a non-blocking timeout.
    */
-  async checkCommandExists(command: string): Promise<boolean> {
+  async checkCommandExists(command: string, timeoutMs: number = 1500): Promise<boolean> {
     const isWindows = process.platform === 'win32';
     const checkTool = isWindows ? 'where.exe' : 'which';
 
     return new Promise((resolve) => {
       try {
         const proc = spawn(checkTool, [command], { stdio: 'ignore' });
+        const timer = setTimeout(() => {
+          try {
+            proc.kill();
+          } catch {
+            // Ignore kill error
+          }
+          resolve(false);
+        }, timeoutMs);
+
         proc.on('close', (code) => {
+          clearTimeout(timer);
           resolve(code === 0);
         });
+
         proc.on('error', () => {
+          clearTimeout(timer);
           resolve(false);
         });
       } catch {
@@ -51,11 +63,15 @@ export class IdeBridge {
 
   /**
    * Returns list of detected IDEs on the host machine.
+   * Runs checks concurrently via Promise.all for high performance.
    */
   async getAvailableIdes(): Promise<IdeInfo[]> {
-    const hasAgy = await this.checkCommandExists('agy');
-    const hasAntigravity = await this.checkCommandExists('antigravity');
-    const hasCode = await this.checkCommandExists('code');
+    const [hasAgy, hasAntigravity, hasCode, hasCursor] = await Promise.all([
+      this.checkCommandExists('agy'),
+      this.checkCommandExists('antigravity'),
+      this.checkCommandExists('code'),
+      this.checkCommandExists('cursor')
+    ]);
 
     return [
       {
@@ -71,6 +87,12 @@ export class IdeBridge {
         isAvailable: hasCode
       },
       {
+        id: 'cursor',
+        name: 'Cursor',
+        command: 'cursor',
+        isAvailable: hasCursor
+      },
+      {
         id: 'explorer',
         name: process.platform === 'darwin' ? 'Finder' : 'Explorador de Archivos',
         command: 'explorer',
@@ -84,7 +106,7 @@ export class IdeBridge {
    */
   async openInIde(
     serverIdOrPath: string,
-    preferredIde: 'antigravity' | 'vscode' | 'explorer' = 'antigravity'
+    preferredIde: 'antigravity' | 'vscode' | 'cursor' | 'explorer' = 'antigravity'
   ): Promise<{ success: boolean; ideUsed: string; error?: string }> {
     const targetDir = this.resolveInstancePath(serverIdOrPath);
 
@@ -95,21 +117,38 @@ export class IdeBridge {
     const ides = await this.getAvailableIdes();
     const antigravity = ides.find((i) => i.id === 'antigravity');
     const vscode = ides.find((i) => i.id === 'vscode');
+    const cursor = ides.find((i) => i.id === 'cursor');
 
-    // 1. Try Antigravity IDE if preferred or available
+    // 1. Explicit preference match
     if (preferredIde === 'antigravity' && antigravity?.isAvailable) {
       const opened = await this.spawnIdeProcess(antigravity.command, [targetDir]);
-      if (opened) {
-        return { success: true, ideUsed: 'Antigravity IDE' };
-      }
+      if (opened) return { success: true, ideUsed: 'Antigravity IDE' };
     }
 
-    // 2. Try VS Code if preferred or fallback
-    if ((preferredIde === 'vscode' || preferredIde === 'antigravity') && vscode?.isAvailable) {
+    if (preferredIde === 'vscode' && vscode?.isAvailable) {
       const opened = await this.spawnIdeProcess(vscode.command, [targetDir]);
-      if (opened) {
-        return { success: true, ideUsed: 'Visual Studio Code' };
-      }
+      if (opened) return { success: true, ideUsed: 'Visual Studio Code' };
+    }
+
+    if (preferredIde === 'cursor' && cursor?.isAvailable) {
+      const opened = await this.spawnIdeProcess(cursor.command, [targetDir]);
+      if (opened) return { success: true, ideUsed: 'Cursor' };
+    }
+
+    // 2. Fallback to any detected code editor
+    if (antigravity?.isAvailable) {
+      const opened = await this.spawnIdeProcess(antigravity.command, [targetDir]);
+      if (opened) return { success: true, ideUsed: 'Antigravity IDE' };
+    }
+
+    if (vscode?.isAvailable) {
+      const opened = await this.spawnIdeProcess(vscode.command, [targetDir]);
+      if (opened) return { success: true, ideUsed: 'Visual Studio Code' };
+    }
+
+    if (cursor?.isAvailable) {
+      const opened = await this.spawnIdeProcess(cursor.command, [targetDir]);
+      if (opened) return { success: true, ideUsed: 'Cursor' };
     }
 
     // 3. Fallback: OS Native Explorer/Finder

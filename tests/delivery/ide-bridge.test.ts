@@ -11,15 +11,16 @@ describe('Electron Desktop Delivery > IdeBridge', () => {
     expect(resolved).toBe(path.join(customDir, 'server-alpha'));
   });
 
-  it('should list available IDEs with Antigravity, VS Code, and native File Explorer', async () => {
+  it('should list available IDEs with Antigravity, VS Code, Cursor, and native File Explorer', async () => {
     const bridge = new IdeBridge();
     const ides = await bridge.getAvailableIdes();
 
     expect(Array.isArray(ides)).toBe(true);
-    expect(ides.length).toBeGreaterThanOrEqual(3);
+    expect(ides.length).toBeGreaterThanOrEqual(4);
 
     const antigravity = ides.find((i) => i.id === 'antigravity');
     const vscode = ides.find((i) => i.id === 'vscode');
+    const cursor = ides.find((i) => i.id === 'cursor');
     const explorer = ides.find((i) => i.id === 'explorer');
 
     expect(antigravity).toBeDefined();
@@ -28,7 +29,10 @@ describe('Electron Desktop Delivery > IdeBridge', () => {
     expect(vscode).toBeDefined();
     expect(vscode?.name).toBe('Visual Studio Code');
 
+    expect(cursor).toBeDefined();
+    expect(cursor?.name).toBe('Cursor');
+
     expect(explorer).toBeDefined();
     expect(explorer?.isAvailable).toBe(true);
-  });
+  }, 10000);
 });

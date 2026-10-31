@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   ArrowLeft,
   Play,
@@ -15,6 +15,8 @@ import {
   Activity,
   AlertTriangle,
   X,
+  ChevronDown,
+  FolderOpen
 } from 'lucide-react';
 import { api } from '../services/api-client.js';
 import type { ServerInstanceData } from '../components/ServerCard.js';
@@ -46,7 +48,35 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
   const [copiedSftp, setCopiedSftp] = useState(false);
   const [players, setPlayers] = useState<PlayerData[]>([]);
 
+  // Desktop IDE Bridge Integration
   const isDesktop = typeof window !== 'undefined' && Boolean((window as any).singularityDesktop?.isElectron);
+  const [availableIdes, setAvailableIdes] = useState<Array<{ id: string; name: string; isAvailable: boolean }>>([]);
+  const [isIdeMenuOpen, setIsIdeMenuOpen] = useState(false);
+  const [ideFeedbackMsg, setIdeFeedbackMsg] = useState<string | null>(null);
+  const ideMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isDesktop && (window as any).singularityDesktop?.getAvailableIdes) {
+      (window as any).singularityDesktop.getAvailableIdes().then((ides: Array<{ id: string; name: string; isAvailable: boolean }>) => {
+        setAvailableIdes(ides);
+      }).catch(() => {});
+    }
+  }, [isDesktop]);
+
+  // Click outside to close IDE dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ideMenuRef.current && !ideMenuRef.current.contains(e.target as Node)) {
+        setIsIdeMenuOpen(false);
+      }
+    };
+    if (isIdeMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isIdeMenuOpen]);
 
   const handleStatusChange = useCallback((status: string) => {
     setServer((prev) => (prev ? { ...prev, status: status as ServerInstanceData['status'] } : prev));
@@ -61,11 +91,25 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
     }
   }, []);
 
-  const handleOpenInIde = async () => {
+  const handleOpenInIde = async (preferred?: string) => {
     if (!server) return;
     const desktopApi = (window as any).singularityDesktop;
-    if (desktopApi?.openInIde) {
-      await desktopApi.openInIde(server.id, 'antigravity');
+    if (!desktopApi?.openInIde) return;
+
+    const ideToUse = preferred || localStorage.getItem('singularity_preferred_ide') || 'antigravity';
+    setIsIdeMenuOpen(false);
+
+    try {
+      const res = await desktopApi.openInIde(server.id, ideToUse);
+      if (res.success) {
+        localStorage.setItem('singularity_preferred_ide', ideToUse);
+        setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
+        setTimeout(() => setIdeFeedbackMsg(null), 3000);
+      } else {
+        setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
+      }
+    } catch (err: unknown) {
+      setActionErrorMsg(err instanceof Error ? err.message : 'Error al invocar IDE');
     }
   };
 
@@ -229,16 +273,90 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
             </button>
           )}
 
+          {/* Desktop IDE Selector Button & Dropdown */}
           {isDesktop && (
-            <button
-              type="button"
-              onClick={handleOpenInIde}
-              className="px-3 py-2 rounded-lg bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-nebula-700 font-semibold text-xs flex items-center gap-1.5 transition-colors"
-              title="Abrir directorio de la instancia en Antigravity IDE"
-            >
-              <Code2 className="w-3.5 h-3.5" />
-              <span>Abrir en IDE</span>
-            </button>
+            <div className="relative inline-flex items-center" ref={ideMenuRef}>
+              <button
+                type="button"
+                onClick={() => handleOpenInIde()}
+                className="px-3 py-2 rounded-l-lg bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-r-0 border-nebula-700 font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                title="Abrir directorio de la instancia en tu editor preferido"
+              >
+                <Code2 className="w-3.5 h-3.5" />
+                <span>{ideFeedbackMsg || 'Abrir en IDE'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsIdeMenuOpen((prev) => !prev)}
+                className="px-1.5 py-2 rounded-r-lg bg-nebula-800 hover:bg-nebula-750 text-nebula-cyber border border-nebula-700 font-semibold text-xs flex items-center transition-colors"
+                title="Seleccionar editor o explorador"
+              >
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isIdeMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isIdeMenuOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-60 rounded-xl bg-nebula-900 border border-nebula-750 shadow-2xl z-50 py-1.5 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3 py-1.5 text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider border-b border-nebula-800 mb-1">
+                    Abrir instancia en:
+                  </div>
+                  {availableIdes.length > 0 ? (
+                    availableIdes.map((ide) => (
+                      <button
+                        key={ide.id}
+                        type="button"
+                        onClick={() => handleOpenInIde(ide.id)}
+                        className="w-full px-3 py-2 text-left text-xs flex items-center justify-between text-slate-200 hover:bg-nebula-800/80 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          {ide.id === 'explorer' ? (
+                            <FolderOpen className="w-3.5 h-3.5 text-amber-400" />
+                          ) : (
+                            <Code2 className="w-3.5 h-3.5 text-nebula-cyber" />
+                          )}
+                          <span className="font-medium">{ide.name}</span>
+                        </div>
+                        {ide.isAvailable ? (
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                            Listo
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-mono text-slate-500">
+                            No detectado
+                          </span>
+                        )}
+                      </button>
+                    ))
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenInIde('antigravity')}
+                        className="w-full px-3 py-2 text-left text-xs flex items-center gap-2 text-slate-200 hover:bg-nebula-800/80"
+                      >
+                        <Code2 className="w-3.5 h-3.5 text-nebula-cyber" />
+                        <span>Antigravity IDE</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenInIde('vscode')}
+                        className="w-full px-3 py-2 text-left text-xs flex items-center gap-2 text-slate-200 hover:bg-nebula-800/80"
+                      >
+                        <Code2 className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Visual Studio Code</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenInIde('explorer')}
+                        className="w-full px-3 py-2 text-left text-xs flex items-center gap-2 text-slate-200 hover:bg-nebula-800/80"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Explorador de Archivos</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           {isOnline ? (
