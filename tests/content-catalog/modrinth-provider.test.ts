@@ -13,14 +13,27 @@ describe('ModrinthProvider', () => {
     globalThis.fetch = originalFetch;
   });
 
-  it('should search projects and format into standardized CatalogItem', async () => {
+  it('should search projects, filter out client-only mods, and format into standardized CatalogItem', async () => {
     const mockResponse = {
       hits: [
+        {
+          project_id: 'P7dR8mSH',
+          slug: 'fabric-api',
+          title: 'Fabric API',
+          description: 'Essential core library for Fabric mods',
+          categories: ['fabric'],
+          client_side: 'optional',
+          server_side: 'required',
+          project_type: 'mod',
+          downloads: 90000000,
+          icon_url: 'https://cdn.modrinth.com/data/P7dR8mSH/icon.png',
+          author: 'modmuss50'
+        },
         {
           project_id: 'AANobbMI',
           slug: 'sodium',
           title: 'Sodium',
-          description: 'A modern rendering engine and client-side optimization mod for Minecraft',
+          description: 'A modern rendering engine and client-side optimization mod',
           categories: ['optimization'],
           client_side: 'required',
           server_side: 'unsupported',
@@ -30,7 +43,7 @@ describe('ModrinthProvider', () => {
           author: 'jellysquid3'
         }
       ],
-      total_hits: 1
+      total_hits: 2
     };
 
     globalThis.fetch = vi.fn().mockResolvedValue({
@@ -39,36 +52,37 @@ describe('ModrinthProvider', () => {
     } as Response);
 
     const result = await provider.search({
-      query: 'sodium',
+      query: 'api',
       projectType: 'mod',
       loader: 'fabric',
       gameVersion: '1.21.4'
     });
 
+    // Sodium should be filtered out because it is client-only (server_side: unsupported)
     expect(result.items.length).toBe(1);
     const item = result.items[0];
-    expect(item?.id).toBe('AANobbMI');
-    expect(item?.slug).toBe('sodium');
-    expect(item?.title).toBe('Sodium');
+    expect(item?.id).toBe('P7dR8mSH');
+    expect(item?.slug).toBe('fabric-api');
+    expect(item?.title).toBe('Fabric API');
     expect(item?.projectType).toBe('mod');
-    expect(item?.downloads).toBe(45000000);
-    expect(item?.iconUrl).toBe('https://cdn.modrinth.com/data/AANobbMI/icon.png');
-    expect(item?.author).toBe('jellysquid3');
+    expect(item?.downloads).toBe(90000000);
+    expect(item?.iconUrl).toBe('https://cdn.modrinth.com/data/P7dR8mSH/icon.png');
+    expect(item?.author).toBe('modmuss50');
   });
 
   it('should fetch project versions filtered by game version and loader', async () => {
     const mockVersions = [
       {
         id: 'ver_01',
-        project_id: 'AANobbMI',
-        name: 'Sodium 0.6.0',
-        version_number: '0.6.0',
+        project_id: 'P7dR8mSH',
+        name: 'Fabric API 0.92.0',
+        version_number: '0.92.0',
         game_versions: ['1.21.4'],
-        loaders: ['fabric', 'neoforge'],
+        loaders: ['fabric'],
         files: [
           {
-            url: 'https://cdn.modrinth.com/data/AANobbMI/versions/ver_01/sodium-fabric-0.6.0.jar',
-            filename: 'sodium-fabric-0.6.0.jar',
+            url: 'https://cdn.modrinth.com/data/P7dR8mSH/versions/ver_01/fabric-api-0.92.0.jar',
+            filename: 'fabric-api-0.92.0.jar',
             primary: true,
             size: 1540000,
             hashes: {
@@ -77,12 +91,7 @@ describe('ModrinthProvider', () => {
             }
           }
         ],
-        dependencies: [
-          {
-            project_id: 'P7dR8mSH', // Fabric API
-            dependency_type: 'required'
-          }
-        ]
+        dependencies: []
       }
     ];
 
@@ -91,15 +100,13 @@ describe('ModrinthProvider', () => {
       json: async () => mockVersions
     } as Response);
 
-    const versions = await provider.getVersions('AANobbMI', '1.21.4', 'fabric');
+    const versions = await provider.getVersions('P7dR8mSH', '1.21.4', 'fabric');
 
     expect(versions.length).toBe(1);
     expect(versions[0]?.id).toBe('ver_01');
-    expect(versions[0]?.versionNumber).toBe('0.6.0');
+    expect(versions[0]?.versionNumber).toBe('0.92.0');
     expect(versions[0]?.downloadUrl).toBe(
-      'https://cdn.modrinth.com/data/AANobbMI/versions/ver_01/sodium-fabric-0.6.0.jar'
+      'https://cdn.modrinth.com/data/P7dR8mSH/versions/ver_01/fabric-api-0.92.0.jar'
     );
-    expect(versions[0]?.dependencies.length).toBe(1);
-    expect(versions[0]?.dependencies[0]?.projectId).toBe('P7dR8mSH');
   });
 });

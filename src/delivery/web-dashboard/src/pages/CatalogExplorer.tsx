@@ -3,6 +3,7 @@ import { Search, Package, Orbit, RotateCw, Sparkles, Key, CheckCircle2, ShieldAl
 import { api } from '../services/api-client.js';
 import { ContentCard, type CatalogItemData } from '../components/ContentCard.js';
 import { ContentInstallModal } from '../components/ContentInstallModal.js';
+import { isClientOnlyMod } from '../utils/client-mod-filter.js';
 
 interface SearchResponse {
   items: CatalogItemData[];
@@ -314,32 +315,44 @@ export const CatalogExplorer: React.FC = () => {
       )}
 
       {/* Results Grid */}
-      {isLoading ? (
-        <div className="py-24 flex flex-col items-center justify-center gap-2 text-slate-500 text-xs font-mono">
-          <Orbit className="w-7 h-7 text-nebula-purple animate-spin" />
-          <span>Buscando en {provider === 'modrinth' ? 'Modrinth' : provider === 'curseforge' ? 'CurseForge' : 'PaperMC'}...</span>
-        </div>
-      ) : items.length === 0 ? (
-        <div className="py-20 text-center border border-dashed border-nebula-800 rounded-2xl bg-nebula-900/40 p-8">
-          <Package className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <h3 className="text-sm font-semibold text-slate-300">
-            No se encontraron elementos
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            Prueba a buscar con otro término o selecciona un tipo diferente.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((item) => (
-            <ContentCard
-              key={`${item.providerId}-${item.id}`}
-              item={item}
-              onInstall={(it) => setItemToInstall(it)}
-            />
-          ))}
-        </div>
-      )}
+      {(() => {
+        const visibleItems = items.filter((it) => !isClientOnlyMod(it.slug) && !isClientOnlyMod(it.title));
+
+        if (isLoading) {
+          return (
+            <div className="py-24 flex flex-col items-center justify-center gap-2 text-slate-500 text-xs font-mono">
+              <Orbit className="w-7 h-7 text-nebula-purple animate-spin" />
+              <span>Buscando en {provider === 'modrinth' ? 'Modrinth' : provider === 'curseforge' ? 'CurseForge' : 'PaperMC'}...</span>
+            </div>
+          );
+        }
+
+        if (visibleItems.length === 0) {
+          return (
+            <div className="py-20 text-center border border-dashed border-nebula-800 rounded-2xl bg-nebula-900/40 p-8">
+              <Package className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+              <h3 className="text-sm font-semibold text-slate-300">
+                No se encontraron elementos de servidor
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                Los mods exclusivos de cliente han sido filtrados para proteger tus servidores. Prueba con otro término.
+              </p>
+            </div>
+          );
+        }
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {visibleItems.map((item) => (
+              <ContentCard
+                key={`${item.providerId}-${item.id}`}
+                item={item}
+                onInstall={(it) => setItemToInstall(it)}
+              />
+            ))}
+          </div>
+        );
+      })()}
 
       {/* 1-Click Install Modal */}
       <ContentInstallModal

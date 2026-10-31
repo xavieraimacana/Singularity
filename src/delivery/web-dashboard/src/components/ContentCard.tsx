@@ -1,5 +1,6 @@
 import React from 'react';
 import { Download, Package, Box, Layers, Database, ShieldAlert } from 'lucide-react';
+import { isClientOnlyMod } from '../utils/client-mod-filter.js';
 
 export interface CatalogItemData {
   id: string;
@@ -20,65 +21,6 @@ interface ContentCardProps {
   isInstalled?: boolean;
 }
 
-const CLIENT_ONLY_PATTERNS = [
-  /^sodium/i,
-  /^rubidium/i,
-  /^embeddium/i,
-  /^iris/i,
-  /^oculus/i,
-  /^indium/i,
-  /^optifine/i,
-  /^optifabric/i,
-  /^entityculling/i,
-  /^entity-culling/i,
-  /^ambientsounds/i,
-  /^soundphysics/i,
-  /^sound-physics/i,
-  /^presencefootsteps/i,
-  /^presence-footsteps/i,
-  /^dynamicsurroundings/i,
-  /^lambdynamiclights/i,
-  /^continuity/i,
-  /^betterf3/i,
-  /^modmenu/i,
-  /^controlify/i,
-  /^controllable/i,
-  /^notenoughanimations/i,
-  /^not-enough-animations/i,
-  /^blur/i,
-  /^customsplashscreen/i,
-  /^reeses/i,
-  /^sodiumextra/i,
-  /^sodium-extra/i,
-  /^immediatelyfast/i,
-  /^waveycapes/i,
-  /^3dskinlayers/i,
-  /^skinlayers/i,
-  /^bobby/i,
-  /^distanthorizons/i,
-  /^zoomify/i,
-  /^ok-zoomer/i,
-  /^fallingleaves/i,
-  /^visuality/i,
-  /^clearskies/i,
-  /^chat-heads/i,
-  /^chatheads/i,
-  /^shulkerboxtooltip/i,
-  /^controlling/i,
-  /^citresewn/i,
-  /^cit-resewn/i,
-  /^enhancedblockentities/i,
-  /^cullleaves/i,
-  /^fabricskyboxes/i,
-  /^mousetweaks/i
-];
-
-function isClientOnly(raw: string): boolean {
-  if (!raw) return false;
-  const name = raw.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[_+.]+/g, '-');
-  return CLIENT_ONLY_PATTERNS.some((p) => p.test(name));
-}
-
 export const ContentCard: React.FC<ContentCardProps> = ({
   item,
   onInstall,
@@ -90,7 +32,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
     return String(num);
   };
 
-  const isClientMod = isClientOnly(item.slug) || isClientOnly(item.title);
+  const isClientMod = isClientOnlyMod(item.slug) || isClientOnlyMod(item.title);
   const isPlugin =
     item.projectType === 'plugin' ||
     (item.projectType === 'mod' &&
@@ -185,13 +127,22 @@ export const ContentCard: React.FC<ContentCardProps> = ({
           className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shadow-sm ${
             isInstalled
               ? 'bg-nebula-850 text-slate-500 border border-nebula-700 cursor-default'
-              : isClientMod
-              ? 'bg-amber-950/40 hover:bg-amber-900/40 text-amber-300 border border-amber-500/30'
+              : item.projectType === 'modpack'
+              ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-950/40 border border-purple-400/50'
               : 'bg-nebula-purple/20 hover:bg-nebula-purple/30 text-purple-300 border border-purple-500/40 hover:text-white shadow-purple-950/20'
           }`}
         >
-          <Download className="w-3.5 h-3.5" />
-          <span>{isInstalled ? 'Instalado' : isClientMod ? 'Solo Cliente' : '1-Clic Install'}</span>
+          {item.projectType === 'modpack' ? (
+            <>
+              <Layers className="w-3.5 h-3.5 text-purple-200" />
+              <span>Crear Servidor / Desplegar</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-3.5 h-3.5" />
+              <span>{isInstalled ? 'Instalado' : '1-Clic Install'}</span>
+            </>
+          )}
         </button>
       </div>
     </div>

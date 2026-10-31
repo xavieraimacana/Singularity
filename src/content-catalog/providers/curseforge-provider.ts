@@ -9,6 +9,7 @@ import type {
   ContentVersion,
   ProjectType
 } from '../models/catalog-item.js';
+import { isClientOnlyMod } from '../services/client-mod-filter.js';
 
 interface CurseForgeCategory {
   id: number;
@@ -183,18 +184,20 @@ export class CurseForgeProvider implements IContentProvider {
       return (query.projectType ?? 'mod') as ProjectType;
     };
 
-    const items: CatalogItem[] = data.data.map((mod) => ({
-      id: String(mod.id),
-      slug: mod.slug,
-      title: mod.name,
-      description: mod.summary,
-      projectType: resolveProjectType(mod),
-      categories: mod.categories?.map((c) => c.name) ?? [],
-      downloads: mod.downloadCount,
-      iconUrl: mod.logo?.url,
-      author: mod.authors?.[0]?.name ?? 'CurseForge Author',
-      providerId: this.id
-    }));
+    const items: CatalogItem[] = data.data
+      .filter((mod) => !isClientOnlyMod(mod.slug) && !isClientOnlyMod(mod.name))
+      .map((mod) => ({
+        id: String(mod.id),
+        slug: mod.slug,
+        title: mod.name,
+        description: mod.summary,
+        projectType: resolveProjectType(mod),
+        categories: mod.categories?.map((c) => c.name) ?? [],
+        downloads: mod.downloadCount,
+        iconUrl: mod.logo?.url,
+        author: mod.authors?.[0]?.name ?? 'CurseForge Author',
+        providerId: this.id
+      }));
 
     return {
       items,

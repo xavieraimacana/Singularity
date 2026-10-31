@@ -7,6 +7,7 @@ import type {
   ProjectType,
   VersionDependency
 } from '../models/catalog-item.js';
+import { isClientOnlyMod } from '../services/client-mod-filter.js';
 
 interface ModrinthSearchHit {
   project_id: string;
@@ -14,6 +15,8 @@ interface ModrinthSearchHit {
   title: string;
   description: string;
   categories: string[];
+  client_side?: string;
+  server_side?: string;
   project_type: string;
   downloads: number;
   icon_url: string | null;
@@ -92,34 +95,45 @@ export class ModrinthProvider implements IContentProvider {
 
     const data = (await res.json()) as { hits: ModrinthSearchHit[]; total_hits: number };
 
-    const items: CatalogItem[] = data.hits.map((hit) => {
-      // Modrinth classifies plugins under 'mod' with categories like 'spigot', 'paper', 'bukkit'
-      const isPluginCategory = hit.categories?.some((c) =>
-        ['spigot', 'paper', 'purpur', 'bukkit', 'bungeecord', 'velocity'].includes(c.toLowerCase())
-      );
+    const items: CatalogItem[] = data.hits
+      .filter((hit) => {
+        // Exclude client-only mods from dedicated server catalog
+        if (hit.server_side === 'unsupported') return false;
+        if (isClientOnlyMod(hit.slug) || isClientOnlyMod(hit.title)) return false;
+        return true;
+      })
+      .map((hit) => {
+        // Modrinth classifies plugins under 'mod' with categories like 'spigot', 'paper', 'bukkit'
+        const isPluginCategory = hit.categories?.some((c) =>
+          ['spigot', 'paper', 'purpur', 'bukkit', 'bungeecord', 'velocity'].includes(c.toLowerCase())
+        );
 
-      let effectiveProjectType = (hit.project_type ?? 'mod') as ProjectType;
-      if (effectiveProjectType === 'mod' && isPluginCategory && !hit.categories?.some((c) => ['fabric', 'forge', 'neoforge', 'quilt'].includes(c.toLowerCase()))) {
-        effectiveProjectType = 'plugin';
-      }
+        let effectiveProjectType = (hit.project_type ?? 'mod') as ProjectType;
+        if (
+          effectiveProjectType === 'mod' &&
+          isPluginCategory &&
+          !hit.categories?.some((c) => ['fabric', 'forge', 'neoforge', 'quilt'].includes(c.toLowerCase()))
+        ) {
+          effectiveProjectType = 'plugin';
+        }
 
-      return {
-        id: hit.project_id,
-        slug: hit.slug,
-        title: hit.title,
-        description: hit.description,
-        projectType: effectiveProjectType,
-        categories: hit.categories ?? [],
-        downloads: hit.downloads ?? 0,
-        iconUrl: hit.icon_url ?? undefined,
-        author: hit.author,
-        providerId: this.id
-      };
-    });
+        return {
+          id: hit.project_id,
+          slug: hit.slug,
+          title: hit.title,
+          description: hit.description,
+          projectType: effectiveProjectType,
+          categories: hit.categories ?? [],
+          downloads: hit.downloads ?? 0,
+          iconUrl: hit.icon_url ?? undefined,
+          author: hit.author,
+          providerId: this.id
+        };
+      });
 
     return {
       items,
-      totalHits: data.total_hits,
+      totalHits: items.length,
       offset: query.offset ?? 0,
       limit: query.limit ?? 20
     };

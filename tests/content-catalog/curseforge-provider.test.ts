@@ -17,22 +17,48 @@ describe('CurseForgeProvider', () => {
     expect(result.totalHits).toBe(0);
   });
 
-  it('should sanitize surrounding quotes and whitespace from apiKey', async () => {
+  it('should sanitize surrounding quotes and whitespace from apiKey and filter client mods', async () => {
     const provider = new CurseForgeProvider('  "$2a$10$cleanKey12345"  ');
     expect(provider.isEnabled).toBe(true);
+
+    const mockResponse = {
+      data: [
+        {
+          id: 238222,
+          name: 'Just Enough Items (JEI)',
+          slug: 'jei',
+          summary: 'View Items and Recipes',
+          downloadCount: 300000000,
+          authors: [{ name: 'mezz' }]
+        },
+        {
+          id: 394468,
+          name: 'Sodium',
+          slug: 'sodium',
+          summary: 'Client optimization mod',
+          downloadCount: 50000000,
+          authors: [{ name: 'jellysquid3' }]
+        }
+      ],
+      pagination: { totalCount: 2 }
+    };
 
     let capturedHeaders: Record<string, string> | undefined;
     globalThis.fetch = vi.fn().mockImplementation(async (_url, init) => {
       capturedHeaders = init?.headers as Record<string, string>;
       return {
         ok: true,
-        json: async () => ({ data: [], pagination: { totalCount: 0 } })
+        json: async () => mockResponse
       } as unknown as Response;
     });
 
-    await provider.search({ query: 'jei' });
+    const result = await provider.search({ query: 'jei' });
     expect(capturedHeaders?.['x-api-key']).toBe('$2a$10$cleanKey12345');
     expect(capturedHeaders?.['User-Agent']).toBeDefined();
+
+    // Sodium should be filtered out from results
+    expect(result.items.length).toBe(1);
+    expect(result.items[0]?.slug).toBe('jei');
   });
 
   it('should provide informative 403 error message when CurseForge rejects API Key', async () => {
