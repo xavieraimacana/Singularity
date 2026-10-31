@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/delivery/http/server.ts",
     "dev:desktop": "electron .",
-    "build:server": "tsc -p tsconfig.server.json && node -e \"const fs=require('fs'); fs.mkdirSync('dist/delivery/desktop/assets', {recursive:true}); fs.cpSync('src/delivery/desktop/assets', 'dist/delivery/desktop/assets', {recursive:true});\"",
+    "build:server": "tsc -p tsconfig.server.json && node -e \"const fs=require('fs'); fs.mkdirSync('dist/delivery/desktop/assets', {recursive:true}); fs.cpSync('src/delivery/desktop/assets', 'dist/delivery/desktop/assets', {recursive:true}); fs.copyFileSync('src/delivery/desktop/preload.cjs', 'dist/delivery/desktop/preload.cjs');\"",
     "build:web": "npm --prefix src/delivery/web-dashboard run build",
     "build": "npm run build:server && npm run build:web",
     "dist": "npm run build && electron-builder --win",

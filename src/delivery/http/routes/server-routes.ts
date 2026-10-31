@@ -10,6 +10,7 @@ import type { PropertyValue } from '../../../servers/models/server-properties.js
 import { minecraftVersionsService } from '../../../servers/services/minecraft-versions.js';
 import { BackupService } from '../../../backups/index.js';
 import { FileManagerService } from '../../../file-manager/index.js';
+import { IdeBridge } from '../../desktop/ide-bridge.js';
 import {
   detectSystemRuntimes,
   inspectJavaBinary,
@@ -260,6 +261,33 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al descargar jar';
       return reply.status(500).send({ error: message });
+    }
+  });
+
+  // List detected host IDEs (Antigravity, VS Code, Cursor, Explorer)
+  fastify.get('/ides', async (_request, reply) => {
+    const ideBridge = new IdeBridge();
+    const ides = await ideBridge.getAvailableIdes();
+    return reply.status(200).send(ides);
+  });
+
+  // Open server instance directory in host IDE (ADMIN, OPERATOR)
+  fastify.post<{
+    Params: { id: string };
+    Body?: { ide?: 'antigravity' | 'vscode' | 'cursor' | 'explorer' };
+  }>('/:id/open-ide', { preHandler: [requireRole(['ADMIN', 'OPERATOR'])] }, async (request, reply) => {
+    const instance = await serverLifecycle.getInstance(request.params.id);
+    if (!instance) {
+      return reply.status(404).send({ error: 'Servidor no encontrado' });
+    }
+
+    try {
+      const ideBridge = new IdeBridge();
+      const result = await ideBridge.openInIde(instance.id, request.body?.ide);
+      return reply.status(200).send(result);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al abrir editor';
+      return reply.status(500).send({ success: false, ideUsed: 'none', error: message });
     }
   });
 

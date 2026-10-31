@@ -1,7 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { spawn } from 'node:child_process';
-import { shell } from 'electron';
 
 export interface IdeInfo {
   id: 'antigravity' | 'vscode' | 'cursor' | 'explorer';
@@ -171,11 +170,18 @@ export class IdeBridge {
 
     // 3. Fallback: OS Native Explorer/Finder
     try {
-      const errorMsg = await shell.openPath(targetDir);
-      if (!errorMsg) {
+      const isWin = process.platform === 'win32';
+      const isMac = process.platform === 'darwin';
+      if (isWin) {
+        spawn('explorer.exe', [targetDir], { detached: true, stdio: 'ignore' }).unref();
+        return { success: true, ideUsed: 'Explorador de Archivos' };
+      } else if (isMac) {
+        spawn('open', [targetDir], { detached: true, stdio: 'ignore' }).unref();
+        return { success: true, ideUsed: 'Finder' };
+      } else {
+        spawn('xdg-open', [targetDir], { detached: true, stdio: 'ignore' }).unref();
         return { success: true, ideUsed: 'Explorador de Archivos' };
       }
-      return { success: false, ideUsed: 'none', error: errorMsg };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error desconocido al abrir explorador';
       return { success: false, ideUsed: 'none', error: message };

@@ -53,18 +53,29 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
   const [copiedSftp, setCopiedSftp] = useState(false);
   const [players, setPlayers] = useState<PlayerData[]>([]);
 
-  // Desktop IDE Bridge Integration
-  const isDesktop = typeof window !== 'undefined' && Boolean((window as any).singularityDesktop?.isElectron);
+  // Desktop IDE Bridge Integration: Available in Electron or when running locally on host
+  const isDesktop = typeof window !== 'undefined' && (
+    Boolean((window as any).singularityDesktop?.isElectron) ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
   const [availableIdes, setAvailableIdes] = useState<Array<{ id: string; name: string; isAvailable: boolean }>>([]);
   const [isIdeMenuOpen, setIsIdeMenuOpen] = useState(false);
   const [ideFeedbackMsg, setIdeFeedbackMsg] = useState<string | null>(null);
   const ideMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isDesktop && (window as any).singularityDesktop?.getAvailableIdes) {
-      (window as any).singularityDesktop.getAvailableIdes().then((ides: Array<{ id: string; name: string; isAvailable: boolean }>) => {
-        setAvailableIdes(ides);
-      }).catch(() => {});
+    if (isDesktop) {
+      const desktopApi = (window as any).singularityDesktop;
+      if (desktopApi?.getAvailableIdes) {
+        desktopApi.getAvailableIdes().then((ides: Array<{ id: string; name: string; isAvailable: boolean }>) => {
+          setAvailableIdes(ides);
+        }).catch(() => {});
+      } else {
+        api.get<Array<{ id: string; name: string; isAvailable: boolean }>>('/servers/ides').then((ides) => {
+          setAvailableIdes(ides);
+        }).catch(() => {});
+      }
     }
   }, [isDesktop]);
 
@@ -99,19 +110,28 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
   const handleOpenInIde = async (preferred?: string) => {
     if (!server) return;
     const desktopApi = (window as any).singularityDesktop;
-    if (!desktopApi?.openInIde) return;
-
     const ideToUse = preferred || localStorage.getItem('singularity_preferred_ide') || 'antigravity';
     setIsIdeMenuOpen(false);
 
     try {
-      const res = await desktopApi.openInIde(server.id, ideToUse);
-      if (res.success) {
-        localStorage.setItem('singularity_preferred_ide', ideToUse);
-        setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
-        setTimeout(() => setIdeFeedbackMsg(null), 3000);
+      if (desktopApi?.openInIde) {
+        const res = await desktopApi.openInIde(server.id, ideToUse);
+        if (res.success) {
+          localStorage.setItem('singularity_preferred_ide', ideToUse);
+          setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
+          setTimeout(() => setIdeFeedbackMsg(null), 3000);
+        } else {
+          setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
+        }
       } else {
-        setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
+        const res = await api.post<{ success: boolean; ideUsed: string; error?: string }>(`/servers/${server.id}/open-ide`, { ide: ideToUse });
+        if (res.success) {
+          localStorage.setItem('singularity_preferred_ide', ideToUse);
+          setIdeFeedbackMsg(`Abierto en ${res.ideUsed}`);
+          setTimeout(() => setIdeFeedbackMsg(null), 3000);
+        } else {
+          setActionErrorMsg(res.error || 'No se pudo abrir el editor seleccionado.');
+        }
       }
     } catch (err: unknown) {
       setActionErrorMsg(err instanceof Error ? err.message : 'Error al invocar IDE');

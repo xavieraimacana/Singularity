@@ -134,6 +134,10 @@ async function startEmbeddedServices(): Promise<void> {
 function createMainWindow(startHidden: boolean = false): BrowserWindow {
   const appIcon = resolveAppIcon();
 
+  const preloadPath = fs.existsSync(path.join(__dirname, 'preload.cjs'))
+    ? path.join(__dirname, 'preload.cjs')
+    : path.join(__dirname, 'preload.js');
+
   const win = new BrowserWindow({
     icon: appIcon,
     width: 1320,
@@ -145,7 +149,7 @@ function createMainWindow(startHidden: boolean = false): BrowserWindow {
     title: 'Singularity - Minecraft Server Mission Control',
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
       webSecurity: true,
