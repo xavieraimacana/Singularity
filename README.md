@@ -49,6 +49,9 @@ Administrar servidores de Minecraft ha estado fragmentado durante años:
 | 🩺 **Motor de Diagnóstico de Crashes** | Reconocimiento heurístico en logs de `UnsupportedClassVersionError`, `OutOfMemory`, mods de cliente en servidor y mundos corruptos. |
 | 💻 **Antigravity IDE / VS Code Bridge** | Botón local "Abrir en Antigravity IDE" y **Micro-servidor SFTP embebido** (puerto `2022`) para edición remota de configs con guardado en vivo. |
 | 🖥️ **Aplicación de Escritorio Nativa** | Shell Electron con bandeja del sistema (System Tray), alertas nativas del SO para caídas de servidor y selector multi-nodo (Local/VPS). |
+| 💾 **Backups & Restauración Segura** | Creación de copias `.tar.gz` en 1 clic, historial con comentarios, guard anti-corrupción y streaming de descarga. |
+| 📂 **Explorador de Archivos Web** | Navegación segura en jaula anti path-traversal, editor de texto integrado con `Ctrl+S`, creación, borrado y descargas. |
+| ⏱️ **Programador de Tareas (Cron)** | Automatización de auto-backups, reinicios con aviso previo en chat a jugadores y comandos programados (`save-all`). |
 | ☕ **Java Runtime Manager** | Auto-detección de runtimes Java (8, 11, 17, 21, 25), validación de compatibilidad con versiones de Minecraft y banderas optimizadas (*Aikar's Flags*). |
 | 🎨 **Editor Visual & MOTD en Vivo** | Configuración visual de `server.properties` con switches, sliders y previsualizador en vivo de la tarjeta multijugador con soporte de colores `§` y MiniMessage. |
 | 👥 **Gestor de Jugadores con Skins** | Visualización en tiempo real de jugadores conectados con avatares 2D/3D (Minotar API) y comandos rápidos (OP, Kick, Ban, Whitelist). |
@@ -66,9 +69,12 @@ Siguiendo las directrices de arquitectura de **NebulaX Studio**, la capa de entr
 src/
 ├── auth-identity/       # Dominio: Cuentas, roles (Admin, Operator, Viewer), JWT y sesiones
 ├── java-manager/        # Dominio: Detección de runtimes Java, compatibilidad y Aikar's Flags
-├── servers/             # Dominio: Instancias de servidor, ciclo de vida, properties y backups
+├── servers/             # Dominio: Instancias de servidor, ciclo de vida, properties y motd
 ├── content-catalog/     # Dominio: Proveedores (Modrinth, PaperMC, CurseForge) e instalador
 ├── process-supervisor/  # Dominio: Supervisión de procesos Java, I/O terminal y diagnósticos
+├── backups/             # Dominio: Copias de seguridad comprimidas .tar.gz y restauración segura
+├── file-manager/        # Dominio: Explorador de archivos aislado en jaula anti path-traversal
+├── task-scheduler/      # Dominio: Programador de tareas periódicas, reinicios y expresiones Cron
 └── delivery/            # Mecanismo de Entrega (Delivery Mechanism)
     ├── http/            # API RESTful de alto rendimiento con Fastify
     ├── websocket/       # Streaming en tiempo real de consola y métricas
@@ -168,6 +174,31 @@ Al arrancar por primera vez, Singularity inicializa una cuenta de administrador 
 * **Usuario:** `admin`
 * **Contraseña:** `admin`
 
+---
+
+## 🪟 Instalación en Windows (Desktop App)
+
+Singularity incluye ejecutables de escritorio nativos para Windows 10 y 11 x64 generados con `electron-builder`:
+
+### Descargas Oficiales (`dist/installers/`)
+* 💿 **Instalador Completo NSIS**: `Singularity-Setup-0.1.0-alpha.exe` *(169 MB)*
+  * Asistente paso a paso para seleccionar ruta de instalación.
+  * Accesos directos en el Escritorio y Menú Inicio.
+  * Desinstalador limpio registrado en el Panel de Control de Windows.
+* 🚀 **Ejecutable Portable**: `Singularity-Portable-0.1.0-alpha.exe` *(149 MB)*
+  * Ejecución directa sin instalación ni privilegios de administrador.
+  * Ideal para llevar en pendrive o ejecutar en entornos aislados.
+
+### Capacidades Nativas de Windows
+* 🔔 **Notificaciones en el Centro de Actividades de Windows**: Alertas del sistema cuando un servidor se inicia, se detiene o sufre un crash inesperado (`appUserModelId: studio.nebulax.singularity`).
+* 📥 **Minimizado a la Bandeja del Sistema (System Tray)**: Cierra la ventana sin interrumpir los servidores. Control rápido desde el menú contextual del icono en la barra de tareas.
+* ⚡ **Arranque Automático en el Inicio de Windows**: Configurable directamente desde los ajustes de la bandeja del sistema (con opción de arranque en segundo plano oculto).
+* 🛠️ **Compilación Manual**:
+  ```bash
+  npm run dist          # Compila backend, web y empaqueta instalador + portable
+  npm run dist:portable # Compila únicamente el ejecutable portable
+  ```
+
 > [!IMPORTANT]
 > **Rotación Obligatoria de Credenciales:** Por motivos de seguridad, en el primer inicio de sesión el sistema solicitará obligatoriamente actualizar la contraseña de administrador.
 
@@ -259,7 +290,7 @@ docker compose up -d --build
 
 ## 🧪 Pruebas y Control de Calidad
 
-Singularity aplica **Test-Driven Development (TDD)** con aislamiento riguroso de I/O y mocks de red:
+Singularity aplica **Test-Driven Development (TDD)** con aislamiento riguroso de I/O y mocks de red. Actualmente cuenta con **130 pruebas unitarias y de integración pasando al 100%** a través de 28 suites en Vitest:
 
 ```bash
 # Ejecutar todas las pruebas unitarias

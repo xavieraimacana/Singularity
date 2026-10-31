@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-electron
+build
+coverage
+data
+.git
+.github
+.gemini
+brain
+*.log
+.env
+.env.*

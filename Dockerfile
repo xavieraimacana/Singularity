@@ -62,8 +62,8 @@ RUN mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb bookworm main" | tee /etc/apt/sources.list.d/adoptium.list && \
     apt-get update && apt-get install -y --no-install-recommends \
-    temurin-25-jre \
     temurin-21-jre \
+    temurin-17-jre \
     temurin-8-jre \
     && rm -rf /var/lib/apt/lists/*
 
