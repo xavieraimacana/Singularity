@@ -93,10 +93,10 @@ export const App: React.FC = () => {
           isAdmin={user.role === 'ADMIN'}
         />
 
-        <main className="flex-1 overflow-y-auto p-6 bg-nebula-950/70">
+        <main className={`flex-1 flex flex-col min-h-0 bg-nebula-950/70 ${selectedServer ? 'p-3 sm:p-4 overflow-hidden' : 'p-6 overflow-y-auto'}`}>
           {/* First Login Mandatory Password Change Warning */}
           {user.mustChangePassword && (
-            <div className="mb-6 p-4 rounded-xl bg-nebula-warning/10 border border-nebula-warning/30 flex items-center justify-between">
+            <div className="mb-4 p-4 rounded-xl bg-nebula-warning/10 border border-nebula-warning/30 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="w-5 h-5 text-nebula-warning shrink-0" />
                 <div>

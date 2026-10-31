@@ -218,7 +218,7 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
   }[server.status] ?? { label: server.status.toUpperCase(), bg: 'bg-slate-800 text-slate-400 border-slate-700' };
 
   return (
-    <div className="space-y-4 flex flex-col h-[calc(100vh-5.5rem)]">
+    <div className="flex-1 flex flex-col min-h-0 space-y-3 overflow-hidden">
       {/* Top Breadcrumb & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
@@ -480,9 +480,9 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
       {/* Tab Panels */}
       <div className="flex-1 min-h-0 overflow-hidden">
         {activeTab === 'console' && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 h-full min-h-0">
             {/* Main Interactive Terminal View (3 Cols) */}
-            <div className="lg:col-span-3 h-full">
+            <div className="lg:col-span-3 h-full min-h-0 flex flex-col">
               <ConsoleTerminal
                 serverId={server.id}
                 isOnline={isOnline}
@@ -493,7 +493,7 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({
             </div>
 
             {/* Right Side Player Manager & Stats (1 Col) */}
-            <div className="h-full flex flex-col gap-4">
+            <div className="h-full min-h-0 flex flex-col gap-3 overflow-hidden">
               <div className="flex-1 min-h-0">
                 <PlayerManager
                   serverId={server.id}

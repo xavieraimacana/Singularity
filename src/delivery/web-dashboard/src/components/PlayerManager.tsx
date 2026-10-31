@@ -63,8 +63,8 @@ export const PlayerManager: React.FC<PlayerManagerProps> = ({
   };
 
   return (
-    <div className="bg-nebula-900 border border-nebula-800 rounded-xl p-4 shadow-md flex flex-col h-full">
-      <div className="flex items-center justify-between pb-3 border-b border-nebula-800 mb-3">
+    <div className="bg-nebula-900 border border-nebula-800 rounded-xl p-3 sm:p-4 shadow-md flex flex-col h-full min-h-0">
+      <div className="flex items-center justify-between pb-3 border-b border-nebula-800 mb-3 shrink-0">
         <div className="flex items-center gap-2 text-slate-200">
           <Users className="w-4 h-4 text-nebula-accent" />
           <h3 className="font-bold text-xs">Jugadores Conectados</h3>
@@ -83,7 +83,7 @@ export const PlayerManager: React.FC<PlayerManagerProps> = ({
           <span>No hay jugadores conectados actualmente</span>
         </div>
       ) : (
-        <div className="space-y-2 overflow-y-auto max-h-[380px] pr-1">
+        <div className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-1">
           {players.map((player) => (
             <div
               key={player.username}

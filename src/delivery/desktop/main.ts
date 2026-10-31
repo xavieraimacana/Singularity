@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { app, BrowserWindow, ipcMain, shell, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, shell, dialog, Menu } from 'electron';
 import { buildServer } from '../http/server.js';
 import { SftpServer } from '../sftp/index.js';
 import { IdeBridge } from './ide-bridge.js';
@@ -18,6 +18,9 @@ const __dirname = path.dirname(__filename);
 if (process.platform === 'win32') {
   app.setAppUserModelId('studio.nebulax.singularity');
 }
+
+// Remove default Electron menu bar (File, Edit, View, Window, Help)
+Menu.setApplicationMenu(null);
 
 let mainWindow: BrowserWindow | null = null;
 let trayManager: TrayManager | null = null;
@@ -140,6 +143,7 @@ function createMainWindow(startHidden: boolean = false): BrowserWindow {
     show: !startHidden,
     backgroundColor: '#090d16',
     title: 'Singularity - Minecraft Server Mission Control',
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -148,6 +152,9 @@ function createMainWindow(startHidden: boolean = false): BrowserWindow {
       allowRunningInsecureContent: false
     }
   });
+
+  // Completely remove menu bar from this window
+  win.removeMenu();
 
   // Sandbox external navigation & links to prevent remote code execution in webview
   win.webContents.setWindowOpenHandler(({ url }) => {

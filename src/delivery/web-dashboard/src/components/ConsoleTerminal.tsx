@@ -247,6 +247,17 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
     };
     window.addEventListener('resize', handleResize);
 
+    const resizeObserver = new ResizeObserver(() => {
+      try {
+        fitAddon.fit();
+      } catch {
+        // ignore
+      }
+    });
+    if (terminalRef.current) {
+      resizeObserver.observe(terminalRef.current);
+    }
+
     // Initial connection to canonical path
     connect();
 
@@ -254,6 +265,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
       isMountedRef.current = false;
       intentionalCloseRef.current = true;
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
         reconnectTimeoutRef.current = null;
@@ -298,7 +310,7 @@ export const ConsoleTerminal: React.FC<ConsoleTerminalProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-nebula-950 border border-nebula-800 rounded-xl overflow-hidden shadow-2xl">
+    <div className="flex-1 flex flex-col h-full min-h-0 bg-nebula-950 border border-nebula-800 rounded-xl overflow-hidden shadow-2xl">
       {/* Top Console Action Bar */}
       <div className="h-10 px-4 border-b border-nebula-800/80 bg-nebula-900/90 flex items-center justify-between text-xs font-mono shrink-0">
         <div className="flex items-center gap-2">
