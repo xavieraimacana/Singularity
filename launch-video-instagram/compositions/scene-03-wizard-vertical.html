@@ -1,0 +1,350 @@
+<template>
+  <style>
+    #root {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #04060a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 220px; /* Safe zone: >168px */
+      font-family: 'Inter', sans-serif;
+    }
+
+    .ambient-glow {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.12) 50%, rgba(0, 0, 0, 0) 75%);
+      top: 400px;
+      left: 140px;
+      pointer-events: none;
+    }
+
+    .step-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 8px 24px;
+      border-radius: 999px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .wizard-title {
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.18;
+      max-width: 900px;
+      margin-bottom: 16px;
+    }
+
+    .wizard-title span {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .wizard-sub {
+      font-size: 28px;
+      color: #94a3b8;
+      text-align: center;
+      max-width: 820px;
+      margin-bottom: 40px;
+    }
+
+    /* Vertical Window Card */
+    .wizard-window {
+      width: 900px;
+      background: #0b0f17;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(16, 185, 129, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .window-header {
+      background: #070a0f;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .window-header-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .window-body {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .param-label {
+      font-size: 18px;
+      color: #94a3b8;
+    }
+
+    .param-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-auto {
+      font-size: 12px;
+      color: #06b6d4;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .btn-create-server {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 800;
+      border: none;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+      margin-top: 10px;
+    }
+
+    /* Provisioning Step Items */
+    .steps-box {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .prov-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 17px;
+      color: #64748b;
+      opacity: 0.4;
+      transition: all 0.3s ease;
+    }
+
+    .prov-step.active {
+      opacity: 1;
+      color: #f1f5f9;
+    }
+
+    .prov-step.done {
+      opacity: 1;
+      color: #10b981;
+    }
+
+    .step-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Virtual Cursor */
+    .virtual-cursor {
+      position: absolute;
+      width: 38px;
+      height: 38px;
+      pointer-events: none;
+      z-index: 100;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-03-wizard-vertical" data-width="1080" data-height="1920">
+    <div class="ambient-glow"></div>
+
+    <div class="step-pill" id="step-pill" data-layout-ignore>1-Clic Server Deployment</div>
+
+    <h2 class="wizard-title" id="wizard-title">
+      Elige tu motor.<br/>
+      <span>Singularity hace el resto.</span>
+    </h2>
+
+    <p class="wizard-sub" id="wizard-sub">
+      Descarga automatizada de Java 25, configuración de puertos y arranque sin tocar la consola.
+    </p>
+
+    <div class="wizard-window" id="wizard-window" data-hold data-layout-ignore>
+      <div class="window-header">
+        <div class="window-dots">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+        </div>
+        <div class="window-header-title">singularity://create-instance</div>
+        <div style="font-size: 13px; color: #10b981; font-weight: 700;">● FAST DEPLOY</div>
+      </div>
+
+      <div class="window-body">
+        <div class="param-row">
+          <span class="param-label">Nombre del Servidor</span>
+          <span class="param-val">Survival 1.21.4</span>
+        </div>
+
+        <div class="param-row">
+          <span class="param-label">Motor &amp; Loader</span>
+          <span class="param-val" style="color: #38bdf8;">PaperMC 1.21.4 (build 158)</span>
+        </div>
+
+        <div class="param-row">
+          <span class="param-label">Java Runtime</span>
+          <span class="param-val">
+            <span>Adoptium JDK 25</span>
+            <span class="badge-auto">AUTO-PROVISION</span>
+          </span>
+        </div>
+
+        <div class="param-row">
+          <span class="param-label">Memoria Asignada</span>
+          <span class="param-val" style="color: #10b981;">6144 MB (6.0 GB RAM)</span>
+        </div>
+
+        <button class="btn-create-server" id="btn-create">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span id="btn-create-label">Crear y Desplegar Servidor</span>
+        </button>
+
+        <div class="steps-box">
+          <div class="prov-step" id="p-step-1">
+            <div class="step-icon">1</div>
+            <span>Descargando paper-1.21.4-158.jar oficial...</span>
+          </div>
+          <div class="prov-step" id="p-step-2">
+            <div class="step-icon">2</div>
+            <span>Verificando entorno JDK 25 (Adoptium OpenJDK)...</span>
+          </div>
+          <div class="prov-step" id="p-step-3">
+            <div class="step-icon">3</div>
+            <span>¡Instancia creada y lista en 3.2 segundos!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Virtual Mouse Pointer -->
+    <svg class="virtual-cursor" id="cursor" viewBox="0 0 24 24" fill="none">
+      <path d="M5.5 3.5L11.5 20.5L14.5 13.5L21.5 10.5L5.5 3.5Z" fill="#ffffff" stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+    </svg>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-03-wizard-vertical"] = tl;
+
+    gsap.set("#root", { opacity: 0 });
+    gsap.set("#wizard-window", { y: 60, opacity: 0, scale: 0.96 });
+    gsap.set("#cursor", { x: 800, y: 1300, opacity: 0 });
+
+    // 0.1s: Scene entrance
+    tl.to("#root", { opacity: 1, duration: 0.35, ease: "power2.out" }, 0.1);
+    tl.to("#wizard-window", { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" }, 0.2);
+
+    // 1.2s: Cursor appears and glides toward the Create button
+    tl.to("#cursor", { opacity: 1, x: 540, y: 1040, duration: 1.0, ease: "power2.out" }, 1.2);
+
+    // 2.8s: Cursor clicks button (syncs with 10.0s global sfx)
+    tl.to("#btn-create", { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 }, 2.8);
+
+    // 3.0s: Step 1 active
+    tl.call(() => {
+      document.getElementById("p-step-1").classList.add("done");
+      document.getElementById("p-step-1").querySelector(".step-icon").innerText = "✓";
+      document.getElementById("btn-create-label").innerText = "Aprovisionando entorno...";
+    }, null, 3.0);
+
+    // 4.2s: Step 2 active
+    tl.call(() => {
+      document.getElementById("p-step-2").classList.add("done");
+      document.getElementById("p-step-2").querySelector(".step-icon").innerText = "✓";
+    }, null, 4.2);
+
+    // 5.2s: Step 3 active (Instant completion!)
+    tl.call(() => {
+      document.getElementById("p-step-3").classList.add("done");
+      document.getElementById("p-step-3").querySelector(".step-icon").innerText = "✓";
+      const btn = document.getElementById("btn-create");
+      btn.style.background = "#10b981";
+      document.getElementById("btn-create-label").innerText = "✓ Servidor Creado Exitosamente";
+    }, null, 5.2);
+
+    // 6.5s: Transition out into Catalog
+    tl.to("#root", {
+      opacity: 0,
+      scale: 1.05,
+      duration: 0.5,
+      ease: "power2.in"
+    }, 6.5);
+
+    tl.seek(0);
+  </script>
+</template>

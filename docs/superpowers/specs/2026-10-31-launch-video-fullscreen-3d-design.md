@@ -43,7 +43,7 @@
 ## 3. Desglose Detallado de Escenas
 
 ### Escena 01: Onboarding Rápido & Login Real (0s - 6s)
-* **Entorno:** Terminal de desarrollador clonando `git clone https://github.com/xavieraimacana/Singularity.git`.
+* **Entorno:** Terminal de desarrollador clonando `git clone https://github.com/DarkNebulaX28/Singularity.git`.
 * **Transición:** La terminal se contrae y se expande la ventana completa de Singularity Desktop.
 * **Login Real (`LoginPage.tsx`):**
   * Fondo completo con el degradado estelar y el logo oficial de Singularity.
@@ -100,7 +100,7 @@
   * *"Tu servidor de Minecraft, sin dolores de cabeza técnicos."*
   * *"Java automático • Mods y Modpacks en 1 clic • Edición directa desde tu IDE."*
   * *"100% Código Abierto y Gratuito."*
-* Enlace: `github.com/xavieraimacana/Singularity`.
+* Enlace: `github.com/DarkNebulaX28/Singularity`.
 
 ---
 

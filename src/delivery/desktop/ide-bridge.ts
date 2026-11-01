@@ -9,6 +9,14 @@ export interface IdeInfo {
   isAvailable: boolean;
 }
 
+export interface RemoteWorkspaceOptions {
+  isRemote?: boolean;
+  sftpHost?: string;
+  sftpPort?: number;
+  username?: string;
+  serverName?: string;
+}
+
 export class IdeBridge {
   private readonly defaultServersDir: string;
 
@@ -123,21 +131,101 @@ export class IdeBridge {
   }
 
   /**
+   * Scaffolds remote SFTP workspace configuration (.vscode/sftp.json) and README guide
+   * to enable instant live file synchronization between local IDE and cloud VPS.
+   */
+  provisionRemoteWorkspace(
+    targetDir: string,
+    serverIdOrName: string,
+    options?: RemoteWorkspaceOptions
+  ): void {
+    const sftpHost = options?.sftpHost || '157.137.223.54';
+    const sftpPort = options?.sftpPort || 2022;
+    const username = options?.username || 'admin';
+    const serverName = options?.serverName || serverIdOrName;
+    const cleanId = path.basename(serverIdOrName);
+
+    const vscodeDir = path.join(targetDir, '.vscode');
+    if (!fs.existsSync(vscodeDir)) {
+      fs.mkdirSync(vscodeDir, { recursive: true });
+    }
+
+    const sftpConfigPath = path.join(vscodeDir, 'sftp.json');
+    if (!fs.existsSync(sftpConfigPath)) {
+      const sftpConfig = {
+        name: `Singularity VPS (${serverName})`,
+        host: sftpHost,
+        protocol: 'sftp',
+        port: sftpPort,
+        username,
+        remotePath: `/${cleanId}`,
+        uploadOnSave: true,
+        useTempFile: false,
+        openSftpForFirstTime: true,
+        ignore: ['**/.vscode/**', '**/.git/**', '**/.DS_Store']
+      };
+      fs.writeFileSync(sftpConfigPath, JSON.stringify(sftpConfig, null, 2), 'utf8');
+    }
+
+    const infoPath = path.join(targetDir, 'REMOTE_SERVER_INFO.md');
+    if (!fs.existsSync(infoPath)) {
+      const infoContent = `# 🌌 Servidor Remoto: ${serverName} (${cleanId})
+**Conectado a NebulaX Cloud VPS vía Singularity**
+
+Este servidor de Minecraft está alojado y corriendo en tu VPS en la nube:
+- **Host SFTP:** \`${sftpHost}\`
+- **Puerto SFTP:** \`${sftpPort}\`
+- **Usuario:** \`${username}\`
+- **Ruta Remota:** \`/${cleanId}\`
+
+---
+
+### 🚀 Cómo sincronizar y editar tus archivos en vivo:
+
+#### 1. Con VS Code / Antigravity IDE / Cursor:
+- Ya se ha autogenerado la configuración en \`.vscode/sftp.json\`.
+- Si tienes instalada la extensión **SFTP** (por ejemplo *SFTP by Natizyskunk* o *liximomo*):
+  1. Presiona \`Ctrl + Shift + P\` (o \`Cmd + Shift + P\`).
+  2. Escribe y ejecuta: **\`SFTP: Download Project\`** para descargar los archivos del servidor a esta carpeta local.
+  3. Cada vez que edites y guardes un archivo con \`Ctrl + S\`, se subirá automáticamente al VPS al instante.
+
+#### 2. Desde el Panel Web de Singularity:
+- Puedes explorar, editar con sintaxis resaltada y subir/descargar archivos directamente en tiempo real desde la pestaña **"Archivos"** (*File Manager*) en la aplicación Singularity.
+
+---
+*Generado automáticamente por el puente IDE de Singularity — NebulaX Studio*
+`;
+      fs.writeFileSync(infoPath, infoContent, 'utf8');
+    }
+  }
+
+  /**
    * Opens the Minecraft server directory in the chosen or best-available IDE.
    */
   async openInIde(
     serverIdOrPath: string,
-    preferredIde: 'antigravity' | 'vscode' | 'cursor' | 'explorer' = 'antigravity'
-  ): Promise<{ success: boolean; ideUsed: string; error?: string }> {
+    preferredIde: 'antigravity' | 'vscode' | 'cursor' | 'explorer' = 'antigravity',
+    options?: RemoteWorkspaceOptions
+  ): Promise<{ success: boolean; ideUsed: string; isRemote?: boolean; error?: string }> {
     const targetDir = this.resolveInstancePath(serverIdOrPath);
 
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }
 
+    const hasLocalServerMetadata =
+      fs.existsSync(path.join(targetDir, 'singularity-instance.json')) ||
+      fs.existsSync(path.join(targetDir, 'server.properties'));
+
+    const isRemote = Boolean(options?.isRemote || !hasLocalServerMetadata);
+    if (isRemote) {
+      this.provisionRemoteWorkspace(targetDir, path.basename(serverIdOrPath), options);
+    }
+
     // Direct Explorer Request
     if (preferredIde === 'explorer') {
-      return this.openFolderInExplorer(targetDir);
+      const res = await this.openFolderInExplorer(targetDir);
+      return { ...res, isRemote };
     }
 
     const ides = await this.getAvailableIdes();
@@ -148,37 +236,38 @@ export class IdeBridge {
     // 1. Explicit preference match
     if (preferredIde === 'antigravity' && antigravity?.isAvailable) {
       const opened = await this.spawnIdeProcess(antigravity.command, [targetDir]);
-      if (opened) return { success: true, ideUsed: 'Antigravity IDE' };
+      if (opened) return { success: true, ideUsed: 'Antigravity IDE', isRemote };
     }
 
     if (preferredIde === 'vscode' && vscode?.isAvailable) {
       const opened = await this.spawnIdeProcess(vscode.command, [targetDir]);
-      if (opened) return { success: true, ideUsed: 'Visual Studio Code' };
+      if (opened) return { success: true, ideUsed: 'Visual Studio Code', isRemote };
     }
 
     if (preferredIde === 'cursor' && cursor?.isAvailable) {
       const opened = await this.spawnIdeProcess(cursor.command, [targetDir]);
-      if (opened) return { success: true, ideUsed: 'Cursor' };
+      if (opened) return { success: true, ideUsed: 'Cursor', isRemote };
     }
 
     // 2. Fallback to any detected code editor
     if (antigravity?.isAvailable) {
       const opened = await this.spawnIdeProcess(antigravity.command, [targetDir]);
-      if (opened) return { success: true, ideUsed: 'Antigravity IDE' };
+      if (opened) return { success: true, ideUsed: 'Antigravity IDE', isRemote };
     }
 
     if (vscode?.isAvailable) {
       const opened = await this.spawnIdeProcess(vscode.command, [targetDir]);
-      if (opened) return { success: true, ideUsed: 'Visual Studio Code' };
+      if (opened) return { success: true, ideUsed: 'Visual Studio Code', isRemote };
     }
 
     if (cursor?.isAvailable) {
       const opened = await this.spawnIdeProcess(cursor.command, [targetDir]);
-      if (opened) return { success: true, ideUsed: 'Cursor' };
+      if (opened) return { success: true, ideUsed: 'Cursor', isRemote };
     }
 
     // 3. Fallback: OS Native Explorer/Finder
-    return this.openFolderInExplorer(targetDir);
+    const fallbackRes = await this.openFolderInExplorer(targetDir);
+    return { ...fallbackRes, isRemote };
   }
 
   async openFolderInExplorer(targetDir: string): Promise<{ success: boolean; ideUsed: string; error?: string }> {

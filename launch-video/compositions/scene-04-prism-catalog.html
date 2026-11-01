@@ -376,6 +376,14 @@
       align-items: center;
       justify-content: center;
       shrink: 0;
+      overflow: hidden;
+    }
+
+    .content-icon-square img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .content-title-line {
@@ -780,11 +788,11 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span class="api-badge-status">200 OK</span>
                   <span style="color: #64748b;">&bull;</span>
-                  <span style="color: #38bdf8;">184ms</span>
+                  <span style="color: #38bdf8;">142ms</span>
                   <span style="color: #64748b;">&bull;</span>
                   <span style="color: #10b981;">Modrinth v2 API Direct</span>
                   <span style="color: #64748b;">&bull;</span>
-                  <span style="color: #e2e8f0;">4 hits devueltos</span>
+                  <span style="color: #e2e8f0;">14 resultados devueltos</span>
                 </div>
               </div>
 
@@ -805,36 +813,32 @@
               </div>
 
               <!-- Content Cards Grid: Real Modrinth v2 Data -->
-              <div class="catalog-cards-grid" id="cards-grid">
-                <!-- Card 1: Better MC [FABRIC] - BMC1 -->
+                            <div class="catalog-cards-grid" id="cards-grid">
+                <!-- Card 1: Better MC [FABRIC] - BMC2 -->
                 <div class="content-card-box" id="card-bettermc">
                   <div>
                     <div class="content-card-top">
-                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                          <polyline points="2 17 12 22 22 17"></polyline>
-                          <polyline points="2 12 12 17 22 12"></polyline>
-                        </svg>
+                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.5);">
+                        <img src="assets/modpacks/better-mc-fabric-bmc2.webp" alt="Better MC Fabric BMC2" />
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div class="content-title-line">
-                          <span class="content-item-name">Better MC [FABRIC] - BMC1</span>
-                          <span class="type-badge-pill badge-modpack">MODPACK / PACK</span>
+                          <span class="content-item-name">Better MC [FABRIC] - BMC2</span>
+                          <span class="type-badge-pill badge-modpack">MODPACK</span>
                         </div>
                         <span class="content-author-line">por <strong style="color: #cbd5e1;">SHXRKIE</strong></span>
                       </div>
                     </div>
-                    <p class="content-desc-p">El modpack de exploración insignia con 184 mods optimizados, mazmorras y biomas.</p>
+                    <p class="content-desc-p">Version 1.20 | A Proper Vanilla+ Modpack | Don't play Vanilla play this!</p>
                     <div class="content-tags-row">
                       <span class="tag-chip">#fabric</span>
+                      <span class="tag-chip">#vanilla+</span>
+                      <span class="tag-chip">#1.20</span>
                       <span class="tag-chip">#adventure</span>
-                      <span class="tag-chip">#quests</span>
-                      <span class="tag-chip">#1.20.1</span>
                     </div>
                   </div>
                   <div class="content-card-footer">
-                    <span>4.9M descargas</span>
+                    <span>3.8M descargas</span>
                     <button class="btn-action-deploy" id="btn-deploy-bettermc">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
@@ -849,184 +853,172 @@
                 <div class="content-card-box" id="card-bettermc-forge">
                   <div>
                     <div class="content-card-top">
-                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                          <polyline points="2 17 12 22 22 17"></polyline>
-                        </svg>
+                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.5);">
+                        <img src="assets/modpacks/better-mc-forge-bmc4.webp" alt="Better MC Forge BMC4" />
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div class="content-title-line">
                           <span class="content-item-name">Better MC [FORGE] - BMC4</span>
-                          <span class="type-badge-pill badge-modpack">MODPACK / PACK</span>
+                          <span class="type-badge-pill badge-modpack">MODPACK</span>
                         </div>
                         <span class="content-author-line">por <strong style="color: #cbd5e1;">SHXRKIE</strong></span>
                       </div>
                     </div>
-                    <p class="content-desc-p">Edición clásica de Better MC sobre Forge con soporte para mods de magia y jefes masivos.</p>
+                    <p class="content-desc-p">Version 1.20.1 | A Proper Vanilla+ Modpack | Don't play Vanilla play this!</p>
                     <div class="content-tags-row">
                       <span class="tag-chip">#forge</span>
-                      <span class="tag-chip">#adventure</span>
+                      <span class="tag-chip">#vanilla+</span>
+                      <span class="tag-chip">#1.20.1</span>
                       <span class="tag-chip">#quests</span>
                     </div>
                   </div>
                   <div class="content-card-footer">
-                    <span>9.1M descargas</span>
+                    <span>2.3M descargas</span>
                     <button class="btn-action-deploy">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
                       </svg>
                       <span>Crear Servidor / Desplegar</span>
                     </button>
                   </div>
                 </div>
 
-                <!-- Card 3: Better Nether -->
-                <div class="content-card-box" id="card-betternether">
+                <!-- Card 3: Better MC [FABRIC] - BMC3 -->
+                <div class="content-card-box" id="card-bettermc-bmc3">
                   <div>
                     <div class="content-card-top">
-                      <div class="content-icon-square" style="border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                        </svg>
+                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.5);">
+                        <img src="assets/modpacks/better-mc-fabric-bmc3.webp" alt="Better MC Fabric BMC3" />
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div class="content-title-line">
-                          <span class="content-item-name">Better Nether</span>
-                          <span class="type-badge-pill badge-mod">MOD</span>
+                          <span class="content-item-name">Better MC [FABRIC] - BMC3</span>
+                          <span class="type-badge-pill badge-modpack">MODPACK</span>
                         </div>
-                        <span class="content-author-line">por <strong style="color: #cbd5e1;">Paulevs</strong></span>
+                        <span class="content-author-line">por <strong style="color: #cbd5e1;">SHXRKIE</strong></span>
                       </div>
                     </div>
-                    <p class="content-desc-p">Renovación integral del Nether con biomas únicos, plantas, nuevos bloques y criaturas.</p>
+                    <p class="content-desc-p">Version 1.21 | Vanilla+ Experience With The Player in Mind | A New Era!</p>
                     <div class="content-tags-row">
                       <span class="tag-chip">#fabric</span>
-                      <span class="tag-chip">#worldgen</span>
-                      <span class="tag-chip">#nether</span>
+                      <span class="tag-chip">#1.21</span>
+                      <span class="tag-chip">#vanilla+</span>
+                      <span class="tag-chip">#optimization</span>
                     </div>
                   </div>
                   <div class="content-card-footer">
-                    <span>12.3M descargas</span>
-                    <button class="btn-action-install">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    <span>398K descargas</span>
+                    <button class="btn-action-deploy">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
                       </svg>
-                      <span>1-Clic Install</span>
+                      <span>Crear Servidor / Desplegar</span>
                     </button>
                   </div>
                 </div>
 
-                <!-- Card 4: Lithium -->
-                <div class="content-card-box" id="card-lithium">
+                <!-- Card 4: Better MC [NEOFORGE] BMC5 -->
+                <div class="content-card-box" id="card-bettermc-bmc5">
                   <div>
                     <div class="content-card-top">
-                      <div class="content-icon-square" style="border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                        </svg>
+                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.5);">
+                        <img src="assets/modpacks/better-mc-neoforge-bmc5.webp" alt="Better MC NeoForge BMC5" />
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div class="content-title-line">
-                          <span class="content-item-name">Lithium</span>
-                          <span class="type-badge-pill badge-mod">MOD</span>
+                          <span class="content-item-name">Better MC [NEOFORGE] BMC5</span>
+                          <span class="type-badge-pill badge-modpack">MODPACK</span>
                         </div>
-                        <span class="content-author-line">por <strong style="color: #cbd5e1;">CaffeineMC</strong></span>
+                        <span class="content-author-line">por <strong style="color: #cbd5e1;">SHXRKIE</strong></span>
                       </div>
                     </div>
-                    <p class="content-desc-p">Optimizador general de físicas, chunks y lógica de entidades para el servidor sin alterar mecánicas.</p>
+                    <p class="content-desc-p">Version 1.21.1 | Vanilla+ Experience With The Player in Mind | A New Era!</p>
+                    <div class="content-tags-row">
+                      <span class="tag-chip">#neoforge</span>
+                      <span class="tag-chip">#1.21.1</span>
+                      <span class="tag-chip">#quests</span>
+                      <span class="tag-chip">#adventure</span>
+                    </div>
+                  </div>
+                  <div class="content-card-footer">
+                    <span>341K descargas</span>
+                    <button class="btn-action-deploy">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                      </svg>
+                      <span>Crear Servidor / Desplegar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 5: Better MC Skyblock [BMCS] -->
+                <div class="content-card-box" id="card-bettermc-skyblock">
+                  <div>
+                    <div class="content-card-top">
+                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.5);">
+                        <img src="assets/modpacks/better-mc-skyblock.webp" alt="Better MC Skyblock" />
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div class="content-title-line">
+                          <span class="content-item-name">Better MC Skyblock [BMCS]</span>
+                          <span class="type-badge-pill badge-modpack">MODPACK</span>
+                        </div>
+                        <span class="content-author-line">por <strong style="color: #cbd5e1;">SHXRKIE</strong></span>
+                      </div>
+                    </div>
+                    <p class="content-desc-p">Vanilla+ Skyblock with a Buy, Sell & Daily Rewards System.</p>
+                    <div class="content-tags-row">
+                      <span class="tag-chip">#forge</span>
+                      <span class="tag-chip">#skyblock</span>
+                      <span class="tag-chip">#economy</span>
+                      <span class="tag-chip">#quests</span>
+                    </div>
+                  </div>
+                  <div class="content-card-footer">
+                    <span>31K descargas</span>
+                    <button class="btn-action-deploy">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                      </svg>
+                      <span>Crear Servidor / Desplegar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 6: Better MC (CubingXT) -->
+                <div class="content-card-box" id="card-bettermc-classic">
+                  <div>
+                    <div class="content-card-top">
+                      <div class="content-icon-square" style="border-color: rgba(168, 85, 247, 0.5);">
+                        <img src="assets/modpacks/a-better-mc.webp" alt="Better MC CubingXT" />
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div class="content-title-line">
+                          <span class="content-item-name">Better MC</span>
+                          <span class="type-badge-pill badge-modpack">MODPACK</span>
+                        </div>
+                        <span class="content-author-line">por <strong style="color: #cbd5e1;">CubingXT</strong></span>
+                      </div>
+                    </div>
+                    <p class="content-desc-p">Modpack that strives to rival OptiFine while adding additional features.</p>
                     <div class="content-tags-row">
                       <span class="tag-chip">#fabric</span>
                       <span class="tag-chip">#optimization</span>
-                      <span class="tag-chip">#server</span>
+                      <span class="tag-chip">#lightweight</span>
                     </div>
                   </div>
                   <div class="content-card-footer">
-                    <span>24.5M descargas</span>
-                    <button class="btn-action-install">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    <span>17K descargas</span>
+                    <button class="btn-action-deploy">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
                       </svg>
-                      <span>1-Clic Install</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Card 5: FerriteCore -->
-                <div class="content-card-box" id="card-ferrite">
-                  <div>
-                    <div class="content-card-top">
-                      <div class="content-icon-square" style="border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <line x1="12" y1="8" x2="12" y2="12"></line>
-                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                      </div>
-                      <div style="flex: 1; min-width: 0;">
-                        <div class="content-title-line">
-                          <span class="content-item-name">FerriteCore</span>
-                          <span class="type-badge-pill badge-mod">MOD</span>
-                        </div>
-                        <span class="content-author-line">por <strong style="color: #cbd5e1;">malte0811</strong></span>
-                      </div>
-                    </div>
-                    <p class="content-desc-p">Reduce drásticamente el consumo de memoria RAM de Minecraft optimizando los modelos del juego.</p>
-                    <div class="content-tags-row">
-                      <span class="tag-chip">#fabric</span>
-                      <span class="tag-chip">#memory</span>
-                      <span class="tag-chip">#server</span>
-                    </div>
-                  </div>
-                  <div class="content-card-footer">
-                    <span>18.2M descargas</span>
-                    <button class="btn-action-install">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                      </svg>
-                      <span>1-Clic Install</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Card 6: Spark -->
-                <div class="content-card-box" id="card-spark">
-                  <div>
-                    <div class="content-card-top">
-                      <div class="content-icon-square" style="border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                        </svg>
-                      </div>
-                      <div style="flex: 1; min-width: 0;">
-                        <div class="content-title-line">
-                          <span class="content-item-name">Spark</span>
-                          <span class="type-badge-pill badge-mod">MOD</span>
-                        </div>
-                        <span class="content-author-line">por <strong style="color: #cbd5e1;">lucko</strong></span>
-                      </div>
-                    </div>
-                    <p class="content-desc-p">Profiler de alto rendimiento para inspeccionar picos de lag de CPU y memoria en tiempo real.</p>
-                    <div class="content-tags-row">
-                      <span class="tag-chip">#fabric</span>
-                      <span class="tag-chip">#forge</span>
-                      <span class="tag-chip">#profiler</span>
-                    </div>
-                  </div>
-                  <div class="content-card-footer">
-                    <span>8.4M descargas</span>
-                    <button class="btn-action-install">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                      </svg>
-                      <span>1-Clic Install</span>
+                      <span>Crear Servidor / Desplegar</span>
                     </button>
                   </div>
                 </div>
@@ -1040,9 +1032,12 @@
           <div class="install-modal-card" id="install-card" data-layout-ignore>
             <!-- Modal Header -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid #1c2433;">
-              <div>
-                <h3 style="font-size: 16px; font-weight: 700; color: #f1f5f9;">Better MC [FABRIC] - BMC1</h3>
-                <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #8b5cf6;">por SHXRKIE &bull; Modrinth v2 &bull; 32 versiones disponibles</span>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="assets/modpacks/better-mc-fabric-bmc2.webp" alt="Better MC Fabric" style="width: 44px; height: 44px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.4); object-fit: cover;" />
+                <div>
+                  <h3 style="font-size: 16px; font-weight: 700; color: #f1f5f9; margin: 0;">Better MC [FABRIC] - BMC2</h3>
+                  <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #8b5cf6;">por SHXRKIE &bull; Modrinth v2 &bull; 3.8M descargas &bull; 32 versiones disponibles</span>
+                </div>
               </div>
               <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;">&times;</button>
             </div>
@@ -1174,11 +1169,6 @@
       document.getElementById("loading-box").style.display = "none";
       document.getElementById("cards-grid").style.display = "grid";
       document.getElementById("client-filter-banner").style.display = "flex";
-      document.getElementById("card-lithium").style.opacity = "0.35";
-      document.getElementById("card-ferrite").style.opacity = "0.35";
-      document.getElementById("card-spark").style.opacity = "0.35";
-      document.getElementById("card-betternether").style.opacity = "0.35";
-      document.getElementById("card-bettermc-forge").style.opacity = "0.45";
       document.getElementById("card-bettermc").style.transform = "scale(1.02)";
       document.getElementById("card-bettermc").style.borderColor = "#8b5cf6";
       document.getElementById("card-bettermc").style.boxShadow = "0 8px 25px rgba(139, 92, 246, 0.25)";

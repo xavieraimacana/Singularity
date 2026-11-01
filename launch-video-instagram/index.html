@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #060911;
+        --ink: #f8fafc;
+        --accent: #06b6d4;
+        --accent-purple: #8b5cf6;
+        --accent-success: #10b981;
+        --font-display: 'Inter', sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--ground);
+        font-family: var(--font-display);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30.0"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- Scene 01: The Chaos & Java Broken Classpath (0.0s - 3.5s) -->
+      <div
+        id="scene-01-chaos-vertical"
+        data-composition-id="scene-01-chaos-vertical"
+        data-composition-src="compositions/scene-01-chaos-vertical.html"
+        class="clip"
+        data-track-index="0"
+        data-track-kind="graphics"
+        data-start="0.0"
+        data-duration="3.5"
+        style="position: absolute; inset: 0; width: 1080px; height: 1920px;"
+      ></div>
+
+      <!-- Scene 02: Singularity Ignition & Hexacore Logo (3.5s - 7.0s) -->
+      <div
+        id="scene-02-ignition-vertical"
+        data-composition-id="scene-02-ignition-vertical"
+        data-composition-src="compositions/scene-02-ignition-vertical.html"
+        class="clip"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-start="3.5"
+        data-duration="3.5"
+        style="position: absolute; inset: 0; width: 1080px; height: 1920px;"
+      ></div>
+
+      <!-- Scene 03: 1-Click Server Wizard & Adoptium JDK 25 (7.0s - 14.0s) -->
+      <div
+        id="scene-03-wizard-vertical"
+        data-composition-id="scene-03-wizard-vertical"
+        data-composition-src="compositions/scene-03-wizard-vertical.html"
+        class="clip"
+        data-track-index="2"
+        data-track-kind="graphics"
+        data-start="7.0"
+        data-duration="7.0"
+        style="position: absolute; inset: 0; width: 1080px; height: 1920px;"
+      ></div>
+
+      <!-- Scene 04: Prism Catalog & Better MC Modpack 14 Hits (14.0s - 21.0s) -->
+      <div
+        id="scene-04-catalog-vertical"
+        data-composition-id="scene-04-catalog-vertical"
+        data-composition-src="compositions/scene-04-catalog-vertical.html"
+        class="clip"
+        data-track-index="3"
+        data-track-kind="graphics"
+        data-start="14.0"
+        data-duration="7.0"
+        style="position: absolute; inset: 0; width: 1080px; height: 1920px;"
+      ></div>
+
+      <!-- Scene 05: Live VT100 Console & Windows 11 Tray (21.0s - 26.0s) -->
+      <div
+        id="scene-05-console-tray-vertical"
+        data-composition-id="scene-05-console-tray-vertical"
+        data-composition-src="compositions/scene-05-console-tray-vertical.html"
+        class="clip"
+        data-track-index="4"
+        data-track-kind="graphics"
+        data-start="21.0"
+        data-duration="5.0"
+        style="position: absolute; inset: 0; width: 1080px; height: 1920px;"
+      ></div>
+
+      <!-- Scene 06: Viral Endcard & GitHub DarkNebulaX28 (26.0s - 30.0s) -->
+      <div
+        id="scene-06-endcard-vertical"
+        data-composition-id="scene-06-endcard-vertical"
+        data-composition-src="compositions/scene-06-endcard-vertical.html"
+        class="clip"
+        data-track-index="5"
+        data-track-kind="graphics"
+        data-start="26.0"
+        data-duration="4.0"
+        style="position: absolute; inset: 0; width: 1080px; height: 1920px;"
+      ></div>
+
+      <!-- Master Audio Track (Synthwave Pro Bed) -->
+      <audio
+        id="bgm"
+        src="assets/audio/singularity-synthwave.wav"
+        data-start="0.0"
+        data-duration="30.0"
+        data-volume="0.88"
+      ></audio>
+
+      <!-- Synchronized Tactical SFX -->
+      <audio
+        id="sfx-glitch"
+        src="assets/audio/sfx_004.mp3"
+        data-start="0.4"
+        data-duration="2.5"
+        data-volume="0.65"
+      ></audio>
+      <audio
+        id="sfx-whoosh"
+        src="assets/audio/sfx_002.mp3"
+        data-start="3.4"
+        data-duration="3.0"
+        data-volume="0.75"
+      ></audio>
+      <audio
+        id="sfx-click1"
+        src="assets/audio/sfx_001.mp3"
+        data-start="10.2"
+        data-duration="1.0"
+        data-volume="0.60"
+      ></audio>
+      <audio
+        id="sfx-type"
+        src="assets/audio/sfx_003.mp3"
+        data-start="14.8"
+        data-duration="2.0"
+        data-volume="0.65"
+      ></audio>
+      <audio
+        id="sfx-chime"
+        src="assets/audio/sfx_005.mp3"
+        data-start="19.2"
+        data-duration="2.0"
+        data-volume="0.75"
+      ></audio>
+      <audio
+        id="sfx-click2"
+        src="assets/audio/sfx_001.mp3"
+        data-start="23.4"
+        data-duration="1.0"
+        data-volume="0.60"
+      ></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

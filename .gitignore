@@ -38,3 +38,13 @@ Thumbs.db
 # HyperFrames Build Artifacts
 .hyperframes/
 launch-video/.hyperframes/
+launch-video/.media/
+launch-video-instagram/.hyperframes/
+launch-video-instagram/renders/
+
+# Agent Scratch & Memory
+.agents/
+.codebase-memory/
+graphify-out/
+scratch/
+singularity-app.txt

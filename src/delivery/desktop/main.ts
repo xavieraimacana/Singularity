@@ -253,7 +253,14 @@ function registerIpcHandlers(): void {
       ide = args.ide || 'antigravity';
     }
     const pref = (ide || 'antigravity') as 'antigravity' | 'vscode' | 'cursor' | 'explorer';
-    return ideBridge.openInIde(serverId, pref);
+    const active = connectionManager.getActiveProfile();
+    return ideBridge.openInIde(serverId, pref, {
+      isRemote: active?.type === 'remote',
+      sftpHost: active?.sftpHost || '157.137.223.54',
+      sftpPort: active?.sftpPort || SFTP_PORT,
+      username: 'admin',
+      serverName: serverId
+    });
   });
 
   ipcMain.handle('singularity:open-folder', async (_event, args: { targetPath?: string } | string) => {

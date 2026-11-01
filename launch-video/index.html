@@ -39,29 +39,42 @@
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="56"
+      data-duration="53.0"
       data-width="1920"
       data-height="1080"
     >
-      <!-- Scene 01: Fullscreen Windows App, Terminal Clone & Login Interaction -->
+      <!-- Scene 01: The Chaos & Java Broken Classpath (0.0s - 3.5s) -->
       <div
-        id="scene-01-onboarding-login"
-        data-composition-id="scene-01-onboarding-login"
-        data-composition-src="compositions/scene-01-onboarding-login.html"
+        id="scene-01-chaos"
+        data-composition-id="scene-01-chaos"
+        data-composition-src="compositions/scene-01-chaos.html"
         data-start="0"
-        data-duration="6.0"
+        data-duration="3.5"
         data-track-index="1"
         data-track-kind="graphics"
         data-width="1920"
         data-height="1080"
       ></div>
 
-      <!-- Scene 02: 3D Isometric Assembly Swoop & Create Server Wizard -->
+      <!-- Scene 02: Singularity Hexacore Ignition & Logo Reveal (3.5s - 6.5s) -->
+      <div
+        id="scene-02-logo-reveal"
+        data-composition-id="scene-02-logo-reveal"
+        data-composition-src="compositions/scene-02-logo-reveal.html"
+        data-start="3.5"
+        data-duration="3.0"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Scene 03: 3D Isometric Assembly Swoop & Create Server Wizard (6.5s - 14.5s) -->
       <div
         id="scene-02-assembly-wizard"
         data-composition-id="scene-02-assembly-wizard"
         data-composition-src="compositions/scene-02-assembly-wizard.html"
-        data-start="6.0"
+        data-start="6.5"
         data-duration="8.0"
         data-track-index="1"
         data-track-kind="graphics"
@@ -70,12 +83,12 @@
         data-hold
       ></div>
 
-      <!-- Scene 03: Full Server Detail View & VT100 Live ANSI Boot -->
+      <!-- Scene 04: Full Server Detail View & VT100 Live ANSI Boot (14.5s - 22.5s) -->
       <div
         id="scene-03-console-live"
         data-composition-id="scene-03-console-live"
         data-composition-src="compositions/scene-03-console-live.html"
-        data-start="14.0"
+        data-start="14.5"
         data-duration="8.0"
         data-track-index="1"
         data-track-kind="graphics"
@@ -84,13 +97,13 @@
         data-hold
       ></div>
 
-      <!-- Scene 04: Intensive Prism Catalog (Modpacks, Mods, 1-Click Install) -->
+      <!-- Scene 05: Intensive Prism Catalog (Modpacks, Mods, 1-Click Install) (22.5s - 33.5s) -->
       <div
         id="scene-04-prism-catalog"
         data-composition-id="scene-04-prism-catalog"
         data-composition-src="compositions/scene-04-prism-catalog.html"
-        data-start="22.0"
-        data-duration="12.0"
+        data-start="22.5"
+        data-duration="11.0"
         data-track-index="1"
         data-track-kind="graphics"
         data-width="1920"
@@ -98,13 +111,13 @@
         data-hold
       ></div>
 
-      <!-- Scene 05: File Manager to Live Antigravity IDE / VS Code Replica -->
+      <!-- Scene 06: File Manager to Live Antigravity IDE / Monaco SFTP :2022 (33.5s - 42.5s) -->
       <div
         id="scene-05-antigravity-ide"
         data-composition-id="scene-05-antigravity-ide"
         data-composition-src="compositions/scene-05-antigravity-ide.html"
-        data-start="34.0"
-        data-duration="10.0"
+        data-start="33.5"
+        data-duration="9.0"
         data-track-index="1"
         data-track-kind="graphics"
         data-width="1920"
@@ -112,31 +125,89 @@
         data-hold
       ></div>
 
-      <!-- Scene 06: Desktop System Tray Context Menu & Cloud VPS Switcher -->
+      <!-- Scene 07: Desktop System Tray Context Menu & Background Node (42.5s - 47.5s) -->
       <div
         id="scene-06-desktop-tray-multihost"
         data-composition-id="scene-06-desktop-tray-multihost"
         data-composition-src="compositions/scene-06-desktop-tray-multihost.html"
-        data-start="44.0"
-        data-duration="6.0"
+        data-start="42.5"
+        data-duration="5.0"
         data-track-index="1"
         data-track-kind="graphics"
         data-width="1920"
         data-height="1080"
       ></div>
 
-      <!-- Scene 07: Clean, Honest & Accessible Community Closing -->
+      <!-- Scene 08: Clean, Honest & Accessible Community Closing (47.5s - 53.0s) -->
       <div
         id="scene-07-honest-closing"
         data-composition-id="scene-07-honest-closing"
         data-composition-src="compositions/scene-07-honest-closing.html"
-        data-start="50.0"
-        data-duration="6.0"
+        data-start="47.5"
+        data-duration="5.5"
         data-track-index="1"
         data-track-kind="graphics"
         data-width="1920"
         data-height="1080"
       ></div>
+
+      <!-- Audio: Master Soundtrack (Cinematic Synthwave Cyberpunk Bed) -->
+      <audio
+        id="bgm"
+        src="assets/audio/singularity-synthwave.wav"
+        data-start="0"
+        data-duration="53.0"
+      ></audio>
+
+      <!-- Diegetic Sound Effects -->
+      <audio
+        id="sfx-glitch-error"
+        src="assets/audio/sfx_004.mp3"
+        data-start="0.4"
+        data-duration="2.6"
+      ></audio>
+
+      <audio
+        id="sfx-whoosh-logo"
+        src="assets/audio/sfx_002.mp3"
+        data-start="3.4"
+        data-duration="3.0"
+      ></audio>
+
+      <audio
+        id="sfx-click-wizard"
+        src="assets/audio/sfx_001.mp3"
+        data-start="12.0"
+        data-duration="0.4"
+      ></audio>
+
+      <audio
+        id="sfx-typing-prism"
+        src="assets/audio/sfx_003.mp3"
+        data-start="24.0"
+        data-duration="1.5"
+      ></audio>
+
+      <audio
+        id="sfx-chime-install"
+        src="assets/audio/sfx_005.mp3"
+        data-start="30.5"
+        data-duration="2.5"
+      ></audio>
+
+      <audio
+        id="sfx-chime-sync"
+        src="assets/audio/sfx_005.mp3"
+        data-start="38.5"
+        data-duration="2.5"
+      ></audio>
+
+      <audio
+        id="sfx-click-tray"
+        src="assets/audio/sfx_001.mp3"
+        data-start="44.5"
+        data-duration="0.4"
+      ></audio>
     </div>
     <script>
       window.__timelines = window.__timelines || {};

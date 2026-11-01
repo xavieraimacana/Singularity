@@ -1,0 +1,225 @@
+<template>
+  <style>
+    #root {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #04060a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 240px; /* Safe zone: >168px */
+      font-family: 'Inter', sans-serif;
+    }
+
+    .ambient-red-glow {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.22) 0%, rgba(0, 0, 0, 0) 70%);
+      top: 300px;
+      left: 190px;
+      pointer-events: none;
+    }
+
+    .hook-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 10px 24px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 32px;
+    }
+
+    .hook-headline {
+      font-size: 58px;
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      color: #ffffff;
+      max-width: 900px;
+      margin-bottom: 24px;
+      letter-spacing: -1.5px;
+    }
+
+    .hook-headline span {
+      background: linear-gradient(135deg, #f87171, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hook-sub {
+      font-size: 28px;
+      color: #94a3b8;
+      text-align: center;
+      max-width: 820px;
+      line-height: 1.4;
+      margin-bottom: 50px;
+    }
+
+    /* Stacked Terminal Error Cards */
+    .cards-container {
+      width: 880px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .error-card {
+      background: rgba(15, 20, 28, 0.95);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(239, 68, 68, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .card-tag {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-time {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .card-content {
+      font-size: 20px;
+      color: #f1f5f9;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .card-desc {
+      font-size: 15px;
+      color: #94a3b8;
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-01-chaos-vertical" data-width="1080" data-height="1920">
+    <div class="ambient-red-glow"></div>
+
+    <div class="hook-badge" id="hook-badge" data-layout-ignore>Minecraft Server Setup · 2026</div>
+
+    <h1 class="hook-headline" id="hook-title">
+      ¿Crear un server en 2026?<br/>
+      <span>Sigue siendo una pesadilla.</span>
+    </h1>
+
+    <p class="hook-sub" id="hook-sub">
+      Scripts .bat corruptos, colisiones de Java 8 vs 25 y puertos bloqueados sin respuesta.
+    </p>
+
+    <div class="cards-container" data-layout-ignore>
+      <!-- Error 1: Port Bind -->
+      <div class="error-card" id="err-1">
+        <div class="card-top">
+          <span class="card-tag">⚠ FAILED_TO_BIND_PORT</span>
+          <span class="card-time">00:00:01</span>
+        </div>
+        <div class="card-content">
+          [ERROR] java.net.BindException: Address already in use: 25565
+        </div>
+        <div class="card-desc">Otro proceso fantasma está reteniendo el puerto sin cerrarse.</div>
+      </div>
+
+      <!-- Error 2: Java Classpath -->
+      <div class="error-card" id="err-2">
+        <div class="card-top">
+          <span class="card-tag">✖ JAVA_VERSION_MISMATCH</span>
+          <span class="card-time">00:00:02</span>
+        </div>
+        <div class="card-content">
+          UnsupportedClassVersionError: class file 69.0 requires Java 25 (found Java 8)
+        </div>
+        <div class="card-desc">Incompatibilidad fatal de JDK al intentar arrancar PaperMC 1.21.</div>
+      </div>
+
+      <!-- Error 3: Memory Crash -->
+      <div class="error-card" id="err-3">
+        <div class="card-top">
+          <span class="card-tag">⚡ SYSTEM_STALL</span>
+          <span class="card-time">00:00:03</span>
+        </div>
+        <div class="card-content">
+          java.lang.OutOfMemoryError: Java heap space. Server stopped.
+        </div>
+        <div class="card-desc">Falta de parámetros de gestión de memoria y recolector ZGC.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-01-chaos-vertical"] = tl;
+
+    // Instant initial hook: Frame 0 already visible with punch
+    gsap.set("#root", { opacity: 1 });
+    gsap.set(["#hook-badge", "#hook-title", "#hook-sub"], { opacity: 1, y: 0 });
+    gsap.set("#err-1", { opacity: 1, y: 0, scale: 1 });
+    gsap.set("#err-2", { opacity: 0, y: 30, scale: 0.95 });
+    gsap.set("#err-3", { opacity: 0, y: 30, scale: 0.95 });
+
+    // 0.8s: Second card slams in
+    tl.to("#err-2", {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.35,
+      ease: "back.out(1.5)"
+    }, 0.8);
+
+    // 1.5s: Third card slams in with glitch vibration
+    tl.to("#err-3", {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.35,
+      ease: "back.out(1.5)"
+    }, 1.5);
+
+    // 2.2s: Glitch tremor on the whole frame
+    tl.to("#root", {
+      x: -6,
+      duration: 0.06,
+      repeat: 5,
+      yoyo: true,
+      ease: "power1.inOut"
+    }, 2.2);
+
+    // 2.9s - 3.5s: Zoom and cinematic collapse into ignition
+    tl.to("#root", {
+      scale: 1.08,
+      opacity: 0,
+      duration: 0.55,
+      ease: "power2.in"
+    }, 2.95);
+
+    tl.seek(0);
+  </script>
+</template>

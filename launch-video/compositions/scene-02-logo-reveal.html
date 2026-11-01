@@ -13,6 +13,17 @@
       font-family: 'Inter', sans-serif;
       color: #f8fafc;
       overflow: hidden;
+      perspective: 1600px;
+    }
+
+    .reveal-stage-3d {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-style: preserve-3d;
+      position: relative;
     }
 
     .reveal-wrap {
@@ -21,53 +32,103 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 28px;
+      gap: 24px;
       position: relative;
+      transform-style: preserve-3d;
     }
 
     .glow-aura {
       position: absolute;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(16, 185, 129, 0.15) 50%, transparent 70%);
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.35) 0%, rgba(139, 92, 246, 0.2) 40%, rgba(16, 185, 129, 0.1) 65%, transparent 80%);
       border-radius: 50%;
-      filter: blur(40px);
+      filter: blur(48px);
       pointer-events: none;
+      transform: translateZ(-80px);
+    }
+
+    .coordinates-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.2;
+      pointer-events: none;
+      transform: translateZ(-150px);
     }
 
     .logo-hero {
-      width: 220px;
-      height: 220px;
-      filter: drop-shadow(0 0 45px rgba(6, 182, 212, 0.6));
+      width: 230px;
+      height: 230px;
+      filter: drop-shadow(0 0 50px rgba(6, 182, 212, 0.65)) drop-shadow(0 20px 30px rgba(0, 0, 0, 0.8));
       z-index: 10;
+      transform-style: preserve-3d;
     }
 
     .title-hero {
-      font-size: 64px;
+      font-size: 68px;
       font-weight: 900;
       letter-spacing: -0.04em;
       color: #ffffff;
       z-index: 10;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      transform: translateZ(40px);
     }
 
     .tagline-hero {
-      font-size: 28px;
-      font-weight: 600;
-      color: #06b6d4;
-      letter-spacing: 0.1em;
+      display: flex;
+      gap: 16px;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       font-family: 'JetBrains Mono', monospace;
       z-index: 10;
+      transform: translateZ(60px);
+    }
+
+    .tag-word {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tag-cyan {
+      color: #06b6d4;
+      border-color: rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+    }
+
+    .tag-purple {
+      color: #a78bfa;
+      border-color: rgba(167, 139, 250, 0.3);
+      box-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
+    }
+
+    .tag-emerald {
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
     }
   </style>
 
   <div id="root" data-composition-id="scene-02-logo-reveal" data-width="1920" data-height="1080">
     <div id="logo-reveal-container" class="clip" data-start="0" data-duration="3.0" data-track-index="1">
-      <div class="reveal-wrap" id="logo-reveal-wrap">
+      <div class="reveal-stage-3d" id="stage-3d">
+        <div class="coordinates-grid"></div>
         <div class="glow-aura" id="logo-aura"></div>
-        <img src="assets/brand/master-symbol-color.svg" alt="Singularity" class="logo-hero" id="hero-logo-img" />
-        <div class="title-hero" id="hero-title">SINGULARITY</div>
-        <div class="tagline-hero" id="hero-tagline" data-layout-ignore>EL NUEVO ESTÁNDAR DE CONTROL</div>
+        <div class="reveal-wrap" id="logo-reveal-wrap">
+          <img src="assets/brand/master-symbol-color.svg" alt="Singularity" class="logo-hero" id="hero-logo-img" />
+          <div class="title-hero" id="hero-title">SINGULARITY</div>
+          <div class="tagline-hero" id="hero-tagline" data-layout-ignore>
+            <span class="tag-word tag-cyan" id="tag-1">DESPLIEGA.</span>
+            <span class="tag-word tag-purple" id="tag-2">CONFIGURA.</span>
+            <span class="tag-word tag-emerald" id="tag-3">CONTROLA.</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -75,38 +136,68 @@
   <script>
     const tl = gsap.timeline({ paused: true });
 
-    // Logo zooms in dramatically from the front (depth z) to center
+    // Initial 3D camera angle
+    tl.set("#stage-3d", {
+      rotationX: 8,
+      rotationY: -10,
+      z: -40
+    });
+
+    // Logo zooms in through 3D space with subtle tilt
     tl.fromTo("#hero-logo-img",
-      { scale: 2.8, opacity: 0, filter: "blur(20px)" },
-      { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "expo.out" },
+      { z: 420, rotationX: 18, rotationY: -22, opacity: 0, filter: "blur(24px)" },
+      { z: 0, rotationX: 0, rotationY: 0, opacity: 1, filter: "blur(0px)", duration: 0.9, ease: "expo.out" },
       0.1
     );
 
-    // Title and tagline arrive cleanly with punch
+    // Continuous smooth camera drift forward (dolly in + level out)
+    tl.to("#stage-3d", {
+      rotationX: 0,
+      rotationY: 0,
+      z: 25,
+      duration: 2.8,
+      ease: "sine.out"
+    }, 0.1);
+
+    // Title arrives with punch
     tl.fromTo("#hero-title",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
+      { z: -50, opacity: 0, y: 25 },
+      { z: 40, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
       0.5
     );
 
-    tl.fromTo("#hero-tagline",
-      { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-      0.7
+    // Staggered rhythmic entry for Option 3 tagline words
+    tl.fromTo("#tag-1",
+      { scale: 1.4, opacity: 0, y: 15 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: "back.out(2)" },
+      0.75
+    );
+
+    tl.fromTo("#tag-2",
+      { scale: 1.4, opacity: 0, y: 15 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: "back.out(2)" },
+      0.95
+    );
+
+    tl.fromTo("#tag-3",
+      { scale: 1.4, opacity: 0, y: 15 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: "back.out(2)" },
+      1.15
     );
 
     // Aura pulse
     tl.fromTo("#logo-aura",
       { scale: 0.6, opacity: 0 },
-      { scale: 1.2, opacity: 1, duration: 1.2, ease: "power1.inOut" },
+      { scale: 1.3, opacity: 1, duration: 1.5, ease: "power1.inOut" },
       0.2
     );
 
-    // Expand outward to transition into the login screen
+    // Transition out into the 3D Assembly Wizard
     tl.to("#logo-reveal-wrap", {
-      scale: 1.4,
+      scale: 1.25,
       opacity: 0,
-      filter: "blur(14px)",
+      z: 180,
+      filter: "blur(16px)",
       duration: 0.45,
       ease: "power2.in"
     }, 2.55);

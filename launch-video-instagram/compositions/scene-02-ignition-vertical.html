@@ -1,0 +1,238 @@
+<template>
+  <style>
+    #root {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #04060a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 320px; /* Safe zone: >168px */
+      font-family: 'Inter', sans-serif;
+    }
+
+    .ambient-glow {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(139, 92, 246, 0.18) 50%, rgba(0, 0, 0, 0) 75%);
+      top: 360px;
+      left: 140px;
+      pointer-events: none;
+    }
+
+    .brand-mark-wrap {
+      width: 220px;
+      height: 220px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .brand-mark-ring {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      border: 2px dashed rgba(6, 182, 212, 0.4);
+    }
+
+    .brand-mark-ring-outer {
+      position: absolute;
+      inset: -45px;
+      border-radius: 50%;
+      border: 1px solid rgba(139, 92, 246, 0.25);
+    }
+
+    .brand-title {
+      font-size: 76px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .brand-title span {
+      background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #06b6d4;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      padding: 8px 24px;
+      border-radius: 999px;
+      margin-bottom: 28px;
+      letter-spacing: 1px;
+    }
+
+    .brand-desc {
+      font-size: 32px;
+      font-weight: 600;
+      color: #e2e8f0;
+      text-align: center;
+      max-width: 860px;
+      line-height: 1.35;
+      margin-bottom: 48px;
+    }
+
+    /* Pillars row */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      width: 880px;
+    }
+
+    .feature-chip {
+      background: rgba(15, 20, 28, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .feature-text-main {
+      font-size: 22px;
+      font-weight: 800;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+
+    .feature-text-sub {
+      font-size: 15px;
+      color: #94a3b8;
+    }
+  </style>
+
+  <div id="root" data-composition-id="scene-02-ignition-vertical" data-width="1080" data-height="1920">
+    <div class="ambient-glow" id="ambient-glow"></div>
+
+    <div class="brand-mark-wrap" id="brand-wrap">
+      <div class="brand-mark-ring-outer" id="ring-outer"></div>
+      <div class="brand-mark-ring" id="ring-inner"></div>
+      <!-- Hexacore Logo SVG -->
+      <svg width="180" height="180" viewBox="0 0 100 100" fill="none">
+        <defs>
+          <linearGradient id="hexgrad-vert" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#06b6d4" />
+            <stop offset="50%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#8b5cf6" />
+          </linearGradient>
+          <filter id="hexshadow-vert" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#06b6d4" flood-opacity="0.45" />
+          </filter>
+        </defs>
+        <polygon points="50,5 88,27 88,73 50,95 12,73 12,27" stroke="url(#hexgrad-vert)" stroke-width="4.5" fill="rgba(6, 182, 212, 0.08)" filter="url(#hexshadow-vert)" />
+        <circle cx="50" cy="50" r="16" fill="url(#hexgrad-vert)" />
+        <circle cx="50" cy="50" r="6" fill="#04060a" />
+      </svg>
+    </div>
+
+    <div class="brand-badge" id="brand-badge" data-layout-ignore>Singularity v0.1.0-alpha · NebulaX Studio</div>
+
+    <h1 class="brand-title" id="brand-title">
+      CONTROL <span>TOTAL</span>
+    </h1>
+
+    <p class="brand-desc" id="brand-desc">
+      El orquestador nativo de servidores Minecraft de nueva generación. Cero scripts, cero fricción.
+    </p>
+
+    <div class="feature-grid" id="feature-grid" data-layout-ignore>
+      <div class="feature-chip">
+        <div class="feature-icon">☕</div>
+        <div>
+          <div class="feature-text-main">Adoptium JDK 25</div>
+          <div class="feature-text-sub">Descarga automática del JDK correcto</div>
+        </div>
+      </div>
+
+      <div class="feature-chip">
+        <div class="feature-icon">⚡</div>
+        <div>
+          <div class="feature-text-main">PaperMC &amp; Fabric</div>
+          <div class="feature-text-sub">Instalación en 1 clic lista para jugar</div>
+        </div>
+      </div>
+
+      <div class="feature-chip">
+        <div class="feature-icon">💎</div>
+        <div>
+          <div class="feature-text-main">Prism Catalog</div>
+          <div class="feature-text-sub">Modpacks oficiales directos de Modrinth</div>
+        </div>
+      </div>
+
+      <div class="feature-chip">
+        <div class="feature-icon">🖥</div>
+        <div>
+          <div class="feature-text-main">Desktop Tray</div>
+          <div class="feature-text-sub">Segundo plano silencioso en Windows 11</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-02-ignition-vertical"] = tl;
+
+    gsap.set("#root", { opacity: 0 });
+    gsap.set("#brand-wrap", { scale: 0.7, opacity: 0 });
+    gsap.set(["#brand-badge", "#brand-title", "#brand-desc", "#feature-grid"], { opacity: 0, y: 30 });
+
+    // 0.1s: Deep flash in
+    tl.to("#root", { opacity: 1, duration: 0.35, ease: "power2.out" }, 0.1);
+    tl.to("#brand-wrap", { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.8)" }, 0.15);
+
+    // Continuous subtle rotation of logo rings
+    tl.to("#ring-inner", { rotation: 90, duration: 3.5, ease: "none" }, 0);
+    tl.to("#ring-outer", { rotation: -90, duration: 3.5, ease: "none" }, 0);
+
+    // 0.4s: Title and badge entry
+    tl.to("#brand-badge", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.4);
+    tl.to("#brand-title", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.55);
+    tl.to("#brand-desc", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.7);
+    tl.to("#feature-grid", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.85);
+
+    // 3.0s: Transition out into Wizard
+    tl.to("#root", {
+      opacity: 0,
+      scale: 1.05,
+      duration: 0.5,
+      ease: "power2.in"
+    }, 3.0);
+
+    tl.seek(0);
+  </script>
+</template>

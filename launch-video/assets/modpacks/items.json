@@ -1,0 +1,159 @@
+[
+  {
+    "title": "Better MC",
+    "slug": "a-better-mc",
+    "icon": "assets/modpacks/a-better-mc.webp",
+    "downloads": 17226,
+    "description": "This is a modpack that strives to rival OptiFine while adding additional features.",
+    "categories": [
+      "fabric",
+      "kitchen-sink",
+      "lightweight",
+      "optimization"
+    ],
+    "author": "CubingXT"
+  },
+  {
+    "title": "Better MC",
+    "slug": "better-mc-east",
+    "icon": "assets/modpacks/better-mc-east.webp",
+    "downloads": 1250,
+    "description": "Custom Modpack for Better MC Server.",
+    "categories": [
+      "adventure",
+      "fabric",
+      "lightweight",
+      "multiplayer",
+      "optimization"
+    ],
+    "author": "YoungSnake"
+  },
+  {
+    "title": "Better MC [FABRIC] - BMC2",
+    "slug": "better-mc-fabric-bmc2",
+    "icon": "assets/modpacks/better-mc-fabric-bmc2.webp",
+    "downloads": 3776296,
+    "description": "Version 1.20 | A Proper Vanilla+ Modpack | Don't play Vanilla play this!",
+    "categories": [
+      "adventure",
+      "combat",
+      "fabric",
+      "kitchen-sink",
+      "lightweight",
+      "multiplayer",
+      "optimization"
+    ],
+    "author": "SHXRKIE"
+  },
+  {
+    "title": "Better MC [FORGE] - BMC4",
+    "slug": "better-mc-forge-bmc4",
+    "icon": "assets/modpacks/better-mc-forge-bmc4.webp",
+    "downloads": 2349416,
+    "description": "Version 1.20.1 | A Proper Vanilla+ Modpack | Don't play Vanilla play this!",
+    "categories": [
+      "adventure",
+      "combat",
+      "forge",
+      "kitchen-sink",
+      "lightweight",
+      "multiplayer"
+    ],
+    "author": "SHXRKIE"
+  },
+  {
+    "title": "Better MC [FABRIC] - BMC3",
+    "slug": "better-mc-fabric-bmc3",
+    "icon": "assets/modpacks/better-mc-fabric-bmc3.webp",
+    "downloads": 398541,
+    "description": "Version 1.21 | Vanilla+ Experience With The Player in Mind | A New Era of Better MC!",
+    "categories": [
+      "adventure",
+      "challenging",
+      "combat",
+      "fabric",
+      "kitchen-sink",
+      "lightweight",
+      "multiplayer",
+      "optimization"
+    ],
+    "author": "SHXRKIE"
+  },
+  {
+    "title": "Better MC [NEOFORGE] BMC5",
+    "slug": "better-mc-neoforge-bmc5",
+    "icon": "assets/modpacks/better-mc-neoforge-bmc5.webp",
+    "downloads": 340804,
+    "description": "Version 1.21.1 | Vanilla+ Experience With The Player in Mind | A New Era of Better MC!",
+    "categories": [
+      "adventure",
+      "combat",
+      "multiplayer",
+      "neoforge",
+      "optimization",
+      "quests"
+    ],
+    "author": "SHXRKIE"
+  },
+  {
+    "title": "Better MC Skyblock [BMCS]",
+    "slug": "better-mc-skyblock",
+    "icon": "assets/modpacks/better-mc-skyblock.webp",
+    "downloads": 31683,
+    "description": "Vanilla+ Skyblock with a Buy, Sell & Daily Rewards System",
+    "categories": [
+      "adventure",
+      "combat",
+      "forge",
+      "quests"
+    ],
+    "author": "SHXRKIE"
+  },
+  {
+    "title": "MC But Better",
+    "slug": "mcbb",
+    "icon": "assets/modpacks/mcbb.webp",
+    "downloads": 8560,
+    "description": "Semi-Vanilla \u2219 Enjoy the game how it's meant to be played. 100+ Mods, New Structures, Dungeons and much more!",
+    "categories": [
+      "adventure",
+      "challenging",
+      "combat",
+      "forge",
+      "multiplayer",
+      "quests"
+    ],
+    "author": "Zuvi"
+  },
+  {
+    "title": "better mc optimize",
+    "slug": "better-mc-optimize",
+    "icon": "assets/modpacks/better-mc-optimize.webp",
+    "downloads": 2203,
+    "description": "A better minecraft animation pack.It's also has optimize mod.",
+    "categories": [
+      "fabric",
+      "lightweight",
+      "optimization",
+      "technology"
+    ],
+    "author": "lmc_orange"
+  },
+  {
+    "title": "Better MC [ PACK ]",
+    "slug": "bmcpack",
+    "icon": "assets/modpacks/bmcpack.webp",
+    "downloads": 2113,
+    "description": "BMC Mod-Pack: is an enhanced version of Minecraft that includes the [Better Minecraft Mod], created by our team. We hope to breathe new life into Minecraft.",
+    "categories": [
+      "adventure",
+      "challenging",
+      "combat",
+      "forge",
+      "kitchen-sink",
+      "multiplayer",
+      "neoforge"
+    ],
+    "author": "SILWOX"
+  }
+]

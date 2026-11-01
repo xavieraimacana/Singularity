@@ -243,7 +243,14 @@ export class TrayManager {
           label: '💻 Abrir en Antigravity IDE',
           click: async () => {
             const p = path.join(this.serversDir, server.id);
-            await this.ideBridge.openInIde(p, 'antigravity');
+            const activeProfile = this.connectionManager?.getActiveProfile();
+            await this.ideBridge.openInIde(p, 'antigravity', {
+              isRemote: activeProfile?.type === 'remote',
+              sftpHost: activeProfile?.sftpHost || '157.137.223.54',
+              sftpPort: activeProfile?.sftpPort || 2022,
+              username: 'admin',
+              serverName: server.name
+            });
           }
         });
 

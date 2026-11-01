@@ -43,4 +43,38 @@ describe('Electron Desktop Delivery > IdeBridge', () => {
     expect(explorer).toBeDefined();
     expect(explorer?.isAvailable).toBe(true);
   }, 10000);
+
+  it('should provision .vscode/sftp.json and REMOTE_SERVER_INFO.md for remote instances', () => {
+    const fs = require('node:fs');
+    const customDir = path.resolve('data/test-ide-servers-remote');
+    const bridge = new IdeBridge(customDir);
+
+    const instanceDir = path.join(customDir, 'srv_remote_test');
+    bridge.provisionRemoteWorkspace(instanceDir, 'srv_remote_test', {
+      isRemote: true,
+      sftpHost: '157.137.223.54',
+      sftpPort: 2022,
+      username: 'admin',
+      serverName: 'Survival VPS'
+    });
+
+    const sftpPath = path.join(instanceDir, '.vscode', 'sftp.json');
+    const infoPath = path.join(instanceDir, 'REMOTE_SERVER_INFO.md');
+
+    expect(fs.existsSync(sftpPath)).toBe(true);
+    expect(fs.existsSync(infoPath)).toBe(true);
+
+    const parsed = JSON.parse(fs.readFileSync(sftpPath, 'utf8'));
+    expect(parsed.host).toBe('157.137.223.54');
+    expect(parsed.port).toBe(2022);
+    expect(parsed.remotePath).toBe('/srv_remote_test');
+    expect(parsed.uploadOnSave).toBe(true);
+
+    const info = fs.readFileSync(infoPath, 'utf8');
+    expect(info).toContain('Survival VPS');
+    expect(info).toContain('SFTP: Download Project');
+
+    // Clean up
+    fs.rmSync(customDir, { recursive: true, force: true });
+  });
 });

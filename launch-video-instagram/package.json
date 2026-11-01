@@ -1,0 +1,13 @@
+{
+  "name": "singularity-instagram-video",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "hyperframes preview",
+    "check": "hyperframes check",
+    "build": "hyperframes render --output renders/singularity-instagram.mp4 --quality delivery -f 30 --format mp4"
+  },
+  "devDependencies": {
+    "hyperframes": "^0.8.226"
+  }
+}

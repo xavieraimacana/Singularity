@@ -283,7 +283,15 @@ export const serverRoutes: FastifyPluginAsync<ServerRoutesOptions> = async (fast
 
     try {
       const ideBridge = new IdeBridge();
-      const result = await ideBridge.openInIde(instance.id, request.body?.ide);
+      const sftpHost = process.env['SINGULARITY_SFTP_HOST'] || '127.0.0.1';
+      const sftpPort = parseInt(process.env['SINGULARITY_SFTP_PORT'] || '2022', 10);
+      const result = await ideBridge.openInIde(instance.id, request.body?.ide, {
+        isRemote: sftpHost !== '127.0.0.1' && sftpHost !== 'localhost',
+        sftpHost,
+        sftpPort,
+        username: 'admin',
+        serverName: instance.name
+      });
       return reply.status(200).send(result);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al abrir editor';

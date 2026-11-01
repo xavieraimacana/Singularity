@@ -6,9 +6,9 @@
 ### *The Next-Generation Minecraft Server Orchestrator & Mission Control*
 **Un producto oficial de NebulaX Studio**
 
-[![Version](https://img.shields.io/badge/version-0.1.0--alpha-blueviolet.svg?style=for-the-badge)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)
-[![Release](https://img.shields.io/github/v/release/xavieraimacana/Singularity?include_prereleases&style=for-the-badge&color=8b5cf6&label=Release)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)
-[![Tests Passing](https://img.shields.io/badge/tests-134%20passing-10b981.svg?style=for-the-badge)](https://github.com/xavieraimacana/Singularity)
+[![Version](https://img.shields.io/badge/version-0.1.1--alpha-blueviolet.svg?style=for-the-badge)](https://github.com/DarkNebulaX28/Singularity/releases/tag/v0.1.1-alpha)
+[![Release](https://img.shields.io/github/v/release/DarkNebulaX28/Singularity?include_prereleases&style=for-the-badge&color=8b5cf6&label=Release)](https://github.com/DarkNebulaX28/Singularity/releases/tag/v0.1.1-alpha)
+[![Tests Passing](https://img.shields.io/badge/tests-135%20passing-10b981.svg?style=for-the-badge)](https://github.com/DarkNebulaX28/Singularity)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-24+-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Fastify](https://img.shields.io/badge/Fastify-5.x-000000.svg?style=for-the-badge&logo=fastify&logoColor=white)](https://fastify.dev/)
@@ -16,7 +16,7 @@
 [![Electron](https://img.shields.io/badge/Electron-34+-47848F.svg?style=for-the-badge&logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003b57.svg?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![License](https://img.shields.io/badge/License-MIT-emerald.svg?style=for-the-badge)](LICENSE)
-[![Trailer](https://img.shields.io/badge/🎬%20Watch-Launch%20Trailer-06b6d4.svg?style=for-the-badge)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)
+[![Trailer](https://img.shields.io/badge/🎬%20Watch-Launch%20Trailer-06b6d4.svg?style=for-the-badge)](https://github.com/DarkNebulaX28/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)
 
 <br/>
 
@@ -34,11 +34,11 @@
 
 <div align="center">
 
-[![Ver Trailer Oficial de Singularity](docs/assets/singularity-demo-preview.gif)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)
+[![Ver Trailer Oficial de Singularity](docs/assets/singularity-demo-preview.gif)](https://github.com/DarkNebulaX28/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)
 
 <br/>
 
-**[▶️ Reproducir Trailer Oficial en Alta Definición 1080p (MP4 - 5.8 MB)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)** &nbsp;|&nbsp; **[📦 Descargar Singularity v0.1.0-alpha (.exe)](https://github.com/xavieraimacana/Singularity/releases/tag/v0.1.0-alpha)**
+**[▶️ Reproducir Trailer Oficial en Alta Definición 1080p (MP4 - 5.8 MB)](https://github.com/DarkNebulaX28/Singularity/releases/download/v0.1.0-alpha/singularity-launch.mp4)** &nbsp;|&nbsp; **[📦 Descargar Singularity v0.1.1-alpha (.exe)](https://github.com/DarkNebulaX28/Singularity/releases/tag/v0.1.1-alpha)**
 
 <br/>
 
@@ -206,15 +206,15 @@ Al arrancar por primera vez, Singularity inicializa una cuenta de administrador 
 Singularity incluye ejecutables de escritorio nativos para Windows 10 y 11 x64 generados con `electron-builder`:
 
 ### Descargas Oficiales
-* 💿 **[Instalador Completo NSIS (Setup)](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/Singularity-Setup-0.1.0-alpha.exe)**: `Singularity-Setup-0.1.0-alpha.exe` *(~90 MB)*
+* 💿 **[Instalador Completo NSIS (Setup)](https://github.com/DarkNebulaX28/Singularity/releases/download/v0.1.1-alpha/Singularity-Setup-0.1.1-alpha.exe)**: `Singularity-Setup-0.1.1-alpha.exe` *(~90 MB)*
   * Asistente paso a paso para seleccionar ruta de instalación.
   * Accesos directos en el Escritorio y Menú Inicio.
   * Desinstalador limpio registrado en el Panel de Control de Windows.
-* 🚀 **[Ejecutable Portable](https://github.com/xavieraimacana/Singularity/releases/download/v0.1.0-alpha/Singularity-Portable-0.1.0-alpha.exe)**: `Singularity-Portable-0.1.0-alpha.exe` *(~82 MB)*
+* 🚀 **[Ejecutable Portable](https://github.com/DarkNebulaX28/Singularity/releases/download/v0.1.1-alpha/Singularity-Portable-0.1.1-alpha.exe)**: `Singularity-Portable-0.1.1-alpha.exe` *(~82 MB)*
   * Ejecución directa sin instalación ni privilegios de administrador.
   * Ideal para llevar en pendrive o ejecutar en entornos aislados.
 
-> 📦 Consulta todas las notas de lanzamiento y archivos checksum en [GitHub Releases](https://github.com/xavieraimacana/Singularity/releases).
+> 📦 Consulta todas las notas de lanzamiento y archivos checksum en [GitHub Releases](https://github.com/DarkNebulaX28/Singularity/releases).
 
 ### Capacidades Nativas de Windows
 * 🔔 **Notificaciones en el Centro de Actividades de Windows**: Alertas del sistema cuando un servidor se inicia, se detiene o sufre un crash inesperado (`appUserModelId: studio.nebulax.singularity`).
@@ -304,7 +304,7 @@ docker compose up -d --build
 ```
 
 #### Despliegue en Coolify:
-1. Agrega una nueva aplicación en tu dashboard de Coolify seleccionando tu repositorio Git: `https://github.com/xavieraimacana/Singularity.git`.
+1. Agrega una nueva aplicación en tu dashboard de Coolify seleccionando tu repositorio Git: `https://github.com/DarkNebulaX28/Singularity.git`.
 2. Selecciona el tipo de construcción **Docker Compose** o **Dockerfile**.
 3. Coolify detectará los puertos `3000` (Dashboard Web), `2022` (SFTP) y `25565-25585` (Minecraft).
 
